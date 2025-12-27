@@ -1,11 +1,15 @@
+import Link from "next/link";
+
 export default function Header() {
   return (
     <header className="bg-wacke-darker border-b border-wacke-purple/30 px-6 py-4 flex items-center justify-between">
       {/* Logo and Navigation */}
       <div className="flex items-center space-x-8">
-        <h1 className="text-3xl font-bold neon-pink font-graffiti">WACKÉ</h1>
+        <Link href="/">
+          <h1 className="text-3xl font-bold neon-pink font-graffiti cursor-pointer">WACKÉ</h1>
+        </Link>
         <nav className="flex space-x-6 text-gray-400">
-          <a href="#" className="hover:text-wacke-cyan transition-colors">PARCOURIR</a>
+          <Link href="/browse" className="hover:text-wacke-cyan transition-colors">PARCOURIR</Link>
           <a href="#" className="hover:text-wacke-cyan transition-colors">MUSIQUE</a>
           <a href="#" className="hover:text-wacke-cyan transition-colors">GAMING</a>
         </nav>
