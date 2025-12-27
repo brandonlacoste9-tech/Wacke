@@ -2,7 +2,7 @@ export default function Sidebar() {
   const recommendedChannels = [
     { name: "Roxanne_Glitch", game: "Juste de la lase", viewers: "12k", live: true },
     { name: "Le_Mapache", game: "Elden Ring DLC", viewers: "4.5k", live: true },
-    { name: "Poutine_Cyborg", game: "Dernier live-Hieŕ", viewers: null, live: false },
+    { name: "Poutine_Cyborg", game: "Dernier live-Hier", viewers: null, live: false },
   ];
 
   const categories = [

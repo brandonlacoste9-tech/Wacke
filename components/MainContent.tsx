@@ -4,12 +4,8 @@ export default function MainContent() {
       {/* Live Stream Player */}
       <div className="relative aspect-video bg-black">
         {/* Stream placeholder - would be video player in production */}
-        <div className="absolute inset-0 bg-gradient-to-br from-wacke-purple/20 via-transparent to-wacke-cyan/20">
-          <img 
-            src="/api/placeholder/1920/1080" 
-            alt="Live Stream"
-            className="w-full h-full object-cover opacity-80"
-          />
+        <div className="absolute inset-0 bg-gradient-to-br from-wacke-purple/20 via-transparent to-wacke-cyan/20 flex items-center justify-center">
+          <div className="text-6xl neon-cyan font-bold opacity-30">LIVE STREAM</div>
         </div>
         
         {/* Live Badge */}
@@ -22,11 +18,6 @@ export default function MainContent() {
         <div className="absolute top-4 left-32 bg-black/60 backdrop-blur-sm px-3 py-1 rounded flex items-center space-x-2">
           <span className="text-red-500">👁️</span>
           <span className="font-semibold">4,294 wackés</span>
-        </div>
-
-        {/* Neon Signs Overlay - decorative */}
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-          <div className="text-6xl neon-cyan font-bold opacity-30">MTL</div>
         </div>
       </div>
 
