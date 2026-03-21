@@ -4,7 +4,8 @@ import { db, messages, streams, users } from "@wacke/db";
 import { moderateMessage } from "@/lib/moderation";
 import { eq } from "drizzle-orm";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {

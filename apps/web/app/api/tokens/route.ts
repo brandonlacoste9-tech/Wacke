@@ -4,7 +4,8 @@ import { db, users, tokenTransactions } from "@wacke/db";
 import { transferTokens, getUserTokenBalance } from "@wacke/db";
 import { eq } from "drizzle-orm";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
+export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/tokens

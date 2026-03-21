@@ -2,8 +2,7 @@ import { getLiveStreams } from "@wacke/db";
 import { StreamCard } from "@wacke/ui";
 import Link from "next/link";
 
-// Revalidate every 30 seconds for near-real-time stream grid
-export const revalidate = 30;
+export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   const liveStreams = await getLiveStreams(12);

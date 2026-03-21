@@ -4,7 +4,8 @@ import { createMuxLiveStream, deleteMuxLiveStream } from "@/lib/mux";
 import { db, users, streams } from "@wacke/db";
 import { eq } from "drizzle-orm";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
+export const dynamic = 'force-dynamic';
 
 /**
  * POST /api/mux/stream

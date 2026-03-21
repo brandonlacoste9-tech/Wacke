@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import crypto from "crypto";
 
 export const runtime = "nodejs"; // Needs crypto for webhook signature verification
+export const dynamic = 'force-dynamic';
 
 /**
  * POST /api/mux/webhook

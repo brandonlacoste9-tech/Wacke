@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getLiveStreams } from "@wacke/db";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
+export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/streams

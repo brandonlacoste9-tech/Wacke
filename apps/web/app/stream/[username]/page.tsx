@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+export const dynamic = 'force-dynamic';
+
 import { db, getStreamByUserId, getRecentMessages, getUserByUsername } from "@wacke/db";
 import WackePlayer from "@/components/WackePlayer";
 import GraffitiChat from "@/components/GraffitiChat";
