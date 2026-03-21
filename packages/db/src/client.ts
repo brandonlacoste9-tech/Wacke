@@ -1,13 +1,14 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
-import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
+import postgres from "postgres";
+import { drizzle } from "drizzle-orm/postgres-js";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import * as schema from "./schema";
 
 // Lazy singleton — only initializes when first accessed at runtime,
 // not at module import time (prevents build-time "no DATABASE_URL" errors).
-let _db: NeonHttpDatabase<typeof schema> | null = null;
+let _db: PostgresJsDatabase<typeof schema> | null = null;
+let _client: ReturnType<typeof postgres> | null = null;
 
-export function getDb(): NeonHttpDatabase<typeof schema> {
+export function getDb(): PostgresJsDatabase<typeof schema> {
   if (!_db) {
     const url = process.env.DATABASE_URL;
     if (!url) {
@@ -16,14 +17,21 @@ export function getDb(): NeonHttpDatabase<typeof schema> {
           "Add it to your .env.local or Vercel environment variables."
       );
     }
-    const sql = neon(url);
-    _db = drizzle(sql, { schema });
+    // Use postgres.js with Supabase transaction pooler (port 6543)
+    // max: 1 is optimal for serverless — each invocation gets one connection
+    _client = postgres(url, {
+      max: 1,
+      ssl: "require",
+      idle_timeout: 20,
+      connect_timeout: 10,
+    });
+    _db = drizzle(_client, { schema });
   }
   return _db;
 }
 
 // Convenience proxy — behaves like the old `db` export but initializes lazily.
-export const db = new Proxy({} as NeonHttpDatabase<typeof schema>, {
+export const db = new Proxy({} as PostgresJsDatabase<typeof schema>, {
   get(_target, prop) {
     return (getDb() as any)[prop];
   },
