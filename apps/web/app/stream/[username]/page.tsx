@@ -65,23 +65,27 @@ export default async function StreamPage({ params }: StreamPageProps) {
     }
   }
 
+  const isKickUser = user.supabaseId?.startsWith("kick-") || user.email?.includes("mock.wacke.ca") || user.username.startsWith("kickseur_");
+
   return (
     <div className="flex h-[calc(100vh-64px)] relative">
       {/* ── Main Stream Area ─────────────────────────────────────────────── */}
       <main className="flex-1 overflow-y-auto p-6 space-y-6">
-        {stream.muxPlaybackId ? (
+        {isKickUser || stream.muxPlaybackId ? (
           <WackePlayer
-            playbackId={stream.muxPlaybackId}
+            playbackId={stream.muxPlaybackId ?? "mock_playback_id"}
             title={stream.title}
             streamerName={user.displayName}
             viewerCount={stream.viewerCount}
             isLive={stream.status === "live"}
+            kickUsername={isKickUser ? user.username : undefined}
           />
         ) : (
           <div className="aspect-video bg-wacke-darker rounded-xl flex items-center justify-center neon-border">
             <div className="text-center">
               <p className="text-5xl mb-4">📡</p>
               <p className="text-wacke-pink font-bold text-xl">Stream hors ligne</p>
+
               <p className="text-gray-400 mt-2">
                 {user.displayName} n&apos;est pas en live pour l&apos;instant
               </p>
