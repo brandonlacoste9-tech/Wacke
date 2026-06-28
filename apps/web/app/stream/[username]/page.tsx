@@ -2,8 +2,7 @@ import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 export const dynamic = 'force-dynamic';
 
-import { db, getStreamByUserId, getRecentMessages, getUserByUsername, isFollowing, users } from "@wacke/db";
-import { eq } from "drizzle-orm";
+import { getStreamByUserId, getRecentMessages, getUserByUsername, isFollowing, getUserBySupabaseId } from "@wacke/db";
 import WackePlayer from "@/components/WackePlayer";
 import GraffitiChat from "@/components/GraffitiChat";
 import TokenBar from "@/components/TokenBar";
@@ -56,9 +55,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
       const supabase = getSupabaseAdmin();
       const { data: { user: authUser } } = await supabase.auth.getUser(token);
       if (authUser) {
-        viewer = await db.query.users.findFirst({
-          where: eq(users.supabaseId, authUser.id),
-        });
+        viewer = await getUserBySupabaseId(authUser.id);
         if (viewer) {
           initialIsFollowing = await isFollowing(viewer.id, user.id);
         }

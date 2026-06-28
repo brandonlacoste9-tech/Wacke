@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { db, follows, users } from "@wacke/db";
-import { and, eq } from "drizzle-orm";
+import { getUserBySupabaseId, toggleFollow, isFollowing, getFollowerCount } from "@wacke/db";
 
 export const runtime = "nodejs";
 export const dynamic = 'force-dynamic';
@@ -9,7 +8,6 @@ export const dynamic = 'force-dynamic';
 /**
  * POST /api/users/follow
  * Toggles a follow relationship between the authenticated viewer and a streamer.
- * If already following, it deletes the follow record. Otherwise, it inserts one.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -26,9 +24,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Token invalide" }, { status: 401 });
     }
 
-    const dbUser = await db.query.users.findFirst({
-      where: eq(users.supabaseId, authUser.id),
-    });
+    const dbUser = await getUserBySupabaseId(authUser.id);
 
     if (!dbUser) {
       return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 });
@@ -45,37 +41,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Tu ne peux pas te suivre toi-même!" }, { status: 400 });
     }
 
-    // Check if follow already exists
-    const existingFollow = await db.query.follows.findFirst({
-      where: and(
-        eq(follows.followerId, dbUser.id),
-        eq(follows.followingId, streamerId)
-      ),
+    // Toggle follow status using our database abstraction
+    const result = await toggleFollow({
+      followerId: dbUser.id,
+      followingId: streamerId,
     });
 
-    if (existingFollow) {
-      // Unfollow
-      await db
-        .delete(follows)
-        .where(
-          and(
-            eq(follows.followerId, dbUser.id),
-            eq(follows.followingId, streamerId)
-          )
-        );
-      
-      return NextResponse.json({ following: false, message: "Désabonné avec succès 💔" });
-    } else {
-      // Follow
-      await db
-        .insert(follows)
-        .values({
-          followerId: dbUser.id,
-          followingId: streamerId,
-        });
-
-      return NextResponse.json({ following: true, message: "Abonné avec succès 💜" });
-    }
+    return NextResponse.json(result);
   } catch (error) {
     console.error("[FOLLOW_POST_ERROR]", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
@@ -98,24 +70,15 @@ export async function GET(req: NextRequest) {
 
     let isFollowingViewer = false;
     if (followerId) {
-      const existingFollow = await db.query.follows.findFirst({
-        where: and(
-          eq(follows.followerId, followerId),
-          eq(follows.followingId, streamerId)
-        ),
-      });
-      isFollowingViewer = !!existingFollow;
+      isFollowingViewer = await isFollowing(followerId, streamerId);
     }
 
-    // Get total count
-    const followers = await db
-      .select()
-      .from(follows)
-      .where(eq(follows.followingId, streamerId));
+    // Get total follower count
+    const followerCount = await getFollowerCount(streamerId);
 
     return NextResponse.json({
       isFollowing: isFollowingViewer,
-      followerCount: followers.length,
+      followerCount,
     });
   } catch (error) {
     console.error("[FOLLOW_GET_ERROR]", error);

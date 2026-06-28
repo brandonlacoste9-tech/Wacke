@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { db, messages, streams, users } from "@wacke/db";
+import { getStreamById, getUserBySupabaseId, createChatMessage } from "@wacke/db";
 import { moderateMessage } from "@/lib/moderation";
-import { eq } from "drizzle-orm";
 
 export const runtime = "nodejs";
 export const dynamic = 'force-dynamic';
@@ -36,18 +35,14 @@ export async function POST(req: NextRequest) {
     }
 
     // ─── Fetch Stream & Validate ─────────────────────────────────────────────
-    const stream = await db.query.streams.findFirst({
-      where: eq(streams.id, streamId),
-    });
+    const stream = await getStreamById(streamId);
 
     if (!stream || stream.status !== "live") {
       return NextResponse.json({ error: "Stream non trouvé ou hors ligne" }, { status: 404 });
     }
 
     // ─── Fetch DB User ────────────────────────────────────────────────────────
-    const dbUser = await db.query.users.findFirst({
-      where: eq(users.supabaseId, user.id),
-    });
+    const dbUser = await getUserBySupabaseId(user.id);
 
     if (!dbUser || dbUser.isBanned) {
       return NextResponse.json({ error: "Compte non autorisé" }, { status: 403 });
@@ -60,19 +55,14 @@ export async function POST(req: NextRequest) {
     }
 
     // ─── Persist Message ──────────────────────────────────────────────────────
-    const [newMessage] = await db
-      .insert(messages)
-      .values({
-        streamId,
-        userId: dbUser.id,
-        content: modResult.sanitized,
-        isSacre: modResult.isSacre,
-      })
-      .returning();
+    const newMessage = await createChatMessage({
+      streamId,
+      userId: dbUser.id,
+      content: modResult.sanitized,
+      isSacre: modResult.isSacre,
+    });
 
     // ─── Broadcast via Supabase Realtime ──────────────────────────────────────
-    // Broadcast the full hydrated message object so subscribers don't need
-    // to make a separate DB call to get user data.
     const hydratedMessage = {
       ...newMessage,
       user: {

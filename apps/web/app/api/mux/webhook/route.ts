@@ -1,18 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db, streams, users } from "@wacke/db";
-import { eq } from "drizzle-orm";
+import { updateStreamStatusByMuxId } from "@wacke/db";
 import crypto from "crypto";
 
-export const runtime = "nodejs"; // Needs crypto for webhook signature verification
+export const runtime = "nodejs";
 export const dynamic = 'force-dynamic';
 
 /**
  * POST /api/mux/webhook
  * Handles Mux webhook events for stream lifecycle management.
- *
- * Configure in Mux Dashboard:
- *   URL: https://your-domain.com/api/mux/webhook
- *   Events: video.live_stream.active, video.live_stream.idle, video.live_stream.disconnected
  */
 export async function POST(req: NextRequest) {
   try {
@@ -38,35 +33,18 @@ export async function POST(req: NextRequest) {
     switch (type) {
       case "video.live_stream.active": {
         // Streamer has connected and is broadcasting
-        const dbUser = await db.query.users.findFirst({
-          where: eq(users.muxLiveStreamId, liveStreamId),
-        });
-        if (dbUser) {
-          await db
-            .update(streams)
-            .set({ status: "live", startedAt: new Date(), updatedAt: new Date() })
-            .where(eq(streams.userId, dbUser.id));
-        }
+        await updateStreamStatusByMuxId(liveStreamId, "live");
         break;
       }
 
       case "video.live_stream.idle":
       case "video.live_stream.disconnected": {
-        // Streamer has disconnected or stream has gone idle
-        const dbUser = await db.query.users.findFirst({
-          where: eq(users.muxLiveStreamId, liveStreamId),
-        });
-        if (dbUser) {
-          await db
-            .update(streams)
-            .set({ status: "offline", updatedAt: new Date() })
-            .where(eq(streams.userId, dbUser.id));
-        }
+        // Streamer has disconnected
+        await updateStreamStatusByMuxId(liveStreamId, "offline");
         break;
       }
 
       default:
-        // Unhandled event type — log and acknowledge
         console.log(`[MUX_WEBHOOK] Unhandled event: ${type}`);
     }
 

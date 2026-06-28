@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { createMuxLiveStream, deleteMuxLiveStream } from "@/lib/mux";
-import { db, users, streams } from "@wacke/db";
-import { eq } from "drizzle-orm";
+import { getUserBySupabaseId, upsertStream, updateUserMuxCredentials, endStream } from "@wacke/db";
 
 export const runtime = "nodejs";
 export const dynamic = 'force-dynamic';
@@ -27,9 +26,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Token invalide" }, { status: 401 });
     }
 
-    const dbUser = await db.query.users.findFirst({
-      where: eq(users.supabaseId, user.id),
-    });
+    const dbUser = await getUserBySupabaseId(user.id);
     if (!dbUser) {
       return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
     }
@@ -44,43 +41,23 @@ export async function POST(req: NextRequest) {
     // Create Mux Live Stream
     const { liveStreamId, streamKey, playbackId } = await createMuxLiveStream();
 
-    // Upsert stream record in DB
-    const [stream] = await db
-      .insert(streams)
-      .values({
-        userId: dbUser.id,
-        title,
-        category: category as any,
-        status: "offline", // Status updates via Mux webhook
-        muxPlaybackId: playbackId,
-        muxAssetId: liveStreamId,
-        sacreModeEnabled,
-      })
-      .onConflictDoUpdate({
-        target: streams.userId,
-        set: {
-          title,
-          category: category as any,
-          muxPlaybackId: playbackId,
-          muxAssetId: liveStreamId,
-          sacreModeEnabled,
-          status: "offline",
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
+    // Upsert stream record in DB using our package helper
+    const stream = await upsertStream({
+      userId: dbUser.id,
+      title,
+      category,
+      sacreModeEnabled,
+      muxPlaybackId: playbackId || null,
+      muxAssetId: liveStreamId || null,
+    });
 
-    // Update user with Mux credentials
-    await db
-      .update(users)
-      .set({
-        muxStreamKey: streamKey,
-        muxPlaybackId: playbackId,
-        muxLiveStreamId: liveStreamId,
-        isStreamer: true,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, dbUser.id));
+    // Update user with Mux credentials using our package helper
+    await updateUserMuxCredentials({
+      userId: dbUser.id,
+      muxStreamKey: streamKey || null,
+      muxPlaybackId: playbackId || null,
+      muxLiveStreamId: liveStreamId || null,
+    });
 
     return NextResponse.json({
       streamId: stream.id,
@@ -113,30 +90,16 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Token invalide" }, { status: 401 });
     }
 
-    const dbUser = await db.query.users.findFirst({
-      where: eq(users.supabaseId, user.id),
-    });
+    const dbUser = await getUserBySupabaseId(user.id);
     if (!dbUser?.muxLiveStreamId) {
       return NextResponse.json({ error: "Aucun stream actif" }, { status: 404 });
     }
 
+    // Call Mux to delete the stream resources
     await deleteMuxLiveStream(dbUser.muxLiveStreamId);
 
-    // Update stream status to ended
-    await db
-      .update(streams)
-      .set({ status: "ended", endedAt: new Date(), updatedAt: new Date() })
-      .where(eq(streams.userId, dbUser.id));
-
-    // Clear Mux credentials from user
-    await db
-      .update(users)
-      .set({
-        muxStreamKey: null,
-        muxLiveStreamId: null,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, dbUser.id));
+    // End stream (set status to ended, clear credentials in users table)
+    await endStream(dbUser.id);
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { db, users, tokenTransactions } from "@wacke/db";
-import { transferTokens, getUserTokenBalance } from "@wacke/db";
-import { eq } from "drizzle-orm";
+import { getUserBySupabaseId, transferTokens, getUserTokenBalance } from "@wacke/db";
 
 export const runtime = "nodejs";
 export const dynamic = 'force-dynamic';
@@ -26,9 +24,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Token invalide" }, { status: 401 });
     }
 
-    const dbUser = await db.query.users.findFirst({
-      where: eq(users.supabaseId, user.id),
-    });
+    const dbUser = await getUserBySupabaseId(user.id);
     if (!dbUser) {
       return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
     }
@@ -44,8 +40,6 @@ export async function GET(req: NextRequest) {
 /**
  * POST /api/tokens
  * Handles token transactions: gifting to streamers, Boum! reactions.
- *
- * Body: { action: "gift" | "boum", toUserId: string, streamId?: string, amount: number }
  */
 export async function POST(req: NextRequest) {
   try {
@@ -62,9 +56,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Token invalide" }, { status: 401 });
     }
 
-    const dbUser = await db.query.users.findFirst({
-      where: eq(users.supabaseId, user.id),
-    });
+    const dbUser = await getUserBySupabaseId(user.id);
     if (!dbUser) {
       return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
     }

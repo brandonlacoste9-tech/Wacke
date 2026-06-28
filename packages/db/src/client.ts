@@ -8,7 +8,17 @@ import * as schema from "./schema";
 let _db: PostgresJsDatabase<typeof schema> | null = null;
 let _client: ReturnType<typeof postgres> | null = null;
 
+export const isDbMocked = (): boolean => {
+  const url = process.env.DATABASE_URL;
+  return !url || url.includes("postgresql://user:password") || url === "";
+};
+
 export function getDb(): PostgresJsDatabase<typeof schema> {
+  if (isDbMocked()) {
+    // Return empty proxy to avoid postgres initialization crashes
+    return {} as any;
+  }
+
   if (!_db) {
     const url = process.env.DATABASE_URL;
     if (!url) {
@@ -33,8 +43,12 @@ export function getDb(): PostgresJsDatabase<typeof schema> {
 // Convenience proxy — behaves like the old `db` export but initializes lazily.
 export const db = new Proxy({} as PostgresJsDatabase<typeof schema>, {
   get(_target, prop) {
+    if (isDbMocked()) {
+      return undefined;
+    }
     return (getDb() as any)[prop];
   },
 });
 
 export type DB = typeof db;
+

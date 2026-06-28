@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { db, users, tokenTransactions } from "@wacke/db";
-import { and, eq, desc, gt, sql } from "drizzle-orm";
+import { getUserBySupabaseId, claimDailyTokenReward } from "@wacke/db";
 
 export const runtime = "nodejs";
 export const dynamic = 'force-dynamic';
@@ -25,28 +24,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Token invalide" }, { status: 401 });
     }
 
-    const dbUser = await db.query.users.findFirst({
-      where: eq(users.supabaseId, authUser.id),
-    });
+    const dbUser = await getUserBySupabaseId(authUser.id);
 
     if (!dbUser) {
       return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 });
     }
 
-    // Check if the user has claimed in the last 24 hours
-    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const lastClaim = await db.query.tokenTransactions.findFirst({
-      where: and(
-        eq(tokenTransactions.toUserId, dbUser.id),
-        eq(tokenTransactions.type, "earn"),
-        eq(tokenTransactions.reason, "Récompense quotidienne"),
-        gt(tokenTransactions.createdAt, oneDayAgo)
-      ),
-      orderBy: [desc(tokenTransactions.createdAt)],
-    });
+    const result = await claimDailyTokenReward(dbUser.id);
 
-    if (lastClaim) {
-      const nextAvailableTime = new Date(lastClaim.createdAt.getTime() + 24 * 60 * 60 * 1000);
+    if (!result.success) {
+      const nextAvailableTime = new Date(result.lastClaimDate!.getTime() + 24 * 60 * 60 * 1000);
       const diffMs = nextAvailableTime.getTime() - Date.now();
       const diffHours = Math.ceil(diffMs / (1000 * 60 * 60));
       return NextResponse.json(
@@ -55,33 +42,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const CLAIM_AMOUNT = 500;
-
-    // Perform transaction: credit user balance and log transaction
-    await db.transaction(async (tx) => {
-      // Credit user
-      await tx
-        .update(users)
-        .set({ tokenBalance: sql`${users.tokenBalance} + ${CLAIM_AMOUNT}` })
-        .where(eq(users.id, dbUser.id));
-
-      // Log ledger entry
-      await tx.insert(tokenTransactions).values({
-        toUserId: dbUser.id,
-        type: "earn",
-        amount: CLAIM_AMOUNT,
-        reason: "Récompense quotidienne",
-      });
-    });
-
-    const updatedUser = await db.query.users.findFirst({
-      where: eq(users.id, dbUser.id),
-    });
-
     return NextResponse.json({
       success: true,
-      newBalance: updatedUser?.tokenBalance ?? (dbUser.tokenBalance + CLAIM_AMOUNT),
-      message: `Félicitations! +${CLAIM_AMOUNT} tokens réclamés! 🪙`,
+      newBalance: result.newBalance,
+      message: `Félicitations! +500 tokens réclamés! 🪙`,
     });
   } catch (error) {
     console.error("[TOKENS_CLAIM_ERROR]", error);
