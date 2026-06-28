@@ -33,7 +33,11 @@ export async function GET(req: NextRequest) {
       displayName: "",
     };
 
-    if (isSupabaseMocked()) {
+    const clientId = process.env.KICK_CLIENT_ID;
+    const clientSecret = process.env.KICK_CLIENT_SECRET;
+    const isKickMocked = !clientId || clientId.includes("your-kick-client-id") || !clientSecret;
+
+    if (isKickMocked) {
       // Mock OAuth Flow: Generate simulated Kick user details
       const randomId = Math.random().toString(36).substring(5);
       kickUser = {
@@ -44,8 +48,6 @@ export async function GET(req: NextRequest) {
       };
     } else {
       // Real OAuth Flow: Exchange code for user token
-      const clientId = process.env.KICK_CLIENT_ID!;
-      const clientSecret = process.env.KICK_CLIENT_SECRET!;
       const redirectUri = `${origin}/api/auth/kick/callback`;
 
       if (!verifierCookie) {

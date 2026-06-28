@@ -12,7 +12,11 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   const origin = new URL(req.url).origin;
 
-  if (isSupabaseMocked()) {
+  const clientId = process.env.KICK_CLIENT_ID;
+  const clientSecret = process.env.KICK_CLIENT_SECRET;
+  const isKickMocked = !clientId || clientId.includes("your-kick-client-id") || !clientSecret;
+
+  if (isKickMocked) {
     // In Mock Mode, bypass the real Kick.com servers and redirect directly to callback
     const mockCode = "mock-kick-auth-code-" + Math.random().toString(36).substring(5);
     const mockState = "mock-state-123456";
@@ -26,16 +30,7 @@ export async function GET(req: NextRequest) {
     return response;
   }
 
-  // Real Kick OAuth flow configuration
-  const clientId = process.env.KICK_CLIENT_ID;
   const redirectUri = `${origin}/api/auth/kick/callback`;
-
-  if (!clientId) {
-    return NextResponse.json(
-      { error: "KICK_CLIENT_ID n'est pas configuré sur le serveur." },
-      { status: 500 }
-    );
-  }
 
   // 1. Generate state & PKCE parameters
   const state = crypto.randomBytes(16).toString("hex");
