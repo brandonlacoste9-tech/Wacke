@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "./AuthProvider";
+import { useRouter } from "next/navigation";
 
 /**
  * Wacké Global Header
@@ -13,6 +14,7 @@ export default function Header() {
   const { user, logout, claimDailyTokens, isLoading } = useAuth();
   const [claimFeedback, setClaimFeedback] = useState<string | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
+  const router = useRouter();
 
   const handleClaim = async () => {
     setIsClaiming(true);
@@ -26,6 +28,13 @@ export default function Header() {
       setClaimFeedback(res.error || "Erreur de réclamation.");
     }
     setTimeout(() => setClaimFeedback(null), 3000);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/browse?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
   };
 
   return (
@@ -57,7 +66,7 @@ export default function Header() {
         </nav>
 
         {/* ── Search ────────────────────────────────────────────────────── */}
-        <div className="hidden lg:flex items-center">
+        <form onSubmit={handleSearch} className="hidden lg:flex items-center">
           <div className="relative">
             <input
               type="text"
@@ -67,9 +76,11 @@ export default function Header() {
               className="bg-wacke-dark border border-wacke-purple/40 rounded-lg pl-4 pr-10 py-2
                          text-sm w-64 focus:outline-none focus:border-wacke-cyan/60 transition-colors"
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">🔍</span>
+            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
+              🔍
+            </button>
           </div>
-        </div>
+        </form>
 
         {/* ── Auth / Token Area ─────────────────────────────────────────── */}
         <div className="flex items-center space-x-3">

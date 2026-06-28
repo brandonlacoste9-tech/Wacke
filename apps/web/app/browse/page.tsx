@@ -5,7 +5,7 @@ import Link from "next/link";
 export const dynamic = 'force-dynamic';
 
 interface BrowsePageProps {
-  searchParams: { category?: string };
+  searchParams: { category?: string; search?: string };
 }
 
 const CATEGORIES = [
@@ -21,10 +21,11 @@ const CATEGORIES = [
 
 export default async function BrowsePage({ searchParams }: BrowsePageProps) {
   const selectedSlug = searchParams.category;
+  const searchQuery = searchParams.search;
   const selectedCategory = CATEGORIES.find((c) => c.slug === selectedSlug);
 
-  // Fetch streams matching category filter if any
-  const liveStreams = await getLiveStreams(40, selectedSlug);
+  // Fetch streams matching category and search filter if any
+  const liveStreams = await getLiveStreams(40, selectedSlug, searchQuery);
 
   return (
     <div className="p-8 max-w-7xl mx-auto min-h-screen bg-wacke-dark">
@@ -32,15 +33,21 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
       <div className="mb-8 flex items-baseline justify-between border-b border-wacke-purple/20 pb-4">
         <div>
           <h1 className="text-4xl font-bold mb-2 neon-pink graffiti-text">
-            {selectedCategory ? `PARCOURIR : ${selectedCategory.name.toUpperCase()} ${selectedCategory.icon}` : "PARCOURIR"}
+            {searchQuery
+              ? `RECHERCHE : "${searchQuery}" 🔍`
+              : selectedCategory
+              ? `PARCOURIR : ${selectedCategory.name.toUpperCase()} ${selectedCategory.icon}`
+              : "PARCOURIR"}
           </h1>
           <p className="text-gray-400 text-sm">
-            {selectedCategory
+            {searchQuery
+              ? `Résultats de recherche pour les streams en direct`
+              : selectedCategory
               ? `Explore les streams de la catégorie ${selectedCategory.name}`
               : "Explore les streams les plus wackés du Québec"}
           </p>
         </div>
-        {selectedCategory && (
+        {(selectedCategory || searchQuery) && (
           <Link
             href="/browse"
             className="text-sm font-bold text-wacke-cyan hover:underline border border-wacke-cyan/30 px-4 py-2 rounded-xl transition-all"
@@ -83,16 +90,18 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
             <p className="text-5xl mb-4">😴</p>
             <p className="text-gray-400 text-lg font-bold">Aucun stream en direct</p>
             <p className="text-gray-600 text-sm mt-2">
-              {selectedCategory
+              {searchQuery
+                ? `Aucun stream en direct ne correspond à "${searchQuery}".`
+                : selectedCategory
                 ? `Personne ne diffuse dans ${selectedCategory.name} pour le moment.`
                 : "Reviens plus tard ou commence à streamer toi-même!"}
             </p>
-            {selectedCategory && (
+            {(selectedCategory || searchQuery) && (
               <Link
                 href="/browse"
                 className="mt-6 inline-block bg-gradient-to-r from-wacke-pink to-wacke-purple px-6 py-2.5 rounded-xl text-sm font-bold text-white hover:opacity-90"
               >
-                Voir d&apos;autres catégories
+                Voir tous les streams
               </Link>
             )}
           </div>

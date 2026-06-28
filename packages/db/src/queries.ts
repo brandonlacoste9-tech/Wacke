@@ -255,13 +255,23 @@ export async function getStreamById(streamId: string) {
   });
 }
 
-export async function getLiveStreams(limit = 20, category?: string) {
+export async function getLiveStreams(limit = 20, category?: string, search?: string) {
   if (isDbMocked()) {
     const state = getMockDbState();
     const activeStreams = state.streams.filter((s) => s.status === "live");
-    const filtered = category
+    let filtered = category
       ? activeStreams.filter((s) => s.category === category)
       : activeStreams;
+    
+    if (search) {
+      const cleanSearch = search.toLowerCase();
+      filtered = filtered.filter(
+        (s) =>
+          s.title.toLowerCase().includes(cleanSearch) ||
+          s.description?.toLowerCase().includes(cleanSearch) ||
+          s.category.toLowerCase().includes(cleanSearch)
+      );
+    }
     
     // Hydrate streamer profile
     return filtered.slice(0, limit).map((stream) => {
@@ -283,6 +293,11 @@ export async function getLiveStreams(limit = 20, category?: string) {
   const conditions = [eq(streams.status, "live")];
   if (category) {
     conditions.push(eq(streams.category, category as any));
+  }
+  if (search) {
+    conditions.push(
+      sql`lower(${streams.title}) like ${"%" + search.toLowerCase() + "%"}`
+    );
   }
 
   return db.query.streams.findMany({
