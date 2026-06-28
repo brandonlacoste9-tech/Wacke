@@ -123,6 +123,22 @@ export default function LoginPage() {
           >
             {isLoading ? "Chargement..." : isMock ? "🚀 Connexion instantanée" : "Envoyer le lien magique"}
           </button>
+
+          <div className="flex items-center my-6">
+            <hr className="flex-grow border-t border-wacke-purple/20" />
+            <span className="px-3 text-xs text-gray-500 uppercase tracking-wider">ou</span>
+            <hr className="flex-grow border-t border-wacke-purple/20" />
+          </div>
+
+          <a
+            href="/api/auth/kick/login"
+            className="w-full bg-[#53fc18] text-black hover:opacity-90 transition-opacity py-4 rounded-xl
+                       font-bold text-lg flex items-center justify-center space-x-2
+                       shadow-[0_0_15px_rgba(83,252,24,0.3)] hover:shadow-[0_0_25px_rgba(83,252,24,0.5)]"
+          >
+            <span>🟢</span>
+            <span>Se connecter avec Kick</span>
+          </a>
         </form>
 
         <div className="mt-8 text-center border-t border-wacke-purple/20 pt-6">
