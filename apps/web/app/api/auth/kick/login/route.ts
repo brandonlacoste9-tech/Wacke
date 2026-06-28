@@ -54,11 +54,18 @@ export async function GET(req: NextRequest) {
   const authUrl = new URL("https://id.kick.com/oauth/authorize");
   authUrl.searchParams.set("response_type", "code");
   authUrl.searchParams.set("client_id", clientId);
+  
+  // Kick OAuth 2.1 developer workaround for 127.0.0.1 host redirect URI
+  if (redirectUri.includes("127.0.0.1")) {
+    authUrl.searchParams.set("redirect", "127.0.0.1");
+  }
+  
   authUrl.searchParams.set("redirect_uri", redirectUri);
   authUrl.searchParams.set("scope", "user.read");
   authUrl.searchParams.set("state", state);
   authUrl.searchParams.set("code_challenge", codeChallenge);
   authUrl.searchParams.set("code_challenge_method", "S256");
+
 
   const response = NextResponse.redirect(authUrl.toString());
 
