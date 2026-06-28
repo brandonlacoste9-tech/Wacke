@@ -75,71 +75,80 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {isMock ? (
-            <div>
-              <label className="block text-sm font-bold text-gray-300 mb-2">
-                Pseudo de test (Mock Mode)
-              </label>
-              <input
-                type="text"
-                value={mockUsername}
-                onChange={(e) => setMockUsername(e.target.value)}
-                placeholder="Ex: kevin, tremblay_99"
-                className="w-full bg-wacke-dark border border-wacke-purple/40 rounded-xl px-4 py-3
-                           text-sm text-white focus:outline-none focus:border-wacke-cyan/60 transition-colors"
-                disabled={isLoading}
-              />
-              <p className="text-xs text-gray-500 mt-2">
-                Le mode mock est actif car les variables Supabase ne sont pas configurées. Connecte-toi instantanément!
-              </p>
-            </div>
-          ) : (
-            <div>
-              <label className="block text-sm font-bold text-gray-300 mb-2">
-                Adresse courriel
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="chum@wacke.ca"
-                className="w-full bg-wacke-dark border border-wacke-purple/40 rounded-xl px-4 py-3
-                           text-sm text-white focus:outline-none focus:border-wacke-cyan/60 transition-colors"
-                disabled={isLoading}
-              />
-              <p className="text-xs text-gray-500 mt-2">
-                On t&apos;enverra un lien magique pour te connecter en toute sécurité.
-              </p>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-gradient-to-r from-wacke-pink to-wacke-purple py-4 rounded-xl
-                       font-bold text-lg hover:opacity-90 transition-opacity
-                       disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? "Chargement..." : isMock ? "🚀 Connexion instantanée" : "Envoyer le lien magique"}
-          </button>
+        <div className="space-y-6">
+          {/* Prioritized Kick Login Button */}
+          <div>
+            <a
+              href="/api/auth/kick/login"
+              className="w-full bg-[#53fc18] text-black hover:scale-[1.02] active:scale-[0.98] transition-all py-4.5 rounded-xl
+                         font-bold text-lg flex items-center justify-center space-x-2
+                         shadow-[0_0_20px_rgba(83,252,24,0.3)] hover:shadow-[0_0_30px_rgba(83,252,24,0.6)]"
+            >
+              <span>🟢</span>
+              <span>Se connecter avec Kick</span>
+              <span className="bg-black text-[#53fc18] text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-md ml-2 border border-[#53fc18]/30 animate-pulse">
+                Recommandé
+              </span>
+            </a>
+          </div>
 
           <div className="flex items-center my-6">
             <hr className="flex-grow border-t border-wacke-purple/20" />
-            <span className="px-3 text-xs text-gray-500 uppercase tracking-wider">ou</span>
+            <span className="px-3 text-xs text-gray-500 uppercase tracking-wider">ou continuer avec</span>
             <hr className="flex-grow border-t border-wacke-purple/20" />
           </div>
 
-          <a
-            href="/api/auth/kick/login"
-            className="w-full bg-[#53fc18] text-black hover:opacity-90 transition-opacity py-4 rounded-xl
-                       font-bold text-lg flex items-center justify-center space-x-2
-                       shadow-[0_0_15px_rgba(83,252,24,0.3)] hover:shadow-[0_0_25px_rgba(83,252,24,0.5)]"
-          >
-            <span>🟢</span>
-            <span>Se connecter avec Kick</span>
-          </a>
-        </form>
+          {/* Standard Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {isMock ? (
+              <div>
+                <label className="block text-sm font-bold text-gray-300 mb-2">
+                  Pseudo de test (Mock Mode)
+                </label>
+                <input
+                  type="text"
+                  value={mockUsername}
+                  onChange={(e) => setMockUsername(e.target.value)}
+                  placeholder="Ex: kevin, tremblay_99"
+                  className="w-full bg-wacke-dark border border-wacke-purple/40 rounded-xl px-4 py-3
+                             text-sm text-white focus:outline-none focus:border-wacke-cyan/60 transition-colors"
+                  disabled={isLoading}
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  Le mode mock est actif car les variables Supabase ne sont pas configurées. Connecte-toi instantanément!
+                </p>
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-bold text-gray-300 mb-2">
+                  Adresse courriel
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="chum@wacke.ca"
+                  className="w-full bg-wacke-dark border border-wacke-purple/40 rounded-xl px-4 py-3
+                             text-sm text-white focus:outline-none focus:border-wacke-cyan/60 transition-colors"
+                  disabled={isLoading}
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  On t&apos;enverra un lien magique pour te connecter en toute sécurité.
+                </p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-wacke-pink to-wacke-purple py-4 rounded-xl
+                         font-bold text-lg hover:opacity-90 transition-opacity
+                         disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? "Chargement..." : isMock ? "🚀 Connexion instantanée" : "Envoyer le lien magique"}
+            </button>
+          </form>
+        </div>
 
         <div className="mt-8 text-center border-t border-wacke-purple/20 pt-6">
           <p className="text-sm text-gray-400">
