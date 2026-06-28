@@ -1,71 +1,119 @@
-export default function Sidebar() {
-  const recommendedChannels = [
-    { name: "Roxanne_Glitch", game: "Juste de la lase", viewers: "12k", live: true },
-    { name: "Le_Mapache", game: "Elden Ring DLC", viewers: "4.5k", live: true },
-    { name: "Poutine_Cyborg", game: "Dernier live-Hier", viewers: null, live: false },
+import { getLiveStreams } from "@wacke/db";
+import Link from "next/link";
+
+export const dynamic = "force-dynamic";
+
+/**
+ * Wacké Navigation & Recommended Sidebar
+ * Displays top navigation links and live channels list, matching Kick's sidebar layout.
+ */
+export default async function Sidebar() {
+  let liveChannels = [];
+  try {
+    liveChannels = await getLiveStreams(5);
+  } catch (err) {
+    console.error("[SIDEBAR_FETCH_ERROR]", err);
+  }
+
+  // Fallback channels to display if database has no active live streams
+  const fallbackChannels = [
+    { username: "gabriel", displayName: "Gabriel 🏪", category: "talk", viewerCount: 142, isMock: true },
+    { username: "sophie", displayName: "Sophie 🎮", category: "gaming", viewerCount: 89, isMock: true },
+    { username: "félix", displayName: "Félix 🎵", category: "musique", viewerCount: 231, isMock: true },
   ];
 
-  const categories = [
-    { name: "Jeu", icon: "🎮", color: "from-purple-600 to-purple-800" },
-    { name: "Chilé", icon: "😎", color: "from-red-600 to-red-800" },
-    { name: "Frette", icon: "❄️", color: "from-cyan-600 to-cyan-800" },
-    { name: "Gaming", icon: "🎮", color: "from-green-600 to-green-800" },
-  ];
+  const channelsToRender = liveChannels.length > 0
+    ? liveChannels.map((c) => ({
+        username: c.user?.username ?? "user",
+        displayName: c.user?.displayName ?? "Streamer",
+        category: c.category,
+        viewerCount: c.viewerCount,
+        isMock: false,
+      }))
+    : fallbackChannels;
 
   return (
-    <aside className="w-72 bg-wacke-darker border-r border-wacke-purple/30 p-4 overflow-y-auto">
-      {/* Recommended Channels */}
-      <div className="mb-8">
-        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
-          CHAÎNES RECOMMANDÉES
-        </h2>
-        <div className="space-y-3">
-          {recommendedChannels.map((channel) => (
-            <div key={channel.name} className="flex items-center space-x-3 hover:bg-wacke-dark/50 p-2 rounded cursor-pointer transition-colors">
-              <div className="relative">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple"></div>
-                {channel.live && (
-                  <span className="absolute -bottom-1 -right-1 bg-red-600 text-xs px-1.5 py-0.5 rounded text-white font-bold">
-                    LIVE
-                  </span>
-                )}
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold">{channel.name}</p>
-                <p className="text-xs text-gray-400">{channel.game}</p>
-              </div>
-              {channel.viewers && (
-                <span className="text-xs text-gray-400">{channel.viewers}</span>
-              )}
-            </div>
-          ))}
-        </div>
+    <aside className="w-64 bg-wacke-darker border-r border-wacke-purple/20 h-[calc(100vh-64px)] hidden lg:flex flex-col justify-between shrink-0 select-none">
+      
+      {/* ── Top Navigation Links ────────────────────────────────────────── */}
+      <div className="p-4 space-y-1">
+        <Link
+          href="/"
+          className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-300 hover:text-white hover:bg-wacke-dark/40 transition-colors"
+        >
+          <span>🏠</span>
+          <span>Accueil</span>
+        </Link>
+        <Link
+          href="/browse"
+          className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-300 hover:text-white hover:bg-wacke-dark/40 transition-colors"
+        >
+          <span>🎨</span>
+          <span>Parcourir</span>
+        </Link>
+        <Link
+          href="/dashboard/stream"
+          className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-300 hover:text-white hover:bg-wacke-dark/40 transition-colors"
+        >
+          <span>🔴</span>
+          <span>Mon Stream</span>
+        </Link>
       </div>
 
-      {/* Categories */}
-      <div>
-        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
-          CATÉGORIES WACKÉ
+      {/* ── Recommended Channels List ───────────────────────────────────── */}
+      <div className="flex-1 p-4 border-t border-wacke-purple/10 overflow-y-auto">
+        <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 px-3">
+          Chaînes Recommandées
         </h2>
-        <div className="grid grid-cols-2 gap-3">
-          {categories.map((category) => (
-            <div
-              key={category.name}
-              className={`bg-gradient-to-br ${category.color} p-4 rounded-lg cursor-pointer hover:scale-105 transition-transform`}
+        <div className="space-y-1">
+          {channelsToRender.map((channel, i) => (
+            <Link
+              key={channel.username + i}
+              href={`/stream/${channel.username}`}
+              className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-wacke-dark/40 transition-colors group"
             >
-              <div className="text-3xl mb-2">{category.icon}</div>
-              <p className="text-sm font-semibold">{category.name}</p>
-            </div>
+              <div className="flex items-center space-x-3">
+                {/* Avatar */}
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-xs font-bold text-white uppercase shrink-0">
+                  {channel.displayName[0]}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-gray-200 group-hover:text-white truncate">
+                    {channel.displayName}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate capitalize">
+                    {channel.category}
+                  </p>
+                </div>
+              </div>
+
+              {/* Live indicators */}
+              <div className="flex items-center space-x-1.5 shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-xs text-gray-400 font-medium">
+                  {channel.viewerCount >= 1000
+                    ? `${(channel.viewerCount / 1000).toFixed(1)}k`
+                    : channel.viewerCount}
+                </span>
+              </div>
+            </Link>
           ))}
         </div>
       </div>
 
-      {/* Discord Join */}
-      <div className="mt-8 bg-wacke-dark/50 border border-wacke-purple/30 rounded-lg p-4">
-        <p className="text-sm text-gray-300 mb-3">Rejoindre le squad Discord?</p>
-        <button className="w-full bg-[#5865F2] hover:bg-[#4752C4] py-2 px-4 rounded font-semibold text-sm transition-colors">
-          Embarque
-        </button>
+      {/* ── Squad Discord Banner ────────────────────────────────────────── */}
+      <div className="p-4 border-t border-wacke-purple/10">
+        <div className="bg-wacke-dark/30 border border-wacke-purple/20 rounded-2xl p-4">
+          <p className="text-xs text-gray-400 font-semibold mb-2">Rejoindre le Discord Wacké?</p>
+          <a
+            href="https://discord.gg"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full bg-[#5865F2] hover:bg-[#4752C4] py-2 rounded-xl font-bold text-xs text-white block text-center transition-colors"
+          >
+            Rejoindre 🚀
+          </a>
+        </div>
       </div>
     </aside>
   );
