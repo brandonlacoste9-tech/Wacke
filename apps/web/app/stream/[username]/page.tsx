@@ -1,10 +1,16 @@
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 export const dynamic = 'force-dynamic';
 
-import { db, getStreamByUserId, getRecentMessages, getUserByUsername } from "@wacke/db";
+import { db, getStreamByUserId, getRecentMessages, getUserByUsername, isFollowing, users } from "@wacke/db";
+import { eq } from "drizzle-orm";
 import WackePlayer from "@/components/WackePlayer";
 import GraffitiChat from "@/components/GraffitiChat";
+import TokenBar from "@/components/TokenBar";
+import FollowButton from "@/components/FollowButton";
+import ReactionButton from "@/components/ReactionButton";
 import { getMuxThumbnailUrl } from "@/lib/mux";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
 import type { Metadata } from "next";
 
 interface StreamPageProps {
@@ -39,8 +45,31 @@ export default async function StreamPage({ params }: StreamPageProps) {
     ? await getRecentMessages(stream.id, 50)
     : [];
 
+  // Read auth token from cookie and fetch database viewer info
+  const cookieStore = cookies();
+  const token = cookieStore.get("wacke_token")?.value;
+  let viewer = null;
+  let initialIsFollowing = false;
+
+  if (token) {
+    try {
+      const supabase = getSupabaseAdmin();
+      const { data: { user: authUser } } = await supabase.auth.getUser(token);
+      if (authUser) {
+        viewer = await db.query.users.findFirst({
+          where: eq(users.supabaseId, authUser.id),
+        });
+        if (viewer) {
+          initialIsFollowing = await isFollowing(viewer.id, user.id);
+        }
+      }
+    } catch (err) {
+      console.error("[STREAM_PAGE_AUTH_ERROR]", err);
+    }
+  }
+
   return (
-    <div className="flex h-[calc(100vh-64px)]">
+    <div className="flex h-[calc(100vh-64px)] relative">
       {/* ── Main Stream Area ─────────────────────────────────────────────── */}
       <main className="flex-1 overflow-y-auto p-6 space-y-6">
         {stream.muxPlaybackId ? (
@@ -78,16 +107,18 @@ export default async function StreamPage({ params }: StreamPageProps) {
               </div>
             </div>
 
-            {/* Action buttons */}
+            {/* Action buttons (client components) */}
             <div className="flex items-center space-x-3">
-              <button className="bg-wacke-pink/20 hover:bg-wacke-pink/40 border border-wacke-pink/40 px-5 py-2 rounded-lg font-bold flex items-center space-x-2 transition-all hover:scale-105">
-                <span>🔥</span>
-                <span>BOUM!</span>
-              </button>
-              <button className="bg-wacke-purple/20 hover:bg-wacke-purple/40 border border-wacke-purple/40 px-5 py-2 rounded-lg font-bold flex items-center space-x-2 transition-all hover:scale-105">
-                <span>💜</span>
-                <span>SUIVRE</span>
-              </button>
+              <ReactionButton
+                streamerId={user.id}
+                streamId={stream.id}
+                authToken={token}
+              />
+              <FollowButton
+                streamerId={user.id}
+                initialIsFollowing={initialIsFollowing}
+                authToken={token}
+              />
             </div>
           </div>
 
@@ -101,7 +132,17 @@ export default async function StreamPage({ params }: StreamPageProps) {
       <GraffitiChat
         streamId={stream.id}
         initialMessages={initialMessages as any}
+        currentUserId={viewer?.id}
+      />
+
+      {/* ── Floating Token Bar ────────────────────────────────────────────── */}
+      <TokenBar
+        initialBalance={viewer?.tokenBalance ?? 0}
+        streamerId={user.id}
+        streamId={stream.id}
+        authToken={token}
       />
     </div>
   );
 }
+

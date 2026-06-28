@@ -67,7 +67,7 @@ export function useGraffitiChat({
           table: "messages",
           filter: `stream_id=eq.${streamId}`,
         },
-        (payload) => {
+        (payload: any) => {
           // The payload contains the new row — we need to fetch the user data
           // In production, use a Supabase broadcast channel for full message objects
           const newMessage = payload.new as ChatMessage;
@@ -78,7 +78,7 @@ export function useGraffitiChat({
           });
         }
       )
-      .on("broadcast", { event: "chat_message" }, ({ payload }) => {
+      .on("broadcast", { event: "chat_message" }, ({ payload }: { payload: any }) => {
         // Broadcast channel carries the full hydrated message object
         const newMessage = payload as ChatMessage;
         setMessages((prev) => {
@@ -86,7 +86,7 @@ export function useGraffitiChat({
           return [...prev, newMessage];
         });
       })
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         setIsConnected(status === "SUBSCRIBED");
       });
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useAuth } from "./AuthProvider";
 
 /**
  * Wacké Global Header
@@ -9,6 +10,23 @@ import { useState } from "react";
  */
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
+  const { user, logout, claimDailyTokens, isLoading } = useAuth();
+  const [claimFeedback, setClaimFeedback] = useState<string | null>(null);
+  const [isClaiming, setIsClaiming] = useState(false);
+
+  const handleClaim = async () => {
+    setIsClaiming(true);
+    setClaimFeedback(null);
+    const res = await claimDailyTokens();
+    setIsClaiming(false);
+    
+    if (res.success) {
+      setClaimFeedback(res.message || "Jetons réclamés!");
+    } else {
+      setClaimFeedback(res.error || "Erreur de réclamation.");
+    }
+    setTimeout(() => setClaimFeedback(null), 3000);
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-wacke-darker/90 backdrop-blur-md border-b border-wacke-purple/30">
@@ -55,26 +73,61 @@ export default function Header() {
 
         {/* ── Auth / Token Area ─────────────────────────────────────────── */}
         <div className="flex items-center space-x-3">
-          <div className="hidden sm:flex items-center space-x-1 bg-wacke-dark border border-yellow-500/30 rounded-lg px-3 py-1.5">
-            <span className="text-sm">🪙</span>
-            <span className="text-sm font-bold text-yellow-400">500</span>
-          </div>
-          <Link
-            href="/dashboard/stream"
-            className="hidden sm:block bg-wacke-pink/20 hover:bg-wacke-pink/40 border border-wacke-pink/40
-                       text-wacke-pink text-sm font-bold px-4 py-2 rounded-lg transition-colors"
-          >
-            🔴 Streamer
-          </Link>
-          <Link
-            href="/auth/login"
-            className="bg-gradient-to-r from-wacke-pink to-wacke-purple text-white text-sm
-                       font-bold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
-          >
-            Connexion
-          </Link>
+          {!isLoading && user ? (
+            <>
+              {/* Claim Feedback Toast */}
+              {claimFeedback && (
+                <div className="absolute top-16 right-6 bg-wacke-darker border border-wacke-purple/40 rounded-xl px-4 py-2 text-xs font-bold shadow-xl neon-border text-white animate-fade-in z-50">
+                  {claimFeedback}
+                </div>
+              )}
+
+              {/* Tokens Display */}
+              <div className="flex items-center space-x-2 bg-wacke-dark border border-yellow-500/30 rounded-lg px-3 py-1.5">
+                <span className="text-sm">🪙</span>
+                <span className="text-sm font-bold text-yellow-400">{user.tokenBalance}</span>
+                <button
+                  onClick={handleClaim}
+                  disabled={isClaiming}
+                  className="text-xs bg-yellow-500/20 hover:bg-yellow-500/40 text-yellow-300 px-2 py-0.5 rounded font-bold transition-colors disabled:opacity-50"
+                  title="Réclamer ton bonus quotidien de 500 jetons"
+                >
+                  Réclamer
+                </button>
+              </div>
+
+              {/* Streamer Link */}
+              <Link
+                href="/dashboard/stream"
+                className="hidden sm:block bg-wacke-pink/20 hover:bg-wacke-pink/40 border border-wacke-pink/40
+                           text-wacke-pink text-sm font-bold px-4 py-2 rounded-lg transition-colors"
+              >
+                🔴 Streamer
+              </Link>
+
+              {/* User Signout */}
+              <button
+                onClick={logout}
+                className="bg-wacke-purple/20 hover:bg-wacke-purple/40 border border-wacke-purple/40 text-white text-sm
+                           font-bold px-4 py-2 rounded-lg transition-colors"
+              >
+                Déconnexion
+              </button>
+            </>
+          ) : (
+            !isLoading && (
+              <Link
+                href="/auth/login"
+                className="bg-gradient-to-r from-wacke-pink to-wacke-purple text-white text-sm
+                           font-bold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+              >
+                Connexion
+              </Link>
+            )
+          )}
         </div>
       </div>
     </header>
   );
 }
+

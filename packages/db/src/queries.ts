@@ -28,11 +28,16 @@ export async function getUserBySupabaseId(supabaseId: string) {
 
 /**
  * Returns all currently live streams ordered by viewer count (descending).
- * Used for the homepage featured grid and browse page.
+ * Supports optional category filtering. Used for the homepage featured grid and browse page.
  */
-export async function getLiveStreams(limit = 20) {
+export async function getLiveStreams(limit = 20, category?: string) {
+  const conditions = [eq(streams.status, "live")];
+  if (category) {
+    conditions.push(eq(streams.category, category as any));
+  }
+  
   return db.query.streams.findMany({
-    where: eq(streams.status, "live"),
+    where: and(...conditions),
     orderBy: [desc(streams.viewerCount)],
     limit,
     with: {
