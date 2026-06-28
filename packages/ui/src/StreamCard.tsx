@@ -19,8 +19,11 @@ export function StreamCard({
   href,
 }: StreamCardProps) {
   const thumbnailUrl = playbackId
-    ? `https://image.mux.com/${playbackId}/thumbnail.jpg?width=640`
+    ? (playbackId === "mock_playback_id"
+        ? "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=640&q=80"
+        : `https://image.mux.com/${playbackId}/thumbnail.jpg?width=640`)
     : null;
+
 
   return (
     <a
