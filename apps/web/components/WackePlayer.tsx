@@ -90,6 +90,14 @@ export default function WackePlayer({
     });
   }, [playbackId, hlsUrl, kickUsername, twitchUsername]);
 
+  const [hostname, setHostname] = useState<string>("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setHostname(window.location.hostname);
+    }
+  }, []);
+
   // Early return for Kick.com embedded stream player (placed AFTER hooks)
   if (kickUsername) {
     return (
@@ -120,15 +128,25 @@ export default function WackePlayer({
 
   // Early return for Twitch embedded stream player (placed AFTER hooks)
   if (twitchUsername) {
+    const twitchSrc = hostname
+      ? `https://player.twitch.tv/?channel=${twitchUsername}&parent=${hostname}&autoplay=true&muted=false`
+      : "";
+
     return (
       <div className="relative w-full bg-black rounded-xl overflow-hidden neon-border">
         <div className="relative aspect-video">
-          <iframe
-            src={`https://player.twitch.tv/?channel=${twitchUsername}&parent=singular-youtiao-888859.netlify.app&parent=localhost&autoplay=true&muted=false`}
-            className="w-full h-full border-0"
-            scrolling="no"
-            allowFullScreen
-          />
+          {hostname ? (
+            <iframe
+              src={twitchSrc}
+              className="w-full h-full border-0"
+              scrolling="no"
+              allowFullScreen
+            />
+          ) : (
+            <div className="w-full h-full bg-black flex items-center justify-center">
+              <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
         </div>
         <div className="p-4 bg-wacke-darker border-t border-wacke-purple/30">
           <div className="flex items-center justify-between">
