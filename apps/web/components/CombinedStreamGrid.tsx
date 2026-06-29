@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 
 // ─── Unified stream type (works for both Kick and Twitch) ────────────────────
@@ -205,14 +205,24 @@ export default function CombinedStreamGrid({
 
   const loading = loadingKick && loadingTwitch;
 
-  // Merge + sort by viewer count descending
-  const allStreams = [...kickStreams, ...twitchStreams]
-    .sort((a, b) => b.viewerCount - a.viewerCount);
+  // Merge + sort by viewer count descending (memoized to avoid re-sort on tab change)
+  const allStreams = useMemo(
+    () => [...kickStreams, ...twitchStreams].sort((a, b) => b.viewerCount - a.viewerCount),
+    [kickStreams, twitchStreams]
+  );
 
-  const displayed =
-    activeTab === "kick"   ? kickStreams :
-    activeTab === "twitch" ? twitchStreams :
-    allStreams;
+  // Which array to show — respect per-source loading state
+  const displayed = useMemo(() => {
+    if (activeTab === "kick")   return kickStreams;
+    if (activeTab === "twitch") return twitchStreams;
+    return allStreams;
+  }, [activeTab, kickStreams, twitchStreams, allStreams]);
+
+  // Show skeletons if the active tab's data is still loading
+  const tabLoading =
+    (activeTab === "kick"   && loadingKick) ||
+    (activeTab === "twitch" && loadingTwitch) ||
+    (activeTab === "all"    && loading);
 
   return (
     <section>
@@ -242,13 +252,13 @@ export default function CombinedStreamGrid({
 
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-        {loading
+        {tabLoading
           ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
           : displayed.map((stream) => <StreamCard key={stream.id} stream={stream} />)
         }
       </div>
 
-      {!loading && displayed.length === 0 && (
+      {!tabLoading && displayed.length === 0 && (
         <div className="text-center py-20 text-gray-500">
           <p className="text-4xl mb-3">😴</p>
           <p>Aucun stream en direct pour le moment</p>
