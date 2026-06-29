@@ -17,6 +17,16 @@ interface StreamPageProps {
 }
 
 export async function generateMetadata({ params }: StreamPageProps): Promise<Metadata> {
+  const cleanUsername = params.username.toLowerCase();
+  if (cleanUsername.startsWith("twitch-")) {
+    const twitchUsername = cleanUsername.substring(7);
+    const displayName = twitchUsername.charAt(0).toUpperCase() + twitchUsername.slice(1);
+    return {
+      title: `🔴 Live de ${displayName} | Wacké`,
+      description: `Regarde ${displayName} diffuser en direct sur Wacké via Twitch!`,
+    };
+  }
+
   const user = await getUserByUsername(params.username);
   if (!user) return { title: "Stream introuvable — Wacké" };
 
