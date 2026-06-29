@@ -177,14 +177,23 @@ export default async function StreamPage({ params }: StreamPageProps) {
             kickUsername={isKickUser ? user.username : undefined}
           />
         ) : (
-          <div className="aspect-video bg-wacke-darker rounded-xl flex items-center justify-center neon-border">
-            <div className="text-center">
-              <p className="text-5xl mb-4">📡</p>
-              <p className="text-wacke-pink font-bold text-xl">Stream hors ligne</p>
+          <div
+            className="aspect-video rounded-xl flex items-center justify-center neon-border relative overflow-hidden bg-cover bg-center"
+            style={{ backgroundImage: `url('/generated_wacke_banner.png')` }}
+          >
+            {/* Dark glass overlay */}
+            <div className="absolute inset-0 bg-black/65 backdrop-blur-[5px] z-0" />
 
-              <p className="text-gray-400 mt-2">
+            {/* Content */}
+            <div className="text-center relative z-10 p-6 bg-wacke-darker/70 rounded-2xl border border-wacke-purple/30 backdrop-blur-md shadow-2xl max-w-sm">
+              <p className="text-5xl mb-3 animate-pulse">📡</p>
+              <p className="text-wacke-pink font-black text-xl tracking-tight uppercase">Stream hors ligne</p>
+              <p className="text-gray-300 text-sm mt-2 font-medium">
                 {user.displayName} n&apos;est pas en live pour l&apos;instant
               </p>
+              <div className="mt-4 flex items-center justify-center space-x-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                <span>🔴 Reviens plus tard pour le live</span>
+              </div>
             </div>
           </div>
         )}
