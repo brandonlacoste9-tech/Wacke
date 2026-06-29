@@ -1,6 +1,6 @@
 import Link from "next/link";
 import KickFeaturedCarousel from "@/components/KickFeaturedCarousel";
-import KickStreamGrid from "@/components/KickStreamGrid";
+import CombinedStreamGrid from "@/components/CombinedStreamGrid";
 
 // Always server-render — never statically cache this page
 export const dynamic = "force-dynamic";
@@ -13,12 +13,11 @@ export default function HomePage() {
         <KickFeaturedCarousel />
       </section>
 
-      {/* ── Live Streams Grid ──────────────────────────────────────────── */}
+      {/* ── Live Streams Grid (Kick + Twitch) ─────────────────────────── */}
       <section className="px-8 pb-16 max-w-7xl mx-auto">
-        <KickStreamGrid
+        <CombinedStreamGrid
           limit={20}
           title="🔴 LIVE MAINTENANT"
-          columns={4}
         />
       </section>
 
