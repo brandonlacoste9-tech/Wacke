@@ -158,7 +158,6 @@ export default async function StreamPage({ params }: StreamPageProps) {
 
   const isKickUser =
     user.supabaseId?.startsWith("kick-") ||
-    user.email?.includes("mock.wacke.ca") ||
     user.username.startsWith("kickseur_") ||
     TOP_KICK_STREAMERS.includes(user.username.toLowerCase());
 
@@ -167,7 +166,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
     <div className="flex h-[calc(100vh-64px)] relative">
       {/* ── Main Stream Area ─────────────────────────────────────────────── */}
       <main className="flex-1 overflow-y-auto p-6 space-y-6">
-        {isKickUser || stream.muxPlaybackId ? (
+        {isKickUser || (stream.status === "live" && stream.muxPlaybackId) ? (
           <WackePlayer
             playbackId={stream.muxPlaybackId ?? "mock_playback_id"}
             title={stream.title}
