@@ -508,7 +508,28 @@ export async function upsertStream({
     return stream;
   }
 
-  const [stream] = await db
+  const existingStream = await db.query.streams.findFirst({
+    where: eq(streams.userId, userId),
+  });
+
+  if (existingStream) {
+    const [updatedStream] = await db
+      .update(streams)
+      .set({
+        title,
+        category: category as any,
+        muxPlaybackId,
+        muxAssetId,
+        sacreModeEnabled,
+        status: "offline",
+        updatedAt: new Date(),
+      })
+      .where(eq(streams.userId, userId))
+      .returning();
+    return updatedStream;
+  }
+
+  const [newStream] = await db
     .insert(streams)
     .values({
       userId,
@@ -519,21 +540,9 @@ export async function upsertStream({
       muxAssetId,
       sacreModeEnabled,
     })
-    .onConflictDoUpdate({
-      target: streams.userId,
-      set: {
-        title,
-        category: category as any,
-        muxPlaybackId,
-        muxAssetId,
-        sacreModeEnabled,
-        status: "offline",
-        updatedAt: new Date(),
-      },
-    })
     .returning();
 
-  return stream;
+  return newStream;
 }
 
 export async function updateStreamStatus(userId: string, status: "live" | "offline" | "ended") {
