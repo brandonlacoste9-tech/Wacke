@@ -1,6 +1,7 @@
 import Link from "next/link";
 import KickFeaturedCarousel from "@/components/KickFeaturedCarousel";
 import CombinedStreamGrid from "@/components/CombinedStreamGrid";
+import TrendingGames from "@/components/TrendingGames";
 
 // Always server-render — never statically cache this page
 export const dynamic = "force-dynamic";
@@ -45,6 +46,9 @@ export default function HomePage() {
               <p className="text-sm font-bold text-white">{cat.name}</p>
             </Link>
           ))}
+        </div>
+        <div className="mt-12">
+          <TrendingGames />
         </div>
       </section>
     </main>
