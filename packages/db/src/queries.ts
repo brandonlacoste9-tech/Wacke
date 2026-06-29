@@ -9,6 +9,34 @@ import {
   reactions,
 } from "./schema";
 
+// ─── Top Kick Streamers fallbacks list ──────────────────────────────────────
+export const TOP_KICK_STREAMERS = [
+  "odablock",
+  "xqc",
+  "adinross",
+  "amouranth",
+  "roshtein",
+  "trainwreckstv",
+  "westcol",
+  "billybrown"
+];
+
+// Helper to determine category dynamically
+const getStreamerCategory = (username: string): string => {
+  if (["xqc", "adinross"].includes(username)) return "gaming";
+  if (["roshtein", "trainwreckstv"].includes(username)) return "talk";
+  if (username === "amouranth") return "irl";
+  return "gaming";
+};
+
+// Helper to determine stream title dynamically
+const getStreamerTitle = (username: string): string => {
+  if (username === "odablock") return "👑 DMM ALLSTARS REVIEW !dmm | !socials | !discord";
+  if (username === "xqc") return "🎮 MULTI-GAME SHENANIGANS & REACTS - Chill stream";
+  if (username === "adinross") return "🔥 TALK SHOW & GUESTS - Pull up";
+  return "🔴 LIVE STREAM FROM KICK.COM";
+};
+
 // ─── Global In-Memory Mock Store for Zero-Config Fallback ───────────────────
 declare global {
   var mockUsers: any[] | undefined;
@@ -146,19 +174,65 @@ export function getMockDbState() {
 // ─── User Queries ─────────────────────────────────────────────────────────────
 
 export async function getUserByUsername(username: string) {
+  const cleanUsername = username.toLowerCase().trim();
+
   if (isDbMocked()) {
     const state = getMockDbState();
-    const cleanUsername = username.toLowerCase();
-    const user = state.users.find((u) => u.username === cleanUsername);
+    let user = state.users.find((u) => u.username === cleanUsername);
+    
+    // Auto-generate profile if it is one of the fallback Kick streamers
+    if (!user && TOP_KICK_STREAMERS.includes(cleanUsername)) {
+      user = {
+        id: "kick-mock-streamer-" + cleanUsername,
+        username: cleanUsername,
+        displayName: cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1),
+        email: `${cleanUsername}@kick.com`,
+        avatarUrl: null,
+        bio: `Streamer officiel de Kick.com. Regarde son live ici sur Wacké!`,
+        tokenBalance: 0,
+        isStreamer: true,
+        isBanned: false,
+        isModerator: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      state.users.push(user);
+    }
+
     if (!user) return null;
     const stream = state.streams.find((s) => s.userId === user.id);
     return { ...user, streams: stream ? [stream] : [] };
   }
 
-  return db.query.users.findFirst({
-    where: eq(users.username, username),
+  let dbUser = await db.query.users.findFirst({
+    where: eq(users.username, cleanUsername),
     with: { streams: true },
   });
+
+  // Database fallback: if user does not exist in DB but is a famous Kick channel
+  if (!dbUser && TOP_KICK_STREAMERS.includes(cleanUsername)) {
+    dbUser = {
+      id: "kick-mock-streamer-" + cleanUsername,
+      supabaseId: "kick-mock-uuid-" + cleanUsername,
+      username: cleanUsername,
+      displayName: cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1),
+      email: `${cleanUsername}@kick.com`,
+      avatarUrl: null,
+      bio: `Streamer officiel de Kick.com. Regarde son live ici sur Wacké!`,
+      tokenBalance: 0,
+      isStreamer: true,
+      muxStreamKey: null,
+      muxPlaybackId: null,
+      muxLiveStreamId: null,
+      isBanned: false,
+      isModerator: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      streams: [],
+    };
+  }
+
+  return dbUser;
 }
 
 export async function getUserBySupabaseId(supabaseId: string) {
@@ -256,80 +330,137 @@ export async function getStreamById(streamId: string) {
 }
 
 export async function getLiveStreams(limit = 20, category?: string, search?: string) {
+  let activeStreamsList: any[] = [];
+
   if (isDbMocked()) {
     const state = getMockDbState();
-    const activeStreams = state.streams.filter((s) => s.status === "live");
-    let filtered = category
-      ? activeStreams.filter((s) => s.category === category)
-      : activeStreams;
-    
+    activeStreamsList = state.streams.filter((s) => s.status === "live");
+  } else {
+    const conditions = [eq(streams.status, "live")];
+    if (category) {
+      conditions.push(eq(streams.category, category as any));
+    }
     if (search) {
-      const cleanSearch = search.toLowerCase();
-      filtered = filtered.filter(
-        (s) =>
-          s.title.toLowerCase().includes(cleanSearch) ||
-          s.description?.toLowerCase().includes(cleanSearch) ||
-          s.category.toLowerCase().includes(cleanSearch)
+      conditions.push(
+        sql`lower(${streams.title}) like ${"%" + search.toLowerCase() + "%"}`
       );
     }
-    
-    // Hydrate streamer profile
-    return filtered.slice(0, limit).map((stream) => {
-      const streamer = state.users.find((u) => u.id === stream.userId);
-      return {
-        ...stream,
-        user: streamer
-          ? {
-              id: streamer.id,
-              username: streamer.username,
-              displayName: streamer.displayName,
-              avatarUrl: streamer.avatarUrl,
-            }
-          : null,
-      };
-    });
-  }
 
-  const conditions = [eq(streams.status, "live")];
-  if (category) {
-    conditions.push(eq(streams.category, category as any));
-  }
-  if (search) {
-    conditions.push(
-      sql`lower(${streams.title}) like ${"%" + search.toLowerCase() + "%"}`
-    );
-  }
-
-  return db.query.streams.findMany({
-    where: and(...conditions),
-    orderBy: [desc(streams.viewerCount)],
-    limit,
-    with: {
-      user: {
-        columns: {
-          id: true,
-          username: true,
-          displayName: true,
-          avatarUrl: true,
+    try {
+      activeStreamsList = await db.query.streams.findMany({
+        where: and(...conditions),
+        orderBy: [desc(streams.viewerCount)],
+        limit,
+        with: {
+          user: {
+            columns: {
+              id: true,
+              username: true,
+              displayName: true,
+              avatarUrl: true,
+            },
+          },
         },
+      });
+    } catch (err) {
+      console.error("[GET_LIVE_STREAMS_DB_ERROR]", err);
+    }
+  }
+
+  // If there are no streams online in the database, return the famous Kick streamers as live feeds
+  if (activeStreamsList.length === 0) {
+    const fallbackStreams = TOP_KICK_STREAMERS.map((username, index) => ({
+      id: `kick-mock-stream-${username}`,
+      userId: `kick-mock-streamer-${username}`,
+      title: getStreamerTitle(username),
+      description: `Watch ${username} stream live via direct Kick.com integration on Wacké.`,
+      category: getStreamerCategory(username),
+      status: "live",
+      muxPlaybackId: "mock_playback_id",
+      viewerCount: 4200 + index * 1250,
+      sacreModeEnabled: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      user: {
+        id: `kick-mock-streamer-${username}`,
+        username,
+        displayName: username.charAt(0).toUpperCase() + username.slice(1),
+        avatarUrl: null,
       },
-    },
-  });
+    }));
+
+    const filtered = category
+      ? fallbackStreams.filter((s) => s.category === category)
+      : fallbackStreams;
+
+    if (search) {
+      const cleanSearch = search.toLowerCase();
+      return filtered.filter(
+        (s) =>
+          s.title.toLowerCase().includes(cleanSearch) ||
+          s.user.displayName.toLowerCase().includes(cleanSearch)
+      ).slice(0, limit);
+    }
+
+    return filtered.slice(0, limit);
+  }
+
+  return activeStreamsList;
 }
 
 export async function getStreamByUserId(userId: string) {
   if (isDbMocked()) {
     const state = getMockDbState();
-    const stream = state.streams.find((s) => s.userId === userId);
+    let stream = state.streams.find((s) => s.userId === userId);
+    
+    // Auto-generate stream profile if it is one of the fallback Kick streamers
+    if (!stream && userId.startsWith("kick-mock-streamer-")) {
+      const username = userId.replace("kick-mock-streamer-", "");
+      stream = {
+        id: "kick-mock-stream-" + username,
+        userId,
+        title: getStreamerTitle(username),
+        description: `Watch ${username} stream live via direct Kick.com integration on Wacké.`,
+        category: getStreamerCategory(username),
+        status: "live",
+        muxPlaybackId: "mock_playback_id",
+        viewerCount: 14200,
+        sacreModeEnabled: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      state.streams.push(stream);
+    }
+
     if (!stream) return null;
     const streamer = state.users.find((u) => u.id === userId);
     return { ...stream, user: streamer || null };
   }
 
-  return db.query.streams.findFirst({
+  let dbStream = await db.query.streams.findFirst({
     where: eq(streams.userId, userId),
     with: { user: true },
   });
+
+  // Database fallback: if stream does not exist in DB but belongs to a famous Kick channel
+  if (!dbStream && userId.startsWith("kick-mock-streamer-")) {
+    const username = userId.replace("kick-mock-streamer-", "");
+    dbStream = {
+      id: "kick-mock-stream-" + username,
+      userId,
+      title: getStreamerTitle(username),
+      description: `Watch ${username} stream live via direct Kick.com integration on Wacké.`,
+      category: getStreamerCategory(username) as any,
+      status: "live",
+      muxPlaybackId: "mock_playback_id",
+      viewerCount: 9400,
+      sacreModeEnabled: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as any;
+  }
+
+  return dbStream;
 }
 
 export async function upsertStream({
@@ -531,7 +662,7 @@ export async function getRecentMessages(streamId: string, limit = 50) {
   }
 
   return db.query.messages.findMany({
-    where: and(eq(messages.streamId, streamId), eq(messages.isDeleted, false)),
+    where: and(messages.streamId ? eq(messages.streamId, streamId) : sql`true`, eq(messages.isDeleted, false)),
     orderBy: [desc(messages.createdAt)],
     limit,
     with: {
@@ -646,7 +777,7 @@ export async function transferTokens({
       });
       return true;
     }
-    throw new Error("Solde insuffisant ou utilisateurs introuvables");
+    throw new Error("Solde insuffisante ou utilisateurs introuvables");
   }
 
   return db.transaction(async (tx) => {

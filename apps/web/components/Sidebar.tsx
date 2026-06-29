@@ -1,4 +1,4 @@
-import { getLiveStreams } from "@wacke/db";
+import { getLiveStreams, TOP_KICK_STREAMERS } from "@wacke/db";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -16,11 +16,13 @@ export default async function Sidebar() {
   }
 
   // Fallback channels to display if database has no active live streams
-  const fallbackChannels = [
-    { username: "gabriel", displayName: "Gabriel 🏪", category: "talk", viewerCount: 142, isMock: true },
-    { username: "sophie", displayName: "Sophie 🎮", category: "gaming", viewerCount: 89, isMock: true },
-    { username: "félix", displayName: "Félix 🎵", category: "musique", viewerCount: 231, isMock: true },
-  ];
+  const fallbackChannels = TOP_KICK_STREAMERS.slice(0, 5).map((username, index) => ({
+    username,
+    displayName: username.charAt(0).toUpperCase() + username.slice(1),
+    category: index % 2 === 0 ? "gaming" : "talk",
+    viewerCount: 12500 - index * 1800,
+    isMock: true,
+  }));
 
   const channelsToRender = liveChannels.length > 0
     ? liveChannels.map((c) => ({

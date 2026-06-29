@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 export const dynamic = 'force-dynamic';
 
-import { getStreamByUserId, getRecentMessages, getUserByUsername, isFollowing, getUserBySupabaseId } from "@wacke/db";
+import { getStreamByUserId, getRecentMessages, getUserByUsername, isFollowing, getUserBySupabaseId, TOP_KICK_STREAMERS } from "@wacke/db";
 import WackePlayer from "@/components/WackePlayer";
 import GraffitiChat from "@/components/GraffitiChat";
 import TokenBar from "@/components/TokenBar";
@@ -65,7 +65,12 @@ export default async function StreamPage({ params }: StreamPageProps) {
     }
   }
 
-  const isKickUser = user.supabaseId?.startsWith("kick-") || user.email?.includes("mock.wacke.ca") || user.username.startsWith("kickseur_");
+  const isKickUser =
+    user.supabaseId?.startsWith("kick-") ||
+    user.email?.includes("mock.wacke.ca") ||
+    user.username.startsWith("kickseur_") ||
+    TOP_KICK_STREAMERS.includes(user.username.toLowerCase());
+
 
   return (
     <div className="flex h-[calc(100vh-64px)] relative">
