@@ -9,6 +9,7 @@ interface WackePlayerProps {
   viewerCount: number;
   isLive: boolean;
   kickUsername?: string;
+  twitchUsername?: string;
 }
 
 /**
@@ -25,6 +26,7 @@ export default function WackePlayer({
   viewerCount,
   isLive,
   kickUsername,
+  twitchUsername,
 }: WackePlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +37,7 @@ export default function WackePlayer({
   const hlsUrl = `https://stream.mux.com/${playbackId}.m3u8`;
 
   useEffect(() => {
-    if (kickUsername || !videoRef.current || !playbackId) return;
+    if (kickUsername || twitchUsername || !videoRef.current || !playbackId) return;
 
     const video = videoRef.current;
 
@@ -86,7 +88,7 @@ export default function WackePlayer({
         hls.destroy();
       };
     });
-  }, [playbackId, hlsUrl, kickUsername]);
+  }, [playbackId, hlsUrl, kickUsername, twitchUsername]);
 
   // Early return for Kick.com embedded stream player (placed AFTER hooks)
   if (kickUsername) {
@@ -109,6 +111,34 @@ export default function WackePlayer({
             <div className="flex items-center space-x-2 bg-green-500/10 border border-green-500/30 px-3 py-1.5 rounded-xl">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
               <span className="text-xs font-bold text-green-400">Flux Kick Activé 🟢</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Early return for Twitch embedded stream player (placed AFTER hooks)
+  if (twitchUsername) {
+    return (
+      <div className="relative w-full bg-black rounded-xl overflow-hidden neon-border">
+        <div className="relative aspect-video">
+          <iframe
+            src={`https://player.twitch.tv/?channel=${twitchUsername}&parent=singular-youtiao-888859.netlify.app&parent=localhost&autoplay=true&muted=false`}
+            className="w-full h-full border-0"
+            scrolling="no"
+            allowFullScreen
+          />
+        </div>
+        <div className="p-4 bg-wacke-darker border-t border-wacke-purple/30">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-bold text-white truncate max-w-xs">{title}</h2>
+              <p className="text-sm text-wacke-cyan">{streamerName}</p>
+            </div>
+            <div className="flex items-center space-x-2 bg-purple-500/10 border border-purple-500/30 px-3 py-1.5 rounded-xl">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
+              <span className="text-xs font-bold text-purple-400">Flux Twitch Activé 🟣</span>
             </div>
           </div>
         </div>

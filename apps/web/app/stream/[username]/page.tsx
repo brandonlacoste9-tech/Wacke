@@ -33,6 +33,45 @@ export async function generateMetadata({ params }: StreamPageProps): Promise<Met
 }
 
 export default async function StreamPage({ params }: StreamPageProps) {
+  const cleanUsername = params.username.toLowerCase();
+  const isTwitchStream = cleanUsername.startsWith("twitch-");
+
+  if (isTwitchStream) {
+    const twitchUsername = cleanUsername.substring(7); // Remove "twitch-" prefix
+    const displayName = twitchUsername.charAt(0).toUpperCase() + twitchUsername.slice(1);
+    const fallbackTitle = `🔴 Diffusion en direct de Twitch.tv`;
+
+    return (
+      <div className="flex h-[calc(100vh-64px)] relative">
+        <main className="flex-1 overflow-y-auto p-6 space-y-6">
+          <WackePlayer
+            playbackId="mock_playback_id"
+            title={fallbackTitle}
+            streamerName={displayName}
+            viewerCount={15400}
+            isLive={true}
+            twitchUsername={twitchUsername}
+          />
+          <div className="bg-wacke-darker rounded-xl p-6 border border-wacke-purple/20">
+            <h1 className="text-2xl font-bold text-white">{fallbackTitle}</h1>
+            <p className="text-wacke-cyan font-semibold capitalize">{twitchUsername}</p>
+          </div>
+        </main>
+        <GraffitiChat
+          streamId={`twitch-mock-chat-${twitchUsername}`}
+          initialMessages={[]}
+          currentUserId={undefined}
+        />
+        <TokenBar
+          initialBalance={500}
+          streamerId={`twitch-mock-streamer-${twitchUsername}`}
+          streamId={`twitch-mock-chat-${twitchUsername}`}
+          authToken={undefined}
+        />
+      </div>
+    );
+  }
+
   let user;
   let stream;
   let initialMessages: any[] = [];
