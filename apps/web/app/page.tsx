@@ -1,6 +1,7 @@
 import { getLiveStreams } from "@wacke/db";
 import { StreamCard } from "@wacke/ui";
 import Link from "next/link";
+import FeaturedCarousel from "@/components/FeaturedCarousel";
 
 export const dynamic = 'force-dynamic';
 
@@ -9,36 +10,13 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-wacke-dark">
-      {/* ── Hero Banner ───────────────────────────────────────────────────── */}
-      <section className="relative px-8 py-20 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-wacke-purple/10 via-transparent to-transparent pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-wacke-pink/5 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10">
-          <h1 className="text-7xl font-bold graffiti-text neon-pink mb-4">WACKÉ</h1>
-          <p className="text-xl text-gray-300 max-w-xl mx-auto mb-2">
-            Le streaming <span className="text-wacke-cyan font-bold">québécois</span>. Raw, wacké, 100% culture de rue.
-          </p>
-          <p className="text-sm text-gray-500 mb-8">Kick meets dépanneur drama. 🏪🔥</p>
-          <div className="flex items-center justify-center space-x-4">
-            <Link
-              href="/browse"
-              className="bg-gradient-to-r from-wacke-pink to-wacke-purple px-8 py-3 rounded-xl font-bold text-lg hover:opacity-90 transition-all hover:scale-105"
-            >
-              Parcourir les streams
-            </Link>
-            <Link
-              href="/dashboard/stream"
-              className="border border-wacke-cyan/40 text-wacke-cyan px-8 py-3 rounded-xl font-bold text-lg hover:bg-wacke-cyan/10 transition-all hover:scale-105"
-            >
-              Commencer à streamer
-            </Link>
-          </div>
-        </div>
+      {/* ── Featured Video Carousel ────────────────────────────────────────── */}
+      <section className="px-8 pt-8 pb-4 max-w-7xl mx-auto">
+        <FeaturedCarousel streams={liveStreams} />
       </section>
 
       {/* ── Live Streams Grid ─────────────────────────────────────────────── */}
-      <section className="px-8 pb-16">
+      <section className="px-8 pb-16 max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">
             🔴 <span className="neon-pink graffiti-text">LIVE MAINTENANT</span>
@@ -72,7 +50,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── Category Teasers ──────────────────────────────────────────────── */}
-      <section className="px-8 pb-16">
+      <section className="px-8 pb-16 max-w-7xl mx-auto">
         <h2 className="text-2xl font-bold mb-6">
           🎨 <span className="neon-cyan graffiti-text">PARCOURIR PAR CATÉGORIE</span>
         </h2>
