@@ -38,8 +38,7 @@ export async function createMuxLiveStream() {
     new_asset_settings: {
       playback_policy: ["public"],
     },
-    reduced_latency: true, // Low-latency mode for real-time interaction
-    reconnect_window: 60,  // Allow 60s reconnect window for streamer drops
+    latency_mode: "low", // Low-latency mode (LL-HLS) for real-time interaction
   });
 
   return {
