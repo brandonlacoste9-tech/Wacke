@@ -8,6 +8,13 @@
       "when": 1782687852123,
       "tag": "0000_clumsy_sentinel",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1782787575064,
+      "tag": "0001_rare_preak",
+      "breakpoints": true
     }
   ]
 }

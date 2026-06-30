@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useGraffitiChat, type ChatMessage } from "@/hooks/useGraffitiChat";
-import { Moon, Flame } from "lucide-react";
+import { Moon, Flame, Mic } from "lucide-react";
+import { useAuth } from "./AuthProvider";
 
 // ─── Colour palette for usernames ─────────────────────────────────────────────
 const USER_COLORS = [
@@ -37,24 +38,52 @@ export default function GraffitiChat({
   const [inputValue, setInputValue] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const { messages, sendMessage, isConnected, isSending } = useGraffitiChat({
+  
+  const { token } = useAuth();
+  
+  const { messages, sendMessage, sendTtsMessage, isConnected, isSending, isSendingTts } = useGraffitiChat({
     streamId,
     currentUserId,
     sacreModeEnabled: sacreMode,
     initialMessages,
+    authToken: token || undefined,
   });
 
-  // Auto-scroll to bottom on new messages
+  // Track played audio to prevent duplicate playback on re-renders
+  const playedAudioRef = useRef<Set<string>>(new Set());
+
+  // Auto-scroll to bottom on new messages and play TTS
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    
+    // Check if the latest message has TTS and we haven't played it yet
+    if (messages.length > 0) {
+      const latestMessage = messages[messages.length - 1];
+      if (latestMessage.audioUrl && !playedAudioRef.current.has(latestMessage.id)) {
+        playedAudioRef.current.add(latestMessage.id);
+        const audio = new Audio(latestMessage.audioUrl);
+        audio.play().catch(e => console.error("Auto-play prevented", e));
+      }
+    }
   }, [messages]);
 
   const handleSend = async () => {
-    if (!inputValue.trim() || isSending) return;
+    if (!inputValue.trim() || isSending || isSendingTts) return;
     setErrorMsg(null);
 
     const { error } = await sendMessage(inputValue.trim());
+    if (error) {
+      setErrorMsg(error);
+      return;
+    }
+    setInputValue("");
+  };
+
+  const handleSendTts = async () => {
+    if (!inputValue.trim() || isSending || isSendingTts) return;
+    setErrorMsg(null);
+
+    const { error } = await sendTtsMessage(inputValue.trim());
     if (error) {
       setErrorMsg(error);
       return;
@@ -117,6 +146,11 @@ export default function GraffitiChat({
                   <Flame className="w-3 h-3 inline text-red-500 fill-current drop-shadow-[0_0_5px_rgba(255,0,0,0.8)]" />
                 </span>
               )}
+              {msg.audioUrl && (
+                <span className="ml-1 text-xs text-wacke-cyan" title="Message Vocal AI">
+                  <Mic className="w-3 h-3 inline text-wacke-cyan drop-shadow-[0_0_5px_rgba(0,255,255,0.8)]" />
+                </span>
+              )}
             </p>
             <p className="text-sm text-gray-200 ml-2 break-words">{msg.content}</p>
           </div>
@@ -142,7 +176,7 @@ export default function GraffitiChat({
             placeholder={
               currentUserId ? "Spray ton message..." : "Connecte-toi pour chatter..."
             }
-            disabled={!currentUserId || isSending}
+            disabled={!currentUserId || isSending || isSendingTts}
             maxLength={500}
             className="flex-1 bg-wacke-dark border border-wacke-purple/40 rounded-lg px-4 py-2 text-sm
                        focus:outline-none focus:border-wacke-cyan/60 transition-colors
@@ -150,12 +184,24 @@ export default function GraffitiChat({
           />
           <button
             onClick={handleSend}
-            disabled={!currentUserId || isSending || !inputValue.trim()}
+            disabled={!currentUserId || isSending || isSendingTts || !inputValue.trim()}
             className="bg-gradient-to-r from-wacke-pink to-wacke-purple px-4 py-2 rounded-lg
                        hover:opacity-80 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
             aria-label="Envoyer"
           >
             {isSending ? "..." : "➤"}
+          </button>
+        </div>
+        
+        {/* TTS Button */}
+        <div className="mt-2 flex justify-end">
+          <button
+            onClick={handleSendTts}
+            disabled={!currentUserId || isSending || isSendingTts || !inputValue.trim()}
+            className="flex items-center space-x-1.5 text-[10px] bg-wacke-dark border border-wacke-cyan/30 text-wacke-cyan px-3 py-1.5 rounded-lg hover:bg-wacke-cyan/10 transition-colors disabled:opacity-50 font-bold uppercase tracking-wider"
+          >
+            <Mic className="w-3 h-3" />
+            <span>{isSendingTts ? "Génération..." : "TTS (50 🪙)"}</span>
           </button>
         </div>
 

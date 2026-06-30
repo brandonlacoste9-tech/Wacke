@@ -11,6 +11,7 @@ export interface ChatMessage {
   userId: string;
   content: string;
   isSacre: boolean;
+  audioUrl?: string | null;
   createdAt: string;
   user: {
     id: string;
@@ -25,13 +26,16 @@ interface UseGraffitiChatOptions {
   currentUserId?: string;
   sacreModeEnabled: boolean;
   initialMessages?: ChatMessage[];
+  authToken?: string;
 }
 
 interface UseGraffitiChatReturn {
   messages: ChatMessage[];
   sendMessage: (content: string) => Promise<{ error?: string }>;
+  sendTtsMessage: (content: string) => Promise<{ error?: string }>;
   isConnected: boolean;
   isSending: boolean;
+  isSendingTts: boolean;
 }
 
 /**
@@ -46,10 +50,12 @@ export function useGraffitiChat({
   currentUserId,
   sacreModeEnabled,
   initialMessages = [],
+  authToken,
 }: UseGraffitiChatOptions): UseGraffitiChatReturn {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [isConnected, setIsConnected] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [isSendingTts, setIsSendingTts] = useState(false);
   const channelRef = useRef<RealtimeChannel | null>(null);
   const supabase = getSupabaseClient();
 
@@ -138,5 +144,47 @@ export function useGraffitiChat({
     [streamId, currentUserId, sacreModeEnabled, isSending]
   );
 
-  return { messages, sendMessage, isConnected, isSending };
+  // ─── Send TTS Message ──────────────────────────────────────────────────────
+  const sendTtsMessage = useCallback(
+    async (content: string): Promise<{ error?: string }> => {
+      if (!currentUserId || !authToken) return { error: "Tu dois être connecté pour envoyer un TTS" };
+      if (isSendingTts) return { error: "Attends la fin de la génération TTS..." };
+
+      const modResult = moderateMessage(content, sacreModeEnabled);
+      if (!modResult.allowed) {
+        return { error: modResult.reason };
+      }
+
+      setIsSendingTts(true);
+
+      try {
+        const response = await fetch("/api/chat/tts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({
+            streamId,
+            content: modResult.sanitized,
+            isSacre: modResult.isSacre,
+          }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          return { error: data.error ?? "Erreur TTS" };
+        }
+
+        return {};
+      } catch {
+        return { error: "Connexion perdue. Réessaie." };
+      } finally {
+        setIsSendingTts(false);
+      }
+    },
+    [streamId, currentUserId, sacreModeEnabled, isSendingTts, authToken]
+  );
+
+  return { messages, sendMessage, sendTtsMessage, isConnected, isSending, isSendingTts };
 }

@@ -119,6 +119,7 @@ export const messages = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     content: text("content").notNull(),
+    audioUrl: text("audio_url"),
     // Sacré mode: if true, message bypasses standard filter
     isSacre: boolean("is_sacre").notNull().default(false),
     // Moderation

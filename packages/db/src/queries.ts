@@ -692,11 +692,13 @@ export async function createChatMessage({
   userId,
   content,
   isSacre,
+  audioUrl,
 }: {
   streamId: string;
   userId: string;
   content: string;
   isSacre: boolean;
+  audioUrl?: string;
 }) {
   if (isDbMocked()) {
     const state = getMockDbState();
@@ -707,6 +709,7 @@ export async function createChatMessage({
       userId,
       content,
       isSacre,
+      audioUrl: audioUrl || null,
       isDeleted: false,
       createdAt: new Date(),
       user: sender
@@ -729,6 +732,7 @@ export async function createChatMessage({
       userId,
       content,
       isSacre,
+      audioUrl,
     })
     .returning();
 
