@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateStreamStatusByMuxId } from "@wacke/db";
-import crypto from "crypto";
+import Mux from "@mux/mux-node";
+import { isMuxMocked } from "@/lib/config";
 
 export const runtime = "nodejs";
 export const dynamic = 'force-dynamic';
@@ -16,17 +17,20 @@ export async function POST(req: NextRequest) {
 
     // ─── Signature Verification ───────────────────────────────────────────
     const webhookSecret = process.env.MUX_WEBHOOK_SECRET!;
-    const [, sigHash] = signature.split(",").map((s) => s.split("=")[1]);
-    const expectedSig = crypto
-      .createHmac("sha256", webhookSecret)
-      .update(body)
-      .digest("hex");
-
-    if (sigHash !== expectedSig) {
+    
+    let event;
+    try {
+      if (isMuxMocked()) {
+        // Bypass signature verification in mock mode for local testing
+        event = JSON.parse(body);
+      } else {
+        const mux = new Mux();
+        event = mux.webhooks.unwrap(body, req.headers, webhookSecret);
+      }
+    } catch (err) {
+      console.error("[MUX_WEBHOOK_VERIFY_ERROR]", err);
       return NextResponse.json({ error: "Signature invalide" }, { status: 401 });
     }
-
-    const event = JSON.parse(body);
     const { type, data } = event;
     const liveStreamId = data?.id as string;
 
