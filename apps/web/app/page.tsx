@@ -9,8 +9,18 @@ export const dynamic = "force-dynamic";
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-wacke-dark">
+      {/* ── Hero Banner ──────────────────────────────────────────────────────── */}
+      <section className="relative w-full h-[30vh] min-h-[300px] mb-8 overflow-hidden flex items-center justify-center border-b border-wacke-purple/30">
+        <img src="/hero_banner.jpg" alt="Cyberpunk City" className="absolute inset-0 w-full h-full object-cover z-0 opacity-60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-wacke-dark via-wacke-dark/40 to-transparent z-10" />
+        <div className="relative z-20 text-center px-4">
+          <h1 className="text-4xl md:text-6xl font-black graffiti-text neon-pink mb-4 tracking-wider uppercase drop-shadow-[0_0_15px_rgba(255,0,255,0.8)]">Bienvenue sur Wacké</h1>
+          <p className="text-lg md:text-xl text-gray-200 font-bold max-w-2xl mx-auto drop-shadow-md">Le hub du streaming québécois. Sans filtre. 100% pur jus.</p>
+        </div>
+      </section>
+
       {/* ── Featured Carousel (real-time Kick streams) ──────────────────── */}
-      <section className="px-8 pt-8 pb-4 max-w-7xl mx-auto">
+      <section className="px-8 pt-4 pb-4 max-w-7xl mx-auto">
         <KickFeaturedCarousel />
       </section>
 

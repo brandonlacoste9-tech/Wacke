@@ -74,6 +74,7 @@ export default function GraffitiChat({
       {/* ── Chat Header ───────────────────────────────────────────────────── */}
       <div className="p-4 border-b border-wacke-purple/30 flex items-center justify-between">
         <div className="flex items-center space-x-2">
+          <img src="/spray_can.png" alt="Graffiti" className="h-6 w-6 object-contain drop-shadow-[0_0_8px_rgba(255,0,255,0.8)]" />
           <h2 className="text-xl font-bold graffiti-text neon-pink">GRAFFITI CHAT</h2>
           {/* Live connection indicator */}
           <span
@@ -85,12 +86,17 @@ export default function GraffitiChat({
         </div>
         <button
           onClick={() => setSacreMode((prev) => !prev)}
-          className={`text-xs px-3 py-1 rounded-full font-bold transition-colors ${
+          className={`text-xs px-3 py-1 rounded-full font-bold transition-colors flex items-center space-x-1 ${
             sacreMode ? "bg-red-600 text-white" : "bg-gray-600 text-gray-300"
           }`}
           title={sacreMode ? "Mode Sacré actif" : "Mode Sacré désactivé"}
         >
-          MODE SACRÉ {sacreMode ? "🔥" : "💤"}
+          <span>MODE SACRÉ</span>
+          {sacreMode ? (
+            <img src="/fire.png" alt="Fire" className="h-4 w-4 object-contain ml-1" />
+          ) : (
+            <span className="ml-1">💤</span>
+          )}
         </button>
       </div>
 

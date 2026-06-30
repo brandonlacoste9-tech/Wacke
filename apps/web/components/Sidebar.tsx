@@ -43,21 +43,21 @@ export default async function Sidebar() {
           href="/"
           className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-300 hover:text-white hover:bg-wacke-dark/40 transition-colors"
         >
-          <span>🏠</span>
+          <img src="/icon_home.png" alt="Home" className="w-5 h-5 object-contain drop-shadow-[0_0_8px_rgba(255,0,255,0.8)]" />
           <span>Accueil</span>
         </Link>
         <Link
           href="/browse"
           className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-300 hover:text-white hover:bg-wacke-dark/40 transition-colors"
         >
-          <span>🎨</span>
+          <img src="/icon_browse.png" alt="Browse" className="w-5 h-5 object-contain drop-shadow-[0_0_8px_rgba(0,255,255,0.8)]" />
           <span>Parcourir</span>
         </Link>
         <Link
           href="/dashboard/stream"
           className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-300 hover:text-white hover:bg-wacke-dark/40 transition-colors"
         >
-          <span>🔴</span>
+          <img src="/icon_stream.png" alt="Stream" className="w-5 h-5 object-contain drop-shadow-[0_0_8px_rgba(255,0,0,0.8)]" />
           <span>Mon Stream</span>
         </Link>
       </div>
@@ -111,9 +111,10 @@ export default async function Sidebar() {
             href="https://discord.gg"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full bg-[#5865F2] hover:bg-[#4752C4] py-2 rounded-xl font-bold text-xs text-white block text-center transition-colors"
+            className="w-full bg-[#5865F2] hover:bg-[#4752C4] py-2 rounded-xl font-bold text-xs text-white flex items-center justify-center space-x-2 transition-colors"
           >
-            Rejoindre 🚀
+            <span>Rejoindre</span>
+            <img src="/icon_discord.png" alt="Discord" className="w-4 h-4 object-contain drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]" />
           </a>
         </div>
       </div>

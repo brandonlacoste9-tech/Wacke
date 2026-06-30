@@ -185,7 +185,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
 
             {/* Content */}
             <div className="text-center relative z-10 p-6 bg-wacke-darker/70 rounded-2xl border border-wacke-purple/30 backdrop-blur-md shadow-2xl max-w-sm">
-              <p className="text-5xl mb-3 animate-pulse">📡</p>
+              <img src="/offline_mascot.png" alt="Offline Mascot" className="w-48 h-auto mx-auto mb-2 drop-shadow-[0_0_15px_rgba(255,0,255,0.5)]" />
               <p className="text-wacke-pink font-black text-xl tracking-tight uppercase">Stream hors ligne</p>
               <p className="text-gray-300 text-sm mt-2 font-medium">
                 {user.displayName} n&apos;est pas en live pour l&apos;instant
