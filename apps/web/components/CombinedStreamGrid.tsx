@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
+import { Users } from "lucide-react";
 
 // ─── Unified stream type (works for both Kick and Twitch) ────────────────────
 export interface UnifiedStream {
@@ -81,11 +82,8 @@ function StreamCard({ stream }: { stream: UnifiedStream }) {
         </div>
 
         {/* Viewer count */}
-        <div className="absolute top-2 right-2 flex items-center space-x-1 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded">
-          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-            <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
-          </svg>
+        <div className="absolute top-2 right-2 flex items-center space-x-1 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-sm">
+          <Users className="w-3 h-3 text-gray-300" />
           <span>{formatViewers(stream.viewerCount)}</span>
         </div>
       </div>
@@ -259,8 +257,7 @@ export default function CombinedStreamGrid({
       </div>
 
       {!tabLoading && displayed.length === 0 && (
-        <div className="text-center py-20 text-gray-500">
-          <p className="text-4xl mb-3">😴</p>
+          <div className="text-4xl mb-3 flex justify-center"><Users className="w-12 h-12 opacity-50" /></div>
           <p>Aucun stream en direct pour le moment</p>
         </div>
       )}

@@ -138,21 +138,27 @@ export default function LiveStatsTicker() {
         <div className="flex-1 overflow-hidden relative h-5 hidden md:block select-none">
           <div className="animate-marquee whitespace-nowrap absolute flex items-center space-x-12 pl-[100%]">
             <span className="flex items-center space-x-1">
-              <span className="text-wacke-cyan">🎮 Catégorie Populaire:</span>
+              <span className="text-wacke-cyan font-bold uppercase">Catégorie Populaire:</span>
               <span className="text-white font-bold">{stats.topGame}</span>
             </span>
             <span className="flex items-center space-x-1">
-              <span className="text-wacke-pink">🚀 Boostez vos créateurs:</span>
+              <span className="text-wacke-pink font-bold uppercase">Boostez vos créateurs:</span>
               <span className="text-white">Réclamez vos jetons Wacké toutes les 24h!</span>
             </span>
             <span className="flex items-center space-x-2">
-              <span className="text-[#53fc18] font-extrabold">🟢 Kick:</span>
+              <span className="flex items-center space-x-1">
+                <span className="w-2 h-2 rounded-full bg-[#53fc18]" />
+                <span className="text-[#53fc18] font-extrabold">Kick:</span>
+              </span>
               <span className="text-white">{kickPercentage}% de parts</span>
-              <span className="text-[#9146ff] font-extrabold">🟣 Twitch:</span>
+              <span className="flex items-center space-x-1">
+                <span className="w-2 h-2 rounded-full bg-[#9146ff]" />
+                <span className="text-[#9146ff] font-extrabold">Twitch:</span>
+              </span>
               <span className="text-white">{100 - kickPercentage}% de parts</span>
             </span>
             <span className="flex items-center space-x-1">
-              <span className="text-wacke-cyan">⚡ Nouveau:</span>
+              <span className="text-wacke-cyan font-bold uppercase">Nouveau:</span>
               <span className="text-white">Support double flux Kick & Twitch activé!</span>
             </span>
           </div>

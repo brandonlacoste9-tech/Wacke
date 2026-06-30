@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useGraffitiChat, type ChatMessage } from "@/hooks/useGraffitiChat";
+import { Moon, Flame } from "lucide-react";
 
 // ─── Colour palette for usernames ─────────────────────────────────────────────
 const USER_COLORS = [
@@ -95,7 +96,7 @@ export default function GraffitiChat({
           {sacreMode ? (
             <img src="/fire.png" alt="Fire" className="h-4 w-4 object-contain ml-1" />
           ) : (
-            <span className="ml-1">💤</span>
+            <Moon className="w-4 h-4 ml-1" />
           )}
         </button>
       </div>
@@ -113,7 +114,7 @@ export default function GraffitiChat({
               {msg.user?.displayName ?? msg.user?.username ?? "Anonyme"}
               {msg.isSacre && (
                 <span className="ml-1 text-xs text-red-400" title="Mode Sacré">
-                  🔥
+                  <Flame className="w-3 h-3 inline text-red-500 fill-current drop-shadow-[0_0_5px_rgba(255,0,0,0.8)]" />
                 </span>
               )}
             </p>
@@ -158,19 +159,6 @@ export default function GraffitiChat({
           </button>
         </div>
 
-        {/* Quick-react emoji bar */}
-        <div className="flex space-x-2 mt-2 text-xs text-gray-400">
-          {["🎨", "😎", "🔥", "⚡", "💜", "🎵"].map((emoji) => (
-            <button
-              key={emoji}
-              onClick={() => setInputValue((prev) => prev + emoji)}
-              className="hover:text-wacke-cyan transition-colors text-base"
-              aria-label={`Ajouter ${emoji}`}
-            >
-              {emoji}
-            </button>
-          ))}
-        </div>
       </div>
     </aside>
   );

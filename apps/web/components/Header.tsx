@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "./AuthProvider";
 import { useRouter } from "next/navigation";
+import { Search } from "lucide-react";
 
 /**
  * Wacké Global Header
@@ -76,8 +77,8 @@ export default function Header() {
               className="bg-wacke-dark border border-wacke-purple/40 rounded-lg pl-4 pr-10 py-2
                          text-sm w-64 focus:outline-none focus:border-wacke-cyan/60 transition-colors"
             />
-            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
-              🔍
+            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-wacke-cyan transition-colors">
+              <Search className="w-4 h-4" />
             </button>
           </div>
         </form>

@@ -53,7 +53,7 @@ export default function ReactionButton({
         return;
       }
 
-      setToastMsg("BOUM! 🔥");
+      setToastMsg("BOUM! Épique!");
       setTimeout(() => setToastMsg(null), 2000);
 
       // Trigger callback to update balance globally or trigger animation

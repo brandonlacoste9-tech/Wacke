@@ -2,6 +2,7 @@ import Link from "next/link";
 import KickFeaturedCarousel from "@/components/KickFeaturedCarousel";
 import CombinedStreamGrid from "@/components/CombinedStreamGrid";
 import TrendingGames from "@/components/TrendingGames";
+import { Gamepad2, Music, Dices, Glasses, Snowflake, Palette } from "lucide-react";
 
 // Always server-render — never statically cache this page
 export const dynamic = "force-dynamic";
@@ -34,17 +35,18 @@ export default function HomePage() {
 
       {/* ── Category Quick Links ───────────────────────────────────────── */}
       <section className="px-8 pb-16 max-w-7xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6">
-          🎨 <span className="neon-cyan graffiti-text">PARCOURIR PAR CATÉGORIE</span>
+        <h2 className="text-2xl font-bold mb-6 flex items-center space-x-2">
+          <Palette className="w-6 h-6 text-wacke-cyan drop-shadow-[0_0_5px_rgba(0,255,255,0.8)]" />
+          <span className="neon-cyan graffiti-text">PARCOURIR PAR CATÉGORIE</span>
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {[
-            { name: "Gaming",  icon: "🎮", slug: "gaming" },
-            { name: "Musique", icon: "🎵", slug: "musique" },
-            { name: "Jeu",     icon: "🎲", slug: "jeu" },
-            { name: "Chilé",   icon: "😎", slug: "chile" },
-            { name: "Frette",  icon: "❄️", slug: "frette" },
-            { name: "Art",     icon: "🎨", slug: "art" },
+            { name: "Gaming",  icon: <Gamepad2 className="w-8 h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />, slug: "gaming" },
+            { name: "Musique", icon: <Music className="w-8 h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />, slug: "musique" },
+            { name: "Jeu",     icon: <Dices className="w-8 h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />, slug: "jeu" },
+            { name: "Chilé",   icon: <Glasses className="w-8 h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />, slug: "chile" },
+            { name: "Frette",  icon: <Snowflake className="w-8 h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />, slug: "frette" },
+            { name: "Art",     icon: <Palette className="w-8 h-8 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />, slug: "art" },
           ].map((cat) => (
             <Link
               key={cat.slug}

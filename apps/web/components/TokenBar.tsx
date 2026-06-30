@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTokens } from "@/hooks/useTokens";
+import { Heart } from "lucide-react";
 
 interface TokenBarProps {
   initialBalance: number;
@@ -59,7 +60,10 @@ export default function TokenBar({
       {/* ── Gift Panel ─────────────────────────────────────────────────── */}
       {showGiftPanel && (
         <div className="mb-3 p-4 bg-wacke-darker border border-wacke-purple/40 rounded-xl space-y-3 animate-fade-in">
-          <p className="text-sm font-bold text-wacke-cyan">Envoyer des tokens 💜</p>
+          <p className="text-sm font-bold text-wacke-cyan flex items-center space-x-1">
+            <span>Envoyer des tokens</span>
+            <Heart className="w-4 h-4 fill-current" />
+          </p>
           <div className="grid grid-cols-2 gap-2">
             {GIFT_PRESETS.map((preset) => (
               <button
@@ -70,7 +74,10 @@ export default function TokenBar({
                            px-3 py-2 rounded-lg text-sm font-bold transition-colors
                            disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {preset} 🪙
+                <span className="flex items-center justify-center space-x-1">
+                  <span>{preset}</span>
+                  <img src="/token.png" alt="Token" className="w-3 h-3 object-contain drop-shadow-[0_0_5px_rgba(255,215,0,0.8)]" />
+                </span>
               </button>
             ))}
           </div>
@@ -127,7 +134,7 @@ export default function TokenBar({
                      transition-all hover:scale-105"
           title="Envoyer des tokens"
         >
-          <span>💜</span>
+          <Heart className="w-4 h-4 text-wacke-purple fill-current" />
           <span>DON</span>
         </button>
       </div>
