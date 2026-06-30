@@ -43,10 +43,10 @@ export default function Header() {
 
         {/* ── Logo ──────────────────────────────────────────────────────── */}
         <Link href="/" className="flex items-center space-x-2 group">
-          <span className="text-2xl font-bold graffiti-text neon-pink group-hover:opacity-80 transition-opacity">
+          <img src="/logo_w.png" alt="Wacké Logo" className="h-8 w-8 object-contain rounded-md shadow-[0_0_10px_rgba(255,0,255,0.5)] group-hover:opacity-80 transition-opacity" />
+          <span className="text-2xl font-bold graffiti-text neon-pink group-hover:opacity-80 transition-opacity hidden sm:block">
             WACKÉ
           </span>
-          <span className="text-xs text-gray-500 hidden sm:block">🇶🇨</span>
         </Link>
 
         {/* ── Navigation ────────────────────────────────────────────────── */}
@@ -95,7 +95,7 @@ export default function Header() {
 
               {/* Tokens Display */}
               <div className="flex items-center space-x-2 bg-wacke-dark border border-yellow-500/30 rounded-lg px-3 py-1.5">
-                <span className="text-sm">🪙</span>
+                <img src="/token.png" alt="Token" className="h-5 w-5 object-contain rounded-full shadow-[0_0_8px_rgba(255,215,0,0.5)]" />
                 <span className="text-sm font-bold text-yellow-400">{user.tokenBalance}</span>
                 <button
                   onClick={handleClaim}

@@ -78,7 +78,7 @@ export default function ReactionButton({
         disabled={isLoading}
         className="bg-gradient-to-r from-red-600 to-orange-500 hover:opacity-90 active:scale-95 border border-red-500/40 px-5 py-2 rounded-lg font-bold flex items-center space-x-2 transition-all hover:scale-105"
       >
-        <span>🔥</span>
+        <img src="/fire.png" alt="Fire" className="h-5 w-5 object-contain drop-shadow-[0_0_8px_rgba(255,69,0,0.8)]" />
         <span>BOUM!</span>
       </button>
 

@@ -101,7 +101,7 @@ export default function TokenBar({
       <div className="flex items-center space-x-2 bg-wacke-darker border border-wacke-purple/40 rounded-2xl px-4 py-3 neon-border">
         {/* Balance display */}
         <div className="flex items-center space-x-1 text-sm font-bold text-yellow-400 mr-2">
-          <span>🪙</span>
+          <img src="/token.png" alt="Token" className="h-4 w-4 object-contain rounded-full shadow-[0_0_8px_rgba(255,215,0,0.5)]" />
           <span>{balance.toLocaleString("fr-CA")}</span>
         </div>
 
@@ -115,7 +115,7 @@ export default function TokenBar({
                      disabled:hover:scale-100"
           title="Envoyer un Boum! (5 tokens)"
         >
-          <span>🔥</span>
+          <img src="/fire.png" alt="Fire" className="h-5 w-5 object-contain drop-shadow-[0_0_8px_rgba(255,69,0,0.8)]" />
           <span>BOUM!</span>
         </button>
 

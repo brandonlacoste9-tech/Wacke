@@ -43,7 +43,7 @@ export default function MainContent() {
           {/* Action Buttons */}
           <div className="flex space-x-3">
             <button className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 px-6 py-3 rounded-lg font-bold flex items-center space-x-2 transition-all hover:scale-105">
-              <span>🔥</span>
+              <img src="/fire.png" alt="Fire" className="h-5 w-5 object-contain drop-shadow-[0_0_8px_rgba(255,69,0,0.8)]" />
               <span>BOUM!</span>
             </button>
             <button className="bg-wacke-purple/40 hover:bg-wacke-purple/60 px-6 py-3 rounded-lg font-bold flex items-center space-x-2 transition-all hover:scale-105 border border-wacke-pink">
