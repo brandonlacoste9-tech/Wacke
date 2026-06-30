@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "./AuthProvider";
 import { useState } from "react";
+import { Home, Search, Radio, User } from "lucide-react";
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
@@ -52,7 +53,7 @@ export default function MobileBottomNav() {
             className={`flex flex-col items-center justify-center flex-1 h-full transition-colors
                        ${isActive("/") ? "text-wacke-pink" : "text-gray-400 hover:text-gray-200"}`}
           >
-            <span className="text-xl">🏠</span>
+            <Home className="w-5 h-5 mb-1" />
             <span className="text-[10px] font-bold mt-1">Accueil</span>
           </Link>
 
@@ -62,7 +63,7 @@ export default function MobileBottomNav() {
             className={`flex flex-col items-center justify-center flex-1 h-full transition-colors
                        ${isActive("/browse") ? "text-wacke-cyan" : "text-gray-400 hover:text-gray-200"}`}
           >
-            <span className="text-xl">🔍</span>
+            <Search className="w-5 h-5 mb-1" />
             <span className="text-[10px] font-bold mt-1">Parcourir</span>
           </Link>
 
@@ -73,7 +74,7 @@ export default function MobileBottomNav() {
             className="flex flex-col items-center justify-center flex-1 h-full relative"
           >
             <div className="w-12 h-12 -mt-6 rounded-full bg-gradient-to-tr from-yellow-500 to-amber-300 border-4 border-wacke-dark flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95">
-              <span className="text-xl">🪙</span>
+              <img src="/token.png" alt="Token" className="w-6 h-6 object-contain" />
             </div>
             <span className="text-[10px] font-extrabold text-yellow-400 mt-1">
               {user ? `${user.tokenBalance}` : "Réclamer"}
@@ -86,7 +87,7 @@ export default function MobileBottomNav() {
             className={`flex flex-col items-center justify-center flex-1 h-full transition-colors
                        ${isActive("/dashboard/stream") ? "text-wacke-pink" : "text-gray-400 hover:text-gray-200"}`}
           >
-            <span className="text-xl">🔴</span>
+            <Radio className="w-5 h-5 mb-1" />
             <span className="text-[10px] font-bold mt-1">Streamer</span>
           </Link>
 
@@ -96,11 +97,11 @@ export default function MobileBottomNav() {
             className="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-gray-200"
           >
             {user ? (
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-[10px] font-black text-white uppercase border border-white/20">
+              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-[10px] font-black text-white uppercase border border-white/20 mb-1">
                 {user.username.substring(0, 2)}
               </div>
             ) : (
-              <span className="text-xl">👤</span>
+              <User className="w-5 h-5 mb-1" />
             )}
             <span className="text-[10px] font-bold mt-1">Compte</span>
           </Link>
