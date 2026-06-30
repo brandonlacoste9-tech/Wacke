@@ -54,10 +54,23 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-wacke-dark px-4 py-12 relative overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-wacke-pink/5 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-[calc(100vh-64px)] flex bg-wacke-dark relative overflow-hidden">
+      {/* ── Artwork Side (Left) ── */}
+      <div className="hidden lg:flex w-1/2 relative bg-black items-center justify-center border-r border-wacke-purple/30">
+        <img src="/login_artwork.jpg" alt="Cyberpunk City" className="absolute inset-0 w-full h-full object-cover opacity-60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-wacke-dark z-0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-wacke-dark via-transparent to-transparent z-0" />
+        <div className="relative z-10 p-16 mt-auto self-end w-full">
+          <h2 className="text-5xl font-black text-white drop-shadow-[0_0_15px_rgba(255,0,255,0.8)] mb-3 uppercase tracking-wide graffiti-text neon-pink">Entrez dans la matrice</h2>
+          <p className="text-xl text-gray-200 font-bold max-w-md drop-shadow-md">Le hub du streaming québécois. Sans filtre. 100% pur jus.</p>
+        </div>
+      </div>
 
-      <div className="max-w-md w-full bg-wacke-darker border border-wacke-purple/30 p-8 rounded-2xl neon-border relative z-10">
+      {/* ── Form Side (Right) ── */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 relative">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-wacke-pink/10 rounded-full blur-[100px] pointer-events-none" />
+
+        <div className="max-w-md w-full bg-wacke-darker/80 backdrop-blur-xl border border-wacke-purple/40 p-10 rounded-3xl shadow-[0_0_30px_rgba(255,0,255,0.15)] relative z-10">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold graffiti-text neon-pink mb-2">CONNEXION</h1>
           <p className="text-gray-400 text-sm">Prêt à sprayer ton feedback live? 🏪🔥</p>
@@ -159,6 +172,7 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+    </div>
     </div>
   );
 }

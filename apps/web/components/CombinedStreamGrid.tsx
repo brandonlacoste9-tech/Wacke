@@ -258,7 +258,9 @@ export default function CombinedStreamGrid({
 
       {!tabLoading && displayed.length === 0 && (
         <div className="text-center py-20 text-gray-500">
-          <div className="text-4xl mb-3 flex justify-center"><Users className="w-12 h-12 opacity-50" /></div>
+          <div className="flex justify-center mb-6">
+            <img src="/sleeping_server.png" alt="Sleeping Server" className="w-48 h-48 object-contain drop-shadow-[0_0_15px_rgba(255,0,255,0.3)] opacity-90" />
+          </div>
           <p>Aucun stream en direct pour le moment</p>
         </div>
       )}

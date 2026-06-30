@@ -32,7 +32,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr-CA">
-      <body className={`${inter.className} bg-wacke-dark text-white antialiased`}>
+      <body
+        className={`${inter.className} bg-wacke-dark text-white antialiased`}
+        style={{
+          backgroundImage: `url('/bg_texture.jpg')`,
+          backgroundRepeat: 'repeat',
+          backgroundSize: '400px',
+          backgroundBlendMode: 'soft-light'
+        }}
+      >
         <AuthProvider>
           <LiveStatsTicker />
           <Header />
