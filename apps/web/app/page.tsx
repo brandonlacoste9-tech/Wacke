@@ -29,21 +29,33 @@ export default function HomePage() {
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {[
-            { name: "Gaming",  icon: "🎮", slug: "gaming",  from: "from-green-700",  to: "to-green-900"  },
-            { name: "Musique", icon: "🎵", slug: "musique", from: "from-pink-700",   to: "to-pink-900"   },
-            { name: "Jeu",     icon: "🎲", slug: "jeu",     from: "from-purple-700", to: "to-purple-900" },
-            { name: "Chilé",   icon: "😎", slug: "chile",   from: "from-red-700",    to: "to-red-900"    },
-            { name: "Frette",  icon: "❄️", slug: "frette",  from: "from-cyan-700",   to: "to-cyan-900"   },
-            { name: "Art",     icon: "🎨", slug: "art",     from: "from-yellow-700", to: "to-yellow-900" },
+            { name: "Gaming",  icon: "🎮", slug: "gaming" },
+            { name: "Musique", icon: "🎵", slug: "musique" },
+            { name: "Jeu",     icon: "🎲", slug: "jeu" },
+            { name: "Chilé",   icon: "😎", slug: "chile" },
+            { name: "Frette",  icon: "❄️", slug: "frette" },
+            { name: "Art",     icon: "🎨", slug: "art" },
           ].map((cat) => (
             <Link
               key={cat.slug}
               href={`/browse?category=${cat.slug}`}
-              className={`bg-gradient-to-br ${cat.from} ${cat.to} border border-white/5 rounded-xl p-4
-                         text-center hover:scale-105 hover:border-white/20 transition-all duration-200 shadow-md`}
+              className="relative aspect-square border border-wacke-purple/20 rounded-xl overflow-hidden
+                         hover:scale-105 hover:border-wacke-cyan/40 transition-all duration-200 shadow-xl group"
             >
-              <div className="text-3xl mb-2">{cat.icon}</div>
-              <p className="text-sm font-bold text-white">{cat.name}</p>
+              {/* Background cover image */}
+              <img
+                src={`/categories/${cat.slug}.png`}
+                alt={cat.name}
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-300 z-0"
+              />
+              {/* Glass overlay */}
+              <div className="absolute inset-0 bg-black/55 group-hover:bg-black/40 transition-colors z-10" />
+
+              {/* Text / Icon content */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-4 z-20">
+                <div className="text-3xl mb-1.5 drop-shadow-md">{cat.icon}</div>
+                <p className="text-sm font-black text-white uppercase tracking-tight drop-shadow-md">{cat.name}</p>
+              </div>
             </Link>
           ))}
         </div>
