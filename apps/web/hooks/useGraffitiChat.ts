@@ -186,5 +186,52 @@ export function useGraffitiChat({
     [streamId, currentUserId, sacreModeEnabled, isSendingTts, authToken]
   );
 
-  return { messages, sendMessage, sendTtsMessage, isConnected, isSending, isSendingTts };
+  // ─── Send Spray Message (AI Graffiti) ──────────────────────────────────────
+  const [isSendingSpray, setIsSendingSpray] = useState(false);
+
+  const sendSprayMessage = useCallback(
+    async (prompt: string): Promise<{ error?: string }> => {
+      if (!currentUserId || !authToken) return { error: "Tu dois être connecté pour sprayer un graffiti" };
+      if (isSendingSpray) return { error: "Attends la fin de la génération du graffiti..." };
+
+      setIsSendingSpray(true);
+
+      try {
+        const response = await fetch("/api/chat/spray", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({
+            streamId,
+            prompt,
+          }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          return { error: data.error ?? "Erreur lors du spray" };
+        }
+
+        return {};
+      } catch {
+        return { error: "Connexion perdue. Réessaie." };
+      } finally {
+        setIsSendingSpray(false);
+      }
+    },
+    [streamId, currentUserId, isSendingSpray, authToken]
+  );
+
+  return {
+    messages,
+    sendMessage,
+    sendTtsMessage,
+    sendSprayMessage,
+    isConnected,
+    isSending,
+    isSendingTts,
+    isSendingSpray,
+  };
 }

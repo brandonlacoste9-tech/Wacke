@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useGraffitiChat, type ChatMessage } from "@/hooks/useGraffitiChat";
-import { Moon, Flame, Mic, Users } from "lucide-react";
+import { Moon, Flame, Mic, Users, Sparkles } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import EmojiPicker from "./EmojiPicker";
 
@@ -37,6 +37,21 @@ function formatTime(dateStr: string): string {
 
 // Highlight @mentions in message content
 function renderContent(content: string): React.ReactNode {
+  if (content.startsWith("[spray]:")) {
+    const url = content.substring(8);
+    return (
+      <div className="mt-1.5 relative group max-w-[180px] rounded-xl overflow-hidden border border-wacke-pink/20 hover:border-wacke-pink/40 bg-black/40 p-1.5 animate-scale-in">
+        <img
+          src={url}
+          alt="Graffiti Sticker"
+          className="w-full h-auto rounded-lg object-contain drop-shadow-[0_0_8px_rgba(255,20,147,0.5)]"
+        />
+        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+          <span className="text-[8px] font-bold text-wacke-pink uppercase tracking-widest">STICKER AI</span>
+        </div>
+      </div>
+    );
+  }
   const parts = content.split(/(@\w+)/g);
   return parts.map((part, i) => {
     if (part.startsWith("@")) {
@@ -70,13 +85,37 @@ export default function GraffitiChat({
 
   const { token } = useAuth();
 
-  const { messages, sendMessage, sendTtsMessage, isConnected, isSending, isSendingTts } = useGraffitiChat({
+  const [showSprayPanel, setShowSprayPanel] = useState(false);
+  const [sprayPrompt, setSprayPrompt] = useState("");
+
+  const {
+    messages,
+    sendMessage,
+    sendTtsMessage,
+    sendSprayMessage,
+    isConnected,
+    isSending,
+    isSendingTts,
+    isSendingSpray,
+  } = useGraffitiChat({
     streamId,
     currentUserId,
     sacreModeEnabled: sacreMode,
     initialMessages,
     authToken: token || undefined,
   });
+
+  const handleSpray = async () => {
+    if (!sprayPrompt.trim() || isSendingSpray) return;
+    setErrorMsg(null);
+    const { error } = await sendSprayMessage(sprayPrompt.trim());
+    if (error) {
+      setErrorMsg(error);
+      return;
+    }
+    setSprayPrompt("");
+    setShowSprayPanel(false);
+  };
 
   // Track played audio to prevent duplicate playback on re-renders
   const playedAudioRef = useRef<Set<string>>(new Set());
@@ -222,6 +261,55 @@ export default function GraffitiChat({
         </div>
       )}
 
+      {/* ── AI Spray Panel ───────────────────────────────────────────────── */}
+      {showSprayPanel && (
+        <div className="p-3 border-t border-wacke-purple/20 bg-wacke-purple/5 space-y-2 animate-scale-in">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold text-wacke-cyan flex items-center space-x-1">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>GÉNÉRATEUR DE STICKERS AI (100 🪙)</span>
+            </span>
+            <button
+              onClick={() => setShowSprayPanel(false)}
+              className="text-gray-500 hover:text-white text-xs font-bold"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="flex space-x-2">
+            <input
+              type="text"
+              value={sprayPrompt}
+              onChange={(e) => setSprayPrompt(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSpray();
+                }
+              }}
+              placeholder="Ex: un canard punk en veste noire..."
+              disabled={isSendingSpray}
+              className="flex-1 bg-white/3 border border-wacke-purple/20 rounded-xl px-3 py-1.5 text-xs
+                         focus:border-wacke-cyan/40 transition-all placeholder:text-gray-600"
+            />
+            <button
+              onClick={handleSpray}
+              disabled={isSendingSpray || !sprayPrompt.trim()}
+              className="bg-gradient-to-r from-wacke-pink to-wacke-purple text-xs font-bold px-3 py-1.5 rounded-xl
+                         hover:opacity-90 disabled:opacity-40 transition-all active:scale-95 shrink-0"
+            >
+              {isSendingSpray ? "Spray..." : "Sprayer"}
+            </button>
+          </div>
+          {isSendingSpray && (
+            <div className="flex items-center space-x-2 text-[9px] text-wacke-pink animate-pulse mt-1">
+              <span className="w-1.5 h-1.5 bg-wacke-pink rounded-full animate-ping shrink-0" />
+              <span>L&apos;IA dessine ton graffiti... (2s)</span>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ── Chat Input ────────────────────────────────────────────────────── */}
       <div className="p-3 border-t border-wacke-purple/20">
         <div className="flex space-x-2">
@@ -235,6 +323,17 @@ export default function GraffitiChat({
             type="button"
           >
             😀
+          </button>
+          {/* AI Spray toggle */}
+          <button
+            onClick={() => setShowSprayPanel((prev) => !prev)}
+            className={`px-2 py-2 rounded-lg text-sm transition-all shrink-0 ${
+              showSprayPanel ? "bg-wacke-purple/20 text-wacke-cyan" : "text-gray-500 hover:text-white hover:bg-white/5"
+            }`}
+            title="Générateur de stickers AI (100 jetons)"
+            type="button"
+          >
+            🎨
           </button>
           <input
             ref={inputRef}
