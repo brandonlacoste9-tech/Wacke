@@ -101,7 +101,7 @@ export default function KickFeaturedCarousel() {
 
   const username = current.channel?.user?.username ?? current.slug;
   const displayName = username.charAt(0).toUpperCase() + username.slice(1);
-  const avatar = current.profile_picture ?? current.channel?.profile_picture ?? current.channel?.user?.profile_pic ?? null;
+  const avatar = (current as any).profile_picture ?? current.channel?.profile_picture ?? current.channel?.user?.profile_pic ?? null;
   const category = (current as any).category?.name ?? current.categories?.[0]?.name ?? "Live";
   const title = (current as any).stream_title ?? current.session_title ?? "Live Stream";
 
@@ -181,7 +181,7 @@ export default function KickFeaturedCarousel() {
           if (!stream) return null;
           const uname = stream.channel?.user?.username ?? stream.slug;
           const dname = uname.charAt(0).toUpperCase() + uname.slice(1);
-          const ava = stream.profile_picture ?? stream.channel?.profile_picture ?? stream.channel?.user?.profile_pic ?? null;
+          const ava = (stream as any).profile_picture ?? stream.channel?.profile_picture ?? stream.channel?.user?.profile_pic ?? null;
           const streamTitle = (stream as any).stream_title ?? stream.session_title ?? "Live Stream";
           const isActive = idx === activeIndex;
 
