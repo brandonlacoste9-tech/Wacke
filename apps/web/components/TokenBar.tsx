@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTokens } from "@/hooks/useTokens";
-import { Heart, ChevronUp } from "lucide-react";
+import { Heart, ChevronUp, Flame } from "lucide-react";
 
 interface TokenBarProps {
   initialBalance: number;
@@ -48,7 +48,7 @@ export default function TokenBar({
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-6 lg:right-[408px] z-50">
       {/* ── Feedback Toast ─────────────────────────────────────────────── */}
       {feedback && (
         <div className="mb-3 px-4 py-2 glass-dark rounded-xl text-xs text-center animate-slide-up font-bold neon-border">
@@ -129,7 +129,7 @@ export default function TokenBar({
                      shadow-lg shadow-red-500/20"
           title="Envoyer un Boum! (5 tokens)"
         >
-          <img src="/fire.png" alt="Fire" className="h-4 w-4 object-contain" />
+          <Flame className="w-4 h-4 text-white fill-current animate-pulse" />
           <span>BOUM!</span>
         </button>
 
@@ -142,7 +142,7 @@ export default function TokenBar({
           title="Envoyer des tokens"
         >
           <Heart className="w-3.5 h-3.5 text-wacke-purple fill-current" />
-          <span>DON</span>
+          <span>DONATION</span>
           <ChevronUp className={`w-3 h-3 transition-transform ${showGiftPanel ? "rotate-180" : ""}`} />
         </button>
       </div>
