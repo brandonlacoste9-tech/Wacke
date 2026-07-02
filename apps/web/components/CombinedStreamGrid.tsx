@@ -145,14 +145,27 @@ export default function CombinedStreamGrid({
     fetch(`/api/kick/livestreams?limit=${limit}`)
       .then((r) => r.json())
       .then((data) => {
-        const unified: UnifiedStream[] = (data.streams ?? []).map((s: any) => ({
-          id: `kick-${s.id}`, source: "kick" as const,
-          username: s.channel?.user?.username ?? s.slug,
-          displayName: (s.channel?.user?.username ?? s.slug).charAt(0).toUpperCase() + (s.channel?.user?.username ?? s.slug).slice(1),
-          title: s.session_title ?? "Live Stream", category: s.categories?.[0]?.name ?? "Live",
-          viewerCount: s.viewer_count ?? 0, thumbnailUrl: s.thumbnail?.src ?? null,
-          avatarUrl: s.channel?.profile_picture ?? s.channel?.user?.profile_pic ?? null, isLive: true,
-        }));
+        const unified: UnifiedStream[] = (data.streams ?? []).map((s: any) => {
+          const username = s.channel?.user?.username ?? s.slug ?? "user";
+          const displayName = username.charAt(0).toUpperCase() + username.slice(1);
+          const title = s.stream_title ?? s.session_title ?? "Live Stream";
+          const category = s.category?.name ?? s.categories?.[0]?.name ?? "Live";
+          const thumbnailUrl = typeof s.thumbnail === "string" ? s.thumbnail : s.thumbnail?.src ?? null;
+          const avatarUrl = s.profile_picture ?? s.channel?.profile_picture ?? s.channel?.user?.profile_pic ?? null;
+
+          return {
+            id: `kick-${s.id ?? username}`,
+            source: "kick" as const,
+            username,
+            displayName,
+            title,
+            category,
+            viewerCount: s.viewer_count ?? 0,
+            thumbnailUrl,
+            avatarUrl,
+            isLive: true,
+          };
+        });
         setKickStreams(unified);
       })
       .catch(console.error)

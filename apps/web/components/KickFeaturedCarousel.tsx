@@ -101,8 +101,9 @@ export default function KickFeaturedCarousel() {
 
   const username = current.channel?.user?.username ?? current.slug;
   const displayName = username.charAt(0).toUpperCase() + username.slice(1);
-  const avatar = current.channel?.profile_picture ?? current.channel?.user?.profile_pic ?? null;
-  const category = current.categories?.[0]?.name ?? "Live";
+  const avatar = current.profile_picture ?? current.channel?.profile_picture ?? current.channel?.user?.profile_pic ?? null;
+  const category = (current as any).category?.name ?? current.categories?.[0]?.name ?? "Live";
+  const title = (current as any).stream_title ?? current.session_title ?? "Live Stream";
 
   return (
     <div className="flex flex-col lg:flex-row gap-4 glass-card rounded-2xl p-4 shadow-2xl relative overflow-hidden select-none mb-4">
@@ -153,7 +154,7 @@ export default function KickFeaturedCarousel() {
           </div>
 
           <p className="text-sm text-gray-200 mt-2 line-clamp-1 drop-shadow-md font-medium">
-            {current.session_title}
+            {title}
           </p>
 
           <div className="mt-3 flex items-center space-x-3 pointer-events-auto">
@@ -180,7 +181,8 @@ export default function KickFeaturedCarousel() {
           if (!stream) return null;
           const uname = stream.channel?.user?.username ?? stream.slug;
           const dname = uname.charAt(0).toUpperCase() + uname.slice(1);
-          const ava = stream.channel?.profile_picture ?? stream.channel?.user?.profile_pic ?? null;
+          const ava = stream.profile_picture ?? stream.channel?.profile_picture ?? stream.channel?.user?.profile_pic ?? null;
+          const streamTitle = (stream as any).stream_title ?? stream.session_title ?? "Live Stream";
           const isActive = idx === activeIndex;
 
           return (
@@ -214,7 +216,7 @@ export default function KickFeaturedCarousel() {
                   </span>
                 </div>
                 <p className="text-[10px] text-gray-600 truncate line-clamp-1">
-                  {stream.session_title}
+                  {streamTitle}
                 </p>
               </div>
             </button>

@@ -27,12 +27,17 @@ export default function Sidebar() {
     fetch("/api/kick/livestreams?limit=5")
       .then((r) => r.json())
       .then((data) => {
-        const streams = (data.streams ?? []).slice(0, 5).map((s: any) => ({
-          username: s.channel?.user?.username ?? s.slug ?? "user",
-          displayName: (s.channel?.user?.username ?? s.slug ?? "Streamer").charAt(0).toUpperCase() + (s.channel?.user?.username ?? s.slug ?? "Streamer").slice(1),
-          category: s.categories?.[0]?.name ?? "Live",
-          viewerCount: s.viewer_count ?? 0,
-        }));
+        const streams = (data.streams ?? []).slice(0, 5).map((s: any) => {
+          const username = s.channel?.user?.username ?? s.slug ?? "user";
+          const displayName = username.charAt(0).toUpperCase() + username.slice(1);
+          const category = s.category?.name ?? s.categories?.[0]?.name ?? "Live";
+          return {
+            username,
+            displayName,
+            category,
+            viewerCount: s.viewer_count ?? 0,
+          };
+        });
         if (streams.length > 0) setChannels(streams);
       })
       .catch(() => {

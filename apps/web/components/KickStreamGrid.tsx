@@ -71,9 +71,11 @@ function SkeletonCard() {
 function StreamCard({ stream }: { stream: KickStream }) {
   const username = stream.channel?.user?.username ?? stream.slug;
   const displayName = username.charAt(0).toUpperCase() + username.slice(1);
-  const thumbnail = stream.thumbnail?.src ?? stream.channel?.banner_picture ?? null;
-  const avatar = stream.channel?.profile_picture ?? stream.channel?.user?.profile_pic ?? null;
-  const mainCategory = stream.categories?.[0];
+  const thumbnail = typeof stream.thumbnail === "string" ? stream.thumbnail : stream.thumbnail?.src ?? stream.channel?.banner_picture ?? null;
+  const avatar = (stream as any).profile_picture ?? stream.channel?.profile_picture ?? stream.channel?.user?.profile_pic ?? null;
+  const mainCategoryName = (stream as any).category?.name ?? stream.categories?.[0]?.name ?? "Live";
+  const mainCategorySlug = (stream as any).category?.slug ?? stream.categories?.[0]?.slug ?? "live";
+  const title = (stream as any).stream_title ?? stream.session_title ?? "Live Stream";
   const initials = displayName.substring(0, 2).toUpperCase();
 
   return (
@@ -88,7 +90,7 @@ function StreamCard({ stream }: { stream: KickStream }) {
         {thumbnail ? (
           <img
             src={thumbnail}
-            alt={stream.session_title}
+            alt={title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
           />
@@ -138,12 +140,12 @@ function StreamCard({ stream }: { stream: KickStream }) {
         </div>
 
         <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-2">
-          {stream.session_title}
+          {title}
         </p>
 
-        {mainCategory && (
-          <span className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase tracking-wide ${categoryColor(mainCategory.slug)}`}>
-            {mainCategory.name}
+        {mainCategoryName && (
+          <span className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase tracking-wide ${categoryColor(mainCategorySlug)}`}>
+            {mainCategoryName}
           </span>
         )}
       </div>
