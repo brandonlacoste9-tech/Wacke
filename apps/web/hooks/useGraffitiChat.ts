@@ -33,9 +33,11 @@ interface UseGraffitiChatReturn {
   messages: ChatMessage[];
   sendMessage: (content: string) => Promise<{ error?: string }>;
   sendTtsMessage: (content: string) => Promise<{ error?: string }>;
+  sendSprayMessage: (prompt: string) => Promise<{ error?: string }>;
   isConnected: boolean;
   isSending: boolean;
   isSendingTts: boolean;
+  isSendingSpray: boolean;
 }
 
 /**
