@@ -19,12 +19,17 @@ export default function TrendingGames() {
     fetch("/api/twitch/top-games?limit=10")
       .then((r) => r.json())
       .then((data) => {
-        const gs = (data.games ?? []).map((g: any) => ({
-          ...g,
-          box_art_url: g.box_art_url
-            ? g.box_art_url.replace("{width}", "285").replace("{height}", "380")
-            : "",
-        }));
+        const gs = (data.games ?? []).map((g: any) => {
+          const rawUrl = g.boxArtUrl ?? g.box_art_url ?? "";
+          const box_art_url = rawUrl.includes("{width}")
+            ? rawUrl.replace("{width}", "285").replace("{height}", "380")
+            : rawUrl;
+          return {
+            id: g.id,
+            name: g.name,
+            box_art_url,
+          };
+        });
         setGames(gs);
       })
       .catch(console.error)
