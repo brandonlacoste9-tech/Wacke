@@ -1,15 +1,48 @@
-@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ─── Base ─────────────────────────────────────────────────────────────────── */
 
 body {
   background-color: #0A0A0F;
   color: white;
 }
 
-/* Custom neon glow effects */
+/* ─── Glassmorphism Utilities ──────────────────────────────────────────────── */
+
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-dark {
+  background: rgba(5, 5, 10, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(139, 0, 255, 0.15);
+}
+
+.glass-card {
+  background: rgba(10, 10, 15, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(139, 0, 255, 0.12);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: rgba(15, 15, 25, 0.8);
+  border-color: rgba(255, 20, 147, 0.25);
+  box-shadow: 0 8px 32px rgba(255, 20, 147, 0.08);
+}
+
+/* ─── Neon Glow Effects ────────────────────────────────────────────────────── */
+
 .neon-pink {
   text-shadow: 0 0 10px #FF1493, 0 0 20px #FF1493, 0 0 30px #FF1493;
 }
@@ -18,19 +51,92 @@ body {
   text-shadow: 0 0 10px #00FFFF, 0 0 20px #00FFFF, 0 0 30px #00FFFF;
 }
 
+.neon-green {
+  text-shadow: 0 0 10px #53fc18, 0 0 20px #53fc18, 0 0 30px #53fc18;
+}
+
+.neon-gold {
+  text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700, 0 0 30px #FFD700;
+}
+
 .neon-border {
   box-shadow: 0 0 10px rgba(255, 20, 147, 0.5), 0 0 20px rgba(0, 255, 255, 0.3);
 }
 
-/* Graffiti chat styling */
+.neon-border-cyan {
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.4), 0 0 20px rgba(0, 255, 255, 0.2);
+}
+
+.neon-border-green {
+  box-shadow: 0 0 10px rgba(83, 252, 24, 0.4), 0 0 20px rgba(83, 252, 24, 0.2);
+}
+
+/* ─── Gradient Text ────────────────────────────────────────────────────────── */
+
+.gradient-text-pink {
+  background: linear-gradient(135deg, #FF1493, #FF69B4, #FF1493);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-cyber {
+  background: linear-gradient(135deg, #FF1493, #8B00FF, #00FFFF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-gold {
+  background: linear-gradient(135deg, #FFD700, #FFA500, #FFD700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Graffiti & Typography ────────────────────────────────────────────────── */
+
 .graffiti-text {
   font-family: 'Permanent Marker', cursive;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
-/* Cyberpunk scrollbar */
+.font-outfit {
+  font-family: 'Outfit', sans-serif;
+}
+
+/* ─── Card Effects ─────────────────────────────────────────────────────────── */
+
+.card-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-glow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 20, 147, 0.04),
+    transparent
+  );
+  transition: left 0.5s ease;
+  z-index: 0;
+}
+
+.card-glow:hover::before {
+  left: 100%;
+}
+
+/* ─── Cyberpunk Scrollbar ──────────────────────────────────────────────────── */
+
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -39,21 +145,20 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(to bottom, #FF1493, #8B00FF);
-  border-radius: 5px;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #FF1493, #00FFFF);
+  background: linear-gradient(to bottom, #FF69B4, #00FFFF);
+  box-shadow: 0 0 8px rgba(255, 20, 147, 0.5);
 }
 
-/* Custom news marquee animation */
+/* ─── Animations ───────────────────────────────────────────────────────────── */
+
+/* Marquee (news ticker) */
 @keyframes marquee {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-  100% {
-    transform: translate3d(-100%, 0, 0);
-  }
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-100%, 0, 0); }
 }
 
 .animate-marquee {
@@ -63,4 +168,151 @@ body {
 
 .animate-marquee:hover {
   animation-play-state: paused;
+}
+
+/* Fade In */
+@keyframes fade-in {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+/* Slide Up */
+@keyframes slide-up {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Scale In */
+@keyframes scale-in {
+  0% { opacity: 0; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.03) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Float */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Glow Pulse */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 5px rgba(255, 20, 147, 0.3), 0 0 10px rgba(255, 20, 147, 0.1); }
+  50% { box-shadow: 0 0 15px rgba(255, 20, 147, 0.5), 0 0 30px rgba(255, 20, 147, 0.2); }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+/* Ripple */
+@keyframes ripple {
+  0% { transform: scale(0); opacity: 0.6; }
+  100% { transform: scale(4); opacity: 0; }
+}
+
+/* Coin Float */
+@keyframes coin-float {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  50% { opacity: 0.8; transform: translateY(-30px) scale(1.2); }
+  100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+}
+
+.animate-coin-float {
+  animation: coin-float 1s ease-out forwards;
+}
+
+/* Spray entrance for chat messages */
+@keyframes spray-in {
+  0% { opacity: 0; transform: translateX(-10px) scale(0.95); filter: blur(2px); }
+  100% { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
+}
+
+.animate-spray-in {
+  animation: spray-in 0.25s ease-out forwards;
+}
+
+/* Bell ring */
+@keyframes bell-ring {
+  0% { transform: rotate(0); }
+  15% { transform: rotate(14deg); }
+  30% { transform: rotate(-14deg); }
+  45% { transform: rotate(8deg); }
+  60% { transform: rotate(-8deg); }
+  75% { transform: rotate(3deg); }
+  100% { transform: rotate(0); }
+}
+
+.animate-bell-ring {
+  animation: bell-ring 0.6s ease-in-out;
+}
+
+/* Progress bar fill */
+@keyframes progress-fill {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+/* Staggered children animation */
+.stagger-children > * {
+  opacity: 0;
+  animation: slide-up 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 60ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 120ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 180ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 240ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 360ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 420ms; }
+
+/* ─── Utility Overrides ────────────────────────────────────────────────────── */
+
+/* Smooth focus ring for inputs */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.2);
+}
+
+/* Active scale for buttons */
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Hide scrollbar but allow scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

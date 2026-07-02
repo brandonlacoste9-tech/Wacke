@@ -16,13 +16,20 @@ export const metadata: Metadata = {
   },
   description:
     "Wacké est la plateforme de streaming française pour la Gen Z québécoise. Culture de rue, Graffiti Chat, Mode Sacré. Kick meets dépanneur drama.",
-  keywords: ["streaming", "québec", "twitch", "kick", "montréal", "francophone", "live"],
+  keywords: ["streaming", "québec", "twitch", "kick", "montréal", "francophone", "live", "gaming", "wacke"],
   openGraph: {
     title: "Wacké — Le streaming québécois",
     description: "Streaming live. Culture de rue. 100% québécois.",
     locale: "fr_CA",
     type: "website",
+    siteName: "Wacké",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Wacké — Le streaming québécois",
+    description: "Streaming live. Culture de rue. 100% québécois.",
+  },
+  metadataBase: new URL("https://wacke.ca"),
 };
 
 export default function RootLayout({
@@ -56,5 +63,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-

@@ -1,122 +1,166 @@
-import { getLiveStreams, TOP_KICK_STREAMERS } from "@wacke/db";
-import Link from "next/link";
+"use client";
 
-export const dynamic = "force-dynamic";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Home, Search, Radio, ChevronLeft, ChevronRight, Users } from "lucide-react";
+
+interface SidebarChannel {
+  username: string;
+  displayName: string;
+  category: string;
+  viewerCount: number;
+  isMock?: boolean;
+}
 
 /**
- * Wacké Navigation & Recommended Sidebar
- * Displays top navigation links and live channels list, matching Kick's sidebar layout.
+ * Wacké Navigation & Recommended Sidebar (Client Component)
+ * Collapsible sidebar with active route highlighting and recommended channels.
  */
-export default async function Sidebar() {
-  let liveChannels = [];
-  try {
-    liveChannels = await getLiveStreams(5);
-  } catch (err) {
-    console.error("[SIDEBAR_FETCH_ERROR]", err);
-  }
+export default function Sidebar() {
+  const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState(false);
+  const [channels, setChannels] = useState<SidebarChannel[]>([]);
 
-  // Fallback channels to display if database has no active live streams
-  const fallbackChannels = TOP_KICK_STREAMERS.slice(0, 5).map((username, index) => ({
-    username,
-    displayName: username.charAt(0).toUpperCase() + username.slice(1),
-    category: index % 2 === 0 ? "gaming" : "talk",
-    viewerCount: 12500 - index * 1800,
-    isMock: true,
-  }));
+  // Fetch live channels from API
+  useEffect(() => {
+    fetch("/api/kick/livestreams?limit=5")
+      .then((r) => r.json())
+      .then((data) => {
+        const streams = (data.streams ?? []).slice(0, 5).map((s: any) => ({
+          username: s.channel?.user?.username ?? s.slug ?? "user",
+          displayName: (s.channel?.user?.username ?? s.slug ?? "Streamer").charAt(0).toUpperCase() + (s.channel?.user?.username ?? s.slug ?? "Streamer").slice(1),
+          category: s.categories?.[0]?.name ?? "Live",
+          viewerCount: s.viewer_count ?? 0,
+        }));
+        if (streams.length > 0) setChannels(streams);
+      })
+      .catch(() => {
+        // Use fallback channels
+        setChannels([
+          { username: "xqc", displayName: "xQc", category: "Gaming", viewerCount: 45200, isMock: true },
+          { username: "adinross", displayName: "Adinross", category: "Talk", viewerCount: 32100, isMock: true },
+          { username: "amouranth", displayName: "Amouranth", category: "IRL", viewerCount: 18700, isMock: true },
+          { username: "roshtein", displayName: "Roshtein", category: "Slots", viewerCount: 12400, isMock: true },
+          { username: "odablock", displayName: "Odablock", category: "Gaming", viewerCount: 8900, isMock: true },
+        ]);
+      });
+  }, []);
 
-  const channelsToRender = liveChannels.length > 0
-    ? liveChannels.map((c) => ({
-        username: c.user?.username ?? "user",
-        displayName: c.user?.displayName ?? "Streamer",
-        category: c.category,
-        viewerCount: c.viewerCount,
-        isMock: false,
-      }))
-    : fallbackChannels;
+  const formatViewers = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
+
+  const navItems = [
+    { href: "/", icon: <Home className="w-5 h-5" />, label: "Accueil", color: "text-wacke-pink" },
+    { href: "/browse", icon: <Search className="w-5 h-5" />, label: "Parcourir", color: "text-wacke-cyan" },
+    { href: "/dashboard/stream", icon: <Radio className="w-5 h-5" />, label: "Mon Stream", color: "text-wacke-red" },
+  ];
+
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
 
   return (
-    <aside className="w-64 bg-wacke-darker border-r border-wacke-purple/20 h-[calc(100vh-64px)] hidden lg:flex flex-col justify-between shrink-0 select-none">
-      
+    <aside
+      className={`${collapsed ? "w-16" : "w-60"} bg-wacke-darker/95 border-r border-wacke-purple/15 h-[calc(100vh-64px)] hidden lg:flex flex-col justify-between shrink-0 select-none transition-all duration-300 backdrop-blur-sm`}
+    >
       {/* ── Top Navigation Links ────────────────────────────────────────── */}
-      <div className="p-4 space-y-1">
-        <Link
-          href="/"
-          className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-300 hover:text-white hover:bg-wacke-dark/40 transition-colors"
-        >
-          <img src="/icon_home.png" alt="Home" className="w-5 h-5 object-contain drop-shadow-[0_0_8px_rgba(255,0,255,0.8)]" />
-          <span>Accueil</span>
-        </Link>
-        <Link
-          href="/browse"
-          className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-300 hover:text-white hover:bg-wacke-dark/40 transition-colors"
-        >
-          <img src="/icon_browse.png" alt="Browse" className="w-5 h-5 object-contain drop-shadow-[0_0_8px_rgba(0,255,255,0.8)]" />
-          <span>Parcourir</span>
-        </Link>
-        <Link
-          href="/dashboard/stream"
-          className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-300 hover:text-white hover:bg-wacke-dark/40 transition-colors"
-        >
-          <img src="/icon_stream.png" alt="Stream" className="w-5 h-5 object-contain drop-shadow-[0_0_8px_rgba(255,0,0,0.8)]" />
-          <span>Mon Stream</span>
-        </Link>
+      <div className="p-3 space-y-0.5">
+        {navItems.map((item) => {
+          const active = isActive(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all relative
+                         ${active
+                           ? "bg-white/5 text-white"
+                           : "text-gray-400 hover:text-white hover:bg-white/3"}`}
+              title={collapsed ? item.label : undefined}
+            >
+              {/* Active indicator bar */}
+              {active && (
+                <span className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r-full ${item.color} bg-current shadow-[0_0_8px_currentColor]`} />
+              )}
+              <span className={active ? item.color : ""}>{item.icon}</span>
+              {!collapsed && <span>{item.label}</span>}
+            </Link>
+          );
+        })}
       </div>
 
       {/* ── Recommended Channels List ───────────────────────────────────── */}
-      <div className="flex-1 p-4 border-t border-wacke-purple/10 overflow-y-auto">
-        <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 px-3">
-          Chaînes Recommandées
-        </h2>
-        <div className="space-y-1">
-          {channelsToRender.map((channel, i) => (
+      <div className="flex-1 p-3 border-t border-wacke-purple/10 overflow-y-auto scrollbar-hide">
+        {!collapsed && (
+          <h2 className="text-[10px] font-bold text-gray-600 uppercase tracking-wider mb-3 px-3">
+            Chaînes Recommandées
+          </h2>
+        )}
+        <div className="space-y-0.5">
+          {channels.map((channel, i) => (
             <Link
               key={channel.username + i}
               href={`/stream/${channel.username}`}
-              className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-wacke-dark/40 transition-colors group"
+              className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-white/3 transition-all group"
+              title={collapsed ? channel.displayName : undefined}
             >
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2.5">
                 {/* Avatar */}
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-xs font-bold text-white uppercase shrink-0">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-[10px] font-bold text-white uppercase shrink-0 border border-white/10">
                   {channel.displayName[0]}
                 </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-gray-200 group-hover:text-white truncate">
-                    {channel.displayName}
-                  </p>
-                  <p className="text-xs text-gray-500 truncate capitalize">
-                    {channel.category}
-                  </p>
-                </div>
+                {!collapsed && (
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-gray-300 group-hover:text-white truncate">
+                      {channel.displayName}
+                    </p>
+                    <p className="text-[10px] text-gray-600 truncate capitalize">
+                      {channel.category}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Live indicators */}
-              <div className="flex items-center space-x-1.5 shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-xs text-gray-400 font-medium">
-                  {channel.viewerCount >= 1000
-                    ? `${(channel.viewerCount / 1000).toFixed(1)}k`
-                    : channel.viewerCount}
-                </span>
-              </div>
+              {!collapsed && (
+                <div className="flex items-center space-x-1.5 shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                  <span className="text-[10px] text-gray-500 font-medium">
+                    {formatViewers(channel.viewerCount)}
+                  </span>
+                </div>
+              )}
             </Link>
           ))}
         </div>
       </div>
 
-      {/* ── Squad Discord Banner ────────────────────────────────────────── */}
-      <div className="p-4 border-t border-wacke-purple/10">
-        <div className="bg-wacke-dark/30 border border-wacke-purple/20 rounded-2xl p-4">
-          <p className="text-xs text-gray-400 font-semibold mb-2">Rejoindre le Discord Wacké?</p>
-          <a
-            href="https://discord.gg"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full bg-[#5865F2] hover:bg-[#4752C4] py-2 rounded-xl font-bold text-xs text-white flex items-center justify-center space-x-2 transition-colors"
-          >
-            <span>Rejoindre</span>
-            <img src="/icon_discord.png" alt="Discord" className="w-4 h-4 object-contain drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]" />
-          </a>
-        </div>
+      {/* ── Collapse Toggle + Discord ────────────────────────────────────── */}
+      <div className="p-3 border-t border-wacke-purple/10 space-y-3">
+        {/* Discord Banner */}
+        {!collapsed && (
+          <div className="bg-white/2 border border-wacke-purple/10 rounded-xl p-3">
+            <p className="text-[10px] text-gray-500 font-semibold mb-2">Rejoindre le Discord Wacké?</p>
+            <a
+              href="https://discord.gg"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-[#5865F2] hover:bg-[#4752C4] py-1.5 rounded-lg font-bold text-[10px] text-white flex items-center justify-center space-x-1.5 transition-colors"
+            >
+              <span>Rejoindre</span>
+              <img src="/icon_discord.png" alt="Discord" className="w-3.5 h-3.5 object-contain" />
+            </a>
+          </div>
+        )}
+
+        {/* Collapse button */}
+        <button
+          onClick={() => setCollapsed((prev) => !prev)}
+          className="w-full flex items-center justify-center py-1.5 rounded-lg hover:bg-white/3 transition-colors text-gray-600 hover:text-gray-400"
+          title={collapsed ? "Agrandir" : "Réduire"}
+        >
+          {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+        </button>
       </div>
     </aside>
   );

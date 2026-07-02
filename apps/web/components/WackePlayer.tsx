@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Maximize2, Minimize2, PictureInPicture2 } from "lucide-react";
 
 interface WackePlayerProps {
   playbackId: string;
@@ -14,10 +15,7 @@ interface WackePlayerProps {
 
 /**
  * WackePlayer — HLS video player with Mux integration.
- *
- * Uses hls.js for native HLS playback in browsers that don't support it natively.
- * Falls back to native <video> HLS for Safari.
- * Styled with Wacké's cyberpunk neon aesthetic.
+ * Features: Kick/Twitch embeds, theater mode, PiP, fullscreen.
  */
 export default function WackePlayer({
   playbackId,
@@ -29,12 +27,21 @@ export default function WackePlayer({
   twitchUsername,
 }: WackePlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(1);
+  const [isTheater, setIsTheater] = useState(false);
+  const [hostname, setHostname] = useState<string>("");
 
   const hlsUrl = `https://stream.mux.com/${playbackId}.m3u8`;
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setHostname(window.location.hostname);
+    }
+  }, []);
 
   useEffect(() => {
     if (kickUsername || twitchUsername || !videoRef.current || !playbackId) return;
@@ -44,28 +51,26 @@ export default function WackePlayer({
     // Safari supports HLS natively
     if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = hlsUrl;
-      video.play().catch(() => {
-        // Autoplay blocked — user must interact
-      });
+      video.play().catch(() => {});
       return;
     }
 
     // All other browsers — use hls.js
-    let Hls: typeof import("hls.js").default;
+    let hls: any;
 
     import("hls.js").then((module) => {
-      Hls = module.default;
+      const Hls = module.default;
 
       if (!Hls.isSupported()) {
         setHasError(true);
         return;
       }
 
-      const hls = new Hls({
+      hls = new Hls({
         enableWorker: true,
-        lowLatencyMode: true,         // Critical for live streaming
+        lowLatencyMode: true,
         backBufferLength: 30,
-        maxBufferLength: 10,          // Keep buffer lean for low latency
+        maxBufferLength: 10,
         liveSyncDurationCount: 3,
       });
 
@@ -77,92 +82,39 @@ export default function WackePlayer({
         video.play().catch(() => {});
       });
 
-      hls.on(Hls.Events.ERROR, (_, data) => {
+      hls.on(Hls.Events.ERROR, (_: any, data: any) => {
         if (data.fatal) {
           setHasError(true);
           hls.destroy();
         }
       });
-
-      return () => {
-        hls.destroy();
-      };
     });
+
+    return () => {
+      if (hls) hls.destroy();
+    };
   }, [playbackId, hlsUrl, kickUsername, twitchUsername]);
 
-  const [hostname, setHostname] = useState<string>("");
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setHostname(window.location.hostname);
+  const handlePiP = async () => {
+    try {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+      } else if (videoRef.current) {
+        await videoRef.current.requestPictureInPicture();
+      }
+    } catch (e) {
+      console.error("PiP not supported:", e);
     }
-  }, []);
+  };
 
-  // Early return for Kick.com embedded stream player (placed AFTER hooks)
-  if (kickUsername) {
-    return (
-      <div className="relative w-full bg-black rounded-xl overflow-hidden neon-border">
-        <div className="relative aspect-video">
-          <iframe
-            src={`https://player.kick.com/${kickUsername}?autoplay=true&muted=false`}
-            className="w-full h-full border-0"
-            scrolling="no"
-            allowFullScreen
-          />
-        </div>
-        <div className="p-4 bg-wacke-darker border-t border-wacke-purple/30">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-bold text-white truncate max-w-xs">{title}</h2>
-              <p className="text-sm text-wacke-cyan">{streamerName}</p>
-            </div>
-            <div className="flex items-center space-x-2 bg-green-500/10 border border-green-500/30 px-3 py-1.5 rounded-xl">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-xs font-bold text-green-400">Flux Kick Activé 🟢</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Early return for Twitch embedded stream player (placed AFTER hooks)
-  if (twitchUsername) {
-    const twitchSrc = hostname
-      ? `https://player.twitch.tv/?channel=${twitchUsername}&parent=${hostname}&autoplay=true&muted=false`
-      : "";
-
-    return (
-      <div className="relative w-full bg-black rounded-xl overflow-hidden neon-border">
-        <div className="relative aspect-video">
-          {hostname ? (
-            <iframe
-              src={twitchSrc}
-              className="w-full h-full border-0"
-              scrolling="no"
-              allowFullScreen
-            />
-          ) : (
-            <div className="w-full h-full bg-black flex items-center justify-center">
-              <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
-            </div>
-          )}
-        </div>
-        <div className="p-4 bg-wacke-darker border-t border-wacke-purple/30">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-bold text-white truncate max-w-xs">{title}</h2>
-              <p className="text-sm text-wacke-cyan">{streamerName}</p>
-            </div>
-            <div className="flex items-center space-x-2 bg-purple-500/10 border border-purple-500/30 px-3 py-1.5 rounded-xl">
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
-              <span className="text-xs font-bold text-purple-400">Flux Twitch Activé 🟣</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const handleFullscreen = () => {
+    if (!containerRef.current) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      containerRef.current.requestFullscreen();
+    }
+  };
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseFloat(e.target.value);
@@ -180,80 +132,160 @@ export default function WackePlayer({
     videoRef.current.muted = newMuted;
   };
 
+  // ── Kick Embed ──────────────────────────────────────────────────────────
+  if (kickUsername) {
+    return (
+      <div ref={containerRef} className={`relative w-full bg-black rounded-xl overflow-hidden neon-border ${isTheater ? "max-w-none" : ""}`}>
+        <div className="relative aspect-video">
+          <iframe
+            src={`https://player.kick.com/${kickUsername}?autoplay=true&muted=false`}
+            className="w-full h-full border-0"
+            scrolling="no"
+            allowFullScreen
+          />
+        </div>
+        <div className="p-4 bg-wacke-darker border-t border-wacke-purple/20">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-bold text-white truncate max-w-xs">{title}</h2>
+              <p className="text-sm text-wacke-cyan font-medium">{streamerName}</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5 bg-wacke-green/10 border border-wacke-green/30 px-3 py-1.5 rounded-xl">
+                <span className="w-1.5 h-1.5 rounded-full bg-wacke-green animate-pulse" />
+                <span className="text-[10px] font-bold text-wacke-green">KICK LIVE</span>
+              </div>
+              <button onClick={() => setIsTheater(p => !p)} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors" title="Mode théâtre">
+                {isTheater ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Twitch Embed ────────────────────────────────────────────────────────
+  if (twitchUsername) {
+    const twitchSrc = hostname
+      ? `https://player.twitch.tv/?channel=${twitchUsername}&parent=${hostname}&autoplay=true&muted=false`
+      : "";
+
+    return (
+      <div ref={containerRef} className={`relative w-full bg-black rounded-xl overflow-hidden neon-border ${isTheater ? "max-w-none" : ""}`}>
+        <div className="relative aspect-video">
+          {hostname ? (
+            <iframe src={twitchSrc} className="w-full h-full border-0" scrolling="no" allowFullScreen />
+          ) : (
+            <div className="w-full h-full bg-black flex items-center justify-center">
+              <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+        </div>
+        <div className="p-4 bg-wacke-darker border-t border-wacke-purple/20">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-bold text-white truncate max-w-xs">{title}</h2>
+              <p className="text-sm text-wacke-cyan font-medium">{streamerName}</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5 bg-purple-500/10 border border-purple-500/30 px-3 py-1.5 rounded-xl">
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
+                <span className="text-[10px] font-bold text-purple-400">TWITCH LIVE</span>
+              </div>
+              <button onClick={() => setIsTheater(p => !p)} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors" title="Mode théâtre">
+                {isTheater ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Mux HLS Player ──────────────────────────────────────────────────────
   return (
-    <div className="relative w-full bg-black rounded-xl overflow-hidden neon-border">
-      {/* ── Video Element ──────────────────────────────────────────────────── */}
+    <div ref={containerRef} className={`relative w-full bg-black rounded-xl overflow-hidden neon-border ${isTheater ? "max-w-none" : ""}`}>
       <div className="relative aspect-video">
-        <video
-          ref={videoRef}
-          className="w-full h-full object-cover"
-          playsInline
-          autoPlay
-          muted={isMuted}
-        />
+        <video ref={videoRef} className="w-full h-full object-cover" playsInline autoPlay muted={isMuted} />
 
         {/* Loading overlay */}
         {isLoading && !hasError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-wacke-darker/80">
+          <div className="absolute inset-0 flex items-center justify-center bg-wacke-darker/80 animate-fade-in">
             <div className="text-center">
-              <div className="w-12 h-12 border-4 border-wacke-pink border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-              <p className="text-wacke-cyan text-sm font-bold">Connexion au stream...</p>
+              <div className="w-10 h-10 border-3 border-wacke-pink border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              <p className="text-wacke-cyan text-xs font-bold">Connexion au stream...</p>
             </div>
           </div>
         )}
 
         {/* Error overlay */}
         {hasError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-wacke-darker/90">
+          <div className="absolute inset-0 flex items-center justify-center bg-wacke-darker/90 animate-fade-in">
             <div className="text-center">
-              <p className="text-4xl mb-3">📡</p>
-              <p className="text-wacke-pink font-bold">Stream hors ligne</p>
-              <p className="text-gray-400 text-sm mt-1">Le streamer revient bientôt...</p>
+              <img src="/offline_mascot.png" alt="Offline" className="w-24 h-24 mx-auto mb-3 opacity-60" />
+              <p className="text-wacke-pink font-bold text-sm">Stream hors ligne</p>
+              <p className="text-gray-500 text-xs mt-1">Le streamer revient bientôt...</p>
             </div>
           </div>
         )}
 
-        {/* LIVE badge */}
+        {/* LIVE badge + viewer count */}
         {isLive && (
           <div className="absolute top-3 left-3 flex items-center space-x-2">
-            <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded flex items-center space-x-1">
+            <span className="bg-red-600/90 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center space-x-1 backdrop-blur-sm">
               <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
               <span>LIVE</span>
             </span>
-            <span className="bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded">
+            <span className="bg-black/50 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-md font-medium">
               👁 {viewerCount.toLocaleString("fr-CA")}
             </span>
           </div>
         )}
+
+        {/* Player Controls overlay */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 opacity-0 hover:opacity-100 transition-opacity">
+          <div className="flex items-center justify-end space-x-2">
+            <button onClick={handlePiP} className="p-1.5 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors" title="Picture-in-Picture">
+              <PictureInPicture2 className="w-4 h-4" />
+            </button>
+            <button onClick={() => setIsTheater(p => !p)} className="p-1.5 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors" title="Mode théâtre">
+              {isTheater ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* ── Player Controls ────────────────────────────────────────────────── */}
-      <div className="p-4 bg-wacke-darker border-t border-wacke-purple/30">
+      {/* ── Player Controls Bar ────────────────────────────────────────────── */}
+      <div className="p-4 bg-wacke-darker border-t border-wacke-purple/20">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="font-bold text-white truncate max-w-xs">{title}</h2>
-            <p className="text-sm text-wacke-cyan">{streamerName}</p>
+          <div className="min-w-0">
+            <h2 className="font-bold text-white truncate">{title}</h2>
+            <p className="text-sm text-wacke-cyan font-medium">{streamerName}</p>
           </div>
 
-          {/* Volume control */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 shrink-0">
             <button
               onClick={toggleMute}
-              className="text-gray-400 hover:text-white transition-colors text-lg"
+              className="text-gray-400 hover:text-white transition-colors text-base"
               aria-label={isMuted ? "Activer le son" : "Couper le son"}
             >
               {isMuted ? "🔇" : "🔊"}
             </button>
             <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
+              type="range" min="0" max="1" step="0.05"
               value={isMuted ? 0 : volume}
               onChange={handleVolumeChange}
               className="w-20 accent-wacke-pink"
               aria-label="Volume"
             />
+            <button
+              onClick={handleFullscreen}
+              className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+              title="Plein écran"
+            >
+              <Maximize2 className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>

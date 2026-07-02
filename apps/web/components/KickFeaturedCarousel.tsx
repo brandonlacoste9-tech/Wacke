@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 interface KickStream {
@@ -29,6 +29,7 @@ export default function KickFeaturedCarousel() {
   const [streams, setStreams] = useState<KickStream[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     fetch("/api/kick/livestreams?limit=8")
@@ -43,22 +44,50 @@ export default function KickFeaturedCarousel() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Auto-rotate carousel every 12 seconds
+  // Auto-rotate carousel every 12 seconds with progress tracking
   useEffect(() => {
     if (streams.length <= 1) return;
+    setProgress(0);
+
+    const progressInterval = setInterval(() => {
+      setProgress((p) => Math.min(p + 100 / 120, 100));
+    }, 100);
+
     const timer = setInterval(() => {
-      setActiveIndex((i) => (i + 1) % Math.min(streams.length, 5));
+      setActiveIndex((i) => (i + 1) % Math.min(streams.length, 6));
+      setProgress(0);
     }, 12000);
-    return () => clearInterval(timer);
+
+    return () => {
+      clearInterval(timer);
+      clearInterval(progressInterval);
+    };
+  }, [streams.length, activeIndex]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (streams.length === 0) return;
+      if (e.key === "ArrowRight") {
+        setActiveIndex((i) => (i + 1) % Math.min(streams.length, 6));
+        setProgress(0);
+      }
+      if (e.key === "ArrowLeft") {
+        setActiveIndex((i) => (i - 1 + Math.min(streams.length, 6)) % Math.min(streams.length, 6));
+        setProgress(0);
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
   }, [streams.length]);
 
   if (loading) {
     return (
-      <div className="flex flex-col lg:flex-row gap-4 bg-wacke-darker border border-wacke-purple/20 rounded-2xl p-4 mb-4 animate-pulse">
-        <div className="flex-1 aspect-video bg-white/5 rounded-xl" />
+      <div className="flex flex-col lg:flex-row gap-4 glass-card rounded-2xl p-4 mb-4 animate-pulse">
+        <div className="flex-1 aspect-video bg-white/3 rounded-xl" />
         <div className="w-full lg:w-72 space-y-3">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-14 bg-white/5 rounded-xl" />
+            <div key={i} className="h-14 bg-white/3 rounded-xl" />
           ))}
         </div>
       </div>
@@ -72,31 +101,29 @@ export default function KickFeaturedCarousel() {
 
   const username = current.channel?.user?.username ?? current.slug;
   const displayName = username.charAt(0).toUpperCase() + username.slice(1);
-  const thumbnail = current.thumbnail?.src ?? null;
   const avatar = current.channel?.profile_picture ?? current.channel?.user?.profile_pic ?? null;
   const category = current.categories?.[0]?.name ?? "Live";
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 bg-wacke-darker border border-wacke-purple/20 rounded-2xl p-4 shadow-2xl relative overflow-hidden select-none mb-4">
-      
+    <div className="flex flex-col lg:flex-row gap-4 glass-card rounded-2xl p-4 shadow-2xl relative overflow-hidden select-none mb-4">
+
+      {/* ── Progress bar ─────────────────────────────────────────────────── */}
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-white/5 z-30">
+        <div
+          className="h-full bg-gradient-to-r from-wacke-pink to-wacke-cyan transition-all duration-100 ease-linear"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
       {/* ── Main Player ─────────────────────────────────────────────────── */}
       <div className="flex-1 aspect-video relative rounded-xl overflow-hidden bg-black border border-wacke-purple/10">
-        {/* Real Kick embed player */}
         <iframe
-          key={username} // Forces iframe reload when user changes
+          key={username}
           src={`https://player.kick.com/${username}?autoplay=true&muted=true`}
           className="w-full h-full border-0"
           scrolling="no"
           allowFullScreen
         />
-
-        {/* Thumbnail overlay while loading (fades) */}
-        {thumbnail && (
-          <div
-            className="absolute inset-0 bg-cover bg-center pointer-events-none opacity-0"
-            style={{ backgroundImage: `url(${thumbnail})` }}
-          />
-        )}
 
         {/* Info overlay */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-5 flex flex-col justify-end pointer-events-none">
@@ -105,7 +132,7 @@ export default function KickFeaturedCarousel() {
               <img
                 src={avatar}
                 alt={displayName}
-                className="w-10 h-10 rounded-full border-2 border-wacke-pink/50 object-cover shadow-lg"
+                className="w-10 h-10 rounded-full border-2 border-wacke-pink/40 object-cover shadow-lg"
               />
             ) : (
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-sm font-black text-white uppercase shadow-lg border border-white/10">
@@ -114,9 +141,8 @@ export default function KickFeaturedCarousel() {
             )}
             <div>
               <p className="font-bold text-white text-base truncate drop-shadow-md">{displayName}</p>
-              <p className="text-xs text-wacke-cyan font-semibold drop-shadow-md">{category}</p>
+              <p className="text-xs text-wacke-cyan font-medium drop-shadow-md">{category}</p>
             </div>
-            {/* Viewer count pill */}
             <div className="ml-auto flex items-center space-x-1 bg-black/50 border border-white/10 text-white text-xs font-bold px-2.5 py-1 rounded-xl backdrop-blur-sm">
               <svg className="w-3.5 h-3.5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
@@ -130,14 +156,14 @@ export default function KickFeaturedCarousel() {
             {current.session_title}
           </p>
 
-          <div className="mt-4 flex items-center space-x-3 pointer-events-auto">
+          <div className="mt-3 flex items-center space-x-3 pointer-events-auto">
             <Link
               href={`/stream/${username}`}
-              className="bg-[#53fc18] hover:bg-[#45d414] text-black font-extrabold text-xs px-5 py-2.5 rounded-xl transition-all duration-200 hover:scale-105 shadow-lg shadow-green-500/30"
+              className="bg-wacke-green hover:brightness-110 text-black font-extrabold text-xs px-5 py-2 rounded-xl transition-all duration-200 hover:scale-105 shadow-lg shadow-wacke-green/20"
             >
               Regarder Live 🟢
             </Link>
-            <div className="flex items-center space-x-1 bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-md">
+            <div className="flex items-center space-x-1 bg-red-600/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-md backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
               <span>LIVE</span>
             </div>
@@ -146,8 +172,8 @@ export default function KickFeaturedCarousel() {
       </div>
 
       {/* ── Sidebar selector ────────────────────────────────────────────── */}
-      <div className="w-full lg:w-80 flex flex-col gap-2 overflow-y-auto max-h-[360px] lg:max-h-none">
-        <h2 className="text-xs font-extrabold text-gray-500 uppercase tracking-widest mb-1 px-2">
+      <div className="w-full lg:w-80 flex flex-col gap-1.5 overflow-y-auto max-h-[360px] lg:max-h-none scrollbar-hide">
+        <h2 className="text-[10px] font-extrabold text-gray-600 uppercase tracking-widest mb-1 px-2">
           🔴 À l'affiche sur Wacké
         </h2>
         {streams.slice(0, 6).map((stream, idx) => {
@@ -160,34 +186,34 @@ export default function KickFeaturedCarousel() {
           return (
             <button
               key={stream.id}
-              onClick={() => setActiveIndex(idx)}
-              className={`flex items-center space-x-3 p-3 rounded-xl transition-all border text-left group
+              onClick={() => { setActiveIndex(idx); setProgress(0); }}
+              className={`flex items-center space-x-3 p-2.5 rounded-xl transition-all border text-left group
                          ${isActive
-                           ? "bg-wacke-purple/20 border-wacke-pink/50 shadow-lg shadow-wacke-pink/5"
-                           : "bg-wacke-dark/30 border-transparent hover:bg-wacke-dark/60 hover:border-wacke-purple/30"}`}
+                           ? "bg-wacke-purple/15 border-wacke-pink/30 shadow-lg shadow-wacke-pink/5"
+                           : "bg-transparent border-transparent hover:bg-white/3 hover:border-wacke-purple/20"}`}
             >
               {ava ? (
                 <img
                   src={ava}
                   alt={dname}
-                  className={`w-10 h-10 rounded-xl object-cover shrink-0 border ${isActive ? "border-wacke-pink/50" : "border-white/5"}`}
+                  className={`w-9 h-9 rounded-xl object-cover shrink-0 border ${isActive ? "border-wacke-pink/40" : "border-white/5"}`}
                 />
               ) : (
-                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-sm font-black text-white uppercase shrink-0 border ${isActive ? "border-wacke-pink/50" : "border-white/5"}`}>
+                <div className={`w-9 h-9 rounded-xl bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-[10px] font-black text-white uppercase shrink-0 border ${isActive ? "border-wacke-pink/40" : "border-white/5"}`}>
                   {dname.substring(0, 2)}
                 </div>
               )}
 
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between mb-0.5">
-                  <p className={`text-xs font-bold truncate ${isActive ? "text-wacke-pink" : "text-gray-200 group-hover:text-white"}`}>
+                  <p className={`text-xs font-bold truncate ${isActive ? "text-wacke-pink" : "text-gray-300 group-hover:text-white"}`}>
                     {dname}
                   </p>
-                  <span className="text-[9px] text-gray-500 ml-1 shrink-0">
+                  <span className="text-[9px] text-gray-600 ml-1 shrink-0">
                     👁 {formatViewers(stream.viewer_count)}
                   </span>
                 </div>
-                <p className="text-[10px] text-gray-500 truncate line-clamp-1">
+                <p className="text-[10px] text-gray-600 truncate line-clamp-1">
                   {stream.session_title}
                 </p>
               </div>
@@ -196,14 +222,14 @@ export default function KickFeaturedCarousel() {
         })}
       </div>
 
-      {/* Pagination dots */}
+      {/* Pagination dots (mobile) */}
       {streams.length > 1 && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-1.5 lg:hidden">
-          {streams.slice(0, 5).map((_, i) => (
+          {streams.slice(0, 6).map((_, i) => (
             <button
               key={i}
-              onClick={() => setActiveIndex(i)}
-              className={`w-2 h-2 rounded-full transition-all ${i === activeIndex ? "bg-wacke-pink w-4" : "bg-white/20"}`}
+              onClick={() => { setActiveIndex(i); setProgress(0); }}
+              className={`h-1.5 rounded-full transition-all ${i === activeIndex ? "bg-wacke-pink w-5" : "bg-white/20 w-1.5"}`}
             />
           ))}
         </div>

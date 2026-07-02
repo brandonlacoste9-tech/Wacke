@@ -5,16 +5,19 @@ import { useState } from "react";
 import { useAuth } from "./AuthProvider";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
+import NotificationBell from "./NotificationBell";
+import UserDropdown from "./UserDropdown";
 
 /**
  * Wacké Global Header
- * Sticky, glassmorphism-style header with navigation, search, and auth/token display.
+ * Sticky glassmorphism header with navigation, search, notifications, and user menu.
  */
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
-  const { user, logout, claimDailyTokens, isLoading } = useAuth();
+  const { user, claimDailyTokens, isLoading } = useAuth();
   const [claimFeedback, setClaimFeedback] = useState<string | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
+  const [coinAnimate, setCoinAnimate] = useState(false);
   const router = useRouter();
 
   const handleClaim = async () => {
@@ -22,11 +25,13 @@ export default function Header() {
     setClaimFeedback(null);
     const res = await claimDailyTokens();
     setIsClaiming(false);
-    
+
     if (res.success) {
-      setClaimFeedback(res.message || "Jetons réclamés!");
+      setClaimFeedback(res.message || "+500 jetons! 🪙");
+      setCoinAnimate(true);
+      setTimeout(() => setCoinAnimate(false), 1000);
     } else {
-      setClaimFeedback(res.error || "Erreur de réclamation.");
+      setClaimFeedback(res.error || "Déjà réclamé aujourd'hui!");
     }
     setTimeout(() => setClaimFeedback(null), 3000);
   };
@@ -39,99 +44,113 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-wacke-darker/90 backdrop-blur-md border-b border-wacke-purple/30">
-      <div className="flex items-center justify-between px-6 py-3">
+    <header className="sticky top-0 z-50 glass-dark border-b border-wacke-purple/20">
+      <div className="flex items-center justify-between px-4 lg:px-6 py-2.5">
 
         {/* ── Logo ──────────────────────────────────────────────────────── */}
-        <Link href="/" className="flex items-center space-x-2 group">
-          <img src="/logo_w.png" alt="Wacké Logo" className="h-8 w-8 object-contain rounded-md shadow-[0_0_10px_rgba(255,0,255,0.5)] group-hover:opacity-80 transition-opacity" />
+        <Link href="/" className="flex items-center space-x-2.5 group shrink-0">
+          <img
+            src="/logo_w.png"
+            alt="Wacké Logo"
+            className="h-8 w-8 object-contain rounded-md shadow-[0_0_12px_rgba(255,0,255,0.4)] group-hover:shadow-[0_0_20px_rgba(255,0,255,0.6)] transition-shadow"
+          />
           <span className="text-2xl font-bold graffiti-text neon-pink group-hover:opacity-80 transition-opacity hidden sm:block">
             WACKÉ
           </span>
         </Link>
 
         {/* ── Navigation ────────────────────────────────────────────────── */}
-        <nav className="hidden md:flex items-center space-x-6">
-          <Link href="/browse" className="text-sm text-gray-300 hover:text-wacke-cyan transition-colors font-medium">
-            Parcourir
-          </Link>
-          <Link href="/browse?category=gaming" className="text-sm text-gray-300 hover:text-wacke-cyan transition-colors font-medium">
-            Gaming
-          </Link>
-          <Link href="/browse?category=musique" className="text-sm text-gray-300 hover:text-wacke-cyan transition-colors font-medium">
-            Musique
-          </Link>
-          <Link href="/browse?category=irl" className="text-sm text-gray-300 hover:text-wacke-cyan transition-colors font-medium">
-            IRL
-          </Link>
+        <nav className="hidden md:flex items-center space-x-1 mx-6">
+          {[
+            { href: "/browse", label: "Parcourir" },
+            { href: "/browse?category=gaming", label: "Gaming" },
+            { href: "/browse?category=musique", label: "Musique" },
+            { href: "/browse?category=irl", label: "IRL" },
+          ].map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="text-sm text-gray-400 hover:text-white px-3 py-1.5 rounded-lg
+                         hover:bg-white/5 transition-all font-medium"
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
 
         {/* ── Search ────────────────────────────────────────────────────── */}
-        <form onSubmit={handleSearch} className="hidden lg:flex items-center">
-          <div className="relative">
+        <form onSubmit={handleSearch} className="hidden lg:flex items-center flex-1 max-w-sm mx-4">
+          <div className="relative w-full">
             <input
               type="text"
               placeholder="Chercher un stream..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-wacke-dark border border-wacke-purple/40 rounded-lg pl-4 pr-10 py-2
-                         text-sm w-64 focus:outline-none focus:border-wacke-cyan/60 transition-colors"
+              className="w-full bg-white/3 border border-wacke-purple/20 rounded-xl pl-4 pr-10 py-2
+                         text-sm focus:border-wacke-cyan/40 focus:bg-white/5 transition-all
+                         placeholder:text-gray-600"
             />
-            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-wacke-cyan transition-colors">
+            <button
+              type="submit"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-wacke-cyan transition-colors"
+            >
               <Search className="w-4 h-4" />
             </button>
           </div>
         </form>
 
         {/* ── Auth / Token Area ─────────────────────────────────────────── */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2">
           {!isLoading && user ? (
             <>
               {/* Claim Feedback Toast */}
               {claimFeedback && (
-                <div className="absolute top-16 right-6 bg-wacke-darker border border-wacke-purple/40 rounded-xl px-4 py-2 text-xs font-bold shadow-xl neon-border text-white animate-fade-in z-50">
+                <div className="absolute top-14 right-6 glass-dark rounded-xl px-4 py-2 text-xs font-bold shadow-xl animate-slide-up z-50 neon-border">
                   {claimFeedback}
                 </div>
               )}
 
               {/* Tokens Display */}
-              <div className="flex items-center space-x-2 bg-wacke-dark border border-yellow-500/30 rounded-lg px-3 py-1.5">
-                <img src="/token.png" alt="Token" className="h-5 w-5 object-contain rounded-full shadow-[0_0_8px_rgba(255,215,0,0.5)]" />
-                <span className="text-sm font-bold text-yellow-400">{user.tokenBalance}</span>
+              <div className="flex items-center space-x-2 bg-yellow-500/5 border border-yellow-500/20 rounded-xl px-3 py-1.5 group">
+                <img
+                  src="/token.png"
+                  alt="Token"
+                  className={`h-4 w-4 object-contain rounded-full shadow-[0_0_6px_rgba(255,215,0,0.4)] ${coinAnimate ? "animate-coin-float" : ""}`}
+                />
+                <span className="text-sm font-bold text-yellow-400">{user.tokenBalance.toLocaleString("fr-CA")}</span>
                 <button
                   onClick={handleClaim}
                   disabled={isClaiming}
-                  className="text-xs bg-yellow-500/20 hover:bg-yellow-500/40 text-yellow-300 px-2 py-0.5 rounded font-bold transition-colors disabled:opacity-50"
+                  className="text-[10px] bg-yellow-500/15 hover:bg-yellow-500/30 text-yellow-300 px-2 py-0.5 rounded-md font-bold transition-all disabled:opacity-50 uppercase tracking-wider"
                   title="Réclamer ton bonus quotidien de 500 jetons"
                 >
-                  Réclamer
+                  {isClaiming ? "..." : "+500"}
                 </button>
               </div>
 
               {/* Streamer Link */}
               <Link
                 href="/dashboard/stream"
-                className="hidden sm:block bg-wacke-pink/20 hover:bg-wacke-pink/40 border border-wacke-pink/40
-                           text-wacke-pink text-sm font-bold px-4 py-2 rounded-lg transition-colors"
+                className="hidden sm:flex items-center space-x-1.5 bg-wacke-red/10 hover:bg-wacke-red/20 border border-wacke-red/30
+                           text-wacke-red text-xs font-bold px-3 py-2 rounded-xl transition-all hover:scale-[1.02]"
               >
-                🔴 Streamer
+                <span className="w-1.5 h-1.5 rounded-full bg-wacke-red animate-pulse" />
+                <span>Stream</span>
               </Link>
 
-              {/* User Signout */}
-              <button
-                onClick={logout}
-                className="bg-wacke-purple/20 hover:bg-wacke-purple/40 border border-wacke-purple/40 text-white text-sm
-                           font-bold px-4 py-2 rounded-lg transition-colors"
-              >
-                Déconnexion
-              </button>
+              {/* Notification Bell */}
+              <NotificationBell />
+
+              {/* User Dropdown */}
+              <UserDropdown />
             </>
           ) : (
             !isLoading && (
               <Link
                 href="/auth/login"
                 className="bg-gradient-to-r from-wacke-pink to-wacke-purple text-white text-sm
-                           font-bold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+                           font-bold px-5 py-2 rounded-xl hover:opacity-90 transition-all hover:scale-[1.02]
+                           shadow-lg shadow-wacke-pink/20"
               >
                 Connexion
               </Link>
@@ -142,4 +161,3 @@ export default function Header() {
     </header>
   );
 }
-

@@ -5,6 +5,8 @@ import { useAuth } from "@/components/AuthProvider";
 import { isSupabaseMocked } from "@/lib/config";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import ParticleBackground from "@/components/ParticleBackground";
+import { CheckCircle, XCircle } from "lucide-react";
 
 export default function SignupPage() {
   const { signup, user, isLoading } = useAuth();
@@ -14,6 +16,7 @@ export default function SignupPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [isMock, setIsMock] = useState(false);
+  const [usernameStatus, setUsernameStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
   const router = useRouter();
 
   useEffect(() => {
@@ -22,6 +25,23 @@ export default function SignupPage() {
       router.push("/dashboard/stream");
     }
   }, [user, router]);
+
+  // Simulate username availability check
+  useEffect(() => {
+    if (username.length < 3) {
+      setUsernameStatus("idle");
+      return;
+    }
+
+    setUsernameStatus("checking");
+    const timeout = setTimeout(() => {
+      // Mock check — in production would hit an API
+      const taken = ["admin", "wacke", "gabriel", "sophie", "moderator"];
+      setUsernameStatus(taken.includes(username.toLowerCase()) ? "taken" : "available");
+    }, 600);
+
+    return () => clearTimeout(timeout);
+  }, [username]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +55,11 @@ export default function SignupPage() {
 
     if (username.length > 32) {
       setErrorMsg("Le pseudo doit faire max 32 caractères.");
+      return;
+    }
+
+    if (usernameStatus === "taken") {
+      setErrorMsg("Ce pseudo est déjà pris. Choisis-en un autre.");
       return;
     }
 
@@ -58,98 +83,134 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-wacke-dark px-4 py-12 relative overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-wacke-pink/5 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="max-w-md w-full bg-wacke-darker border border-wacke-purple/30 p-8 rounded-2xl neon-border relative z-10">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold graffiti-text neon-cyan mb-2">INSCRIPTION</h1>
-          <p className="text-gray-400 text-sm font-medium">Rejoins la meute de Wacké! 🐺🎨</p>
+    <div className="min-h-[calc(100vh-64px)] flex bg-wacke-dark relative overflow-hidden">
+      {/* ── Artwork Side (Left) ── */}
+      <div className="hidden lg:flex w-1/2 relative bg-black items-center justify-center border-r border-wacke-purple/20">
+        <img src="/login_artwork.jpg" alt="Cyberpunk City" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-wacke-dark z-0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-wacke-dark via-transparent to-transparent z-0" />
+        <ParticleBackground count={12} />
+        <div className="relative z-10 p-16 mt-auto self-end w-full">
+          <h2 className="text-5xl font-black text-white drop-shadow-[0_0_15px_rgba(0,255,255,0.8)] mb-3 uppercase tracking-wide graffiti-text neon-cyan">Rejoins la meute</h2>
+          <p className="text-xl text-gray-200 font-bold max-w-md drop-shadow-md">Crée ton compte en 30 secondes. Gratuit pour toujours.</p>
         </div>
+      </div>
 
-        {errorMsg && (
-          <div className="mb-4 px-4 py-3 bg-red-900/40 border border-red-500/40 rounded-xl text-sm text-red-300">
-            {errorMsg}
-          </div>
-        )}
+      {/* ── Form Side (Right) ── */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 relative">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-wacke-cyan/5 rounded-full blur-[120px] pointer-events-none" />
 
-        {successMsg && (
-          <div className="mb-4 px-4 py-3 bg-green-900/40 border border-green-500/40 rounded-xl text-sm text-green-300">
-            {successMsg}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-bold text-gray-300 mb-1.5">
-              Nom d&apos;utilisateur (Pseudo unique)
-            </label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ""))}
-              placeholder="Ex: ti_coune_99"
-              maxLength={32}
-              className="w-full bg-wacke-dark border border-wacke-purple/40 rounded-xl px-4 py-3
-                         text-sm text-white focus:outline-none focus:border-wacke-cyan/60 transition-colors"
-              disabled={isLoading}
-              required
-            />
+        <div className="max-w-md w-full glass-dark p-10 rounded-3xl shadow-[0_0_40px_rgba(0,255,255,0.08)] relative z-10 animate-scale-in">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold graffiti-text neon-cyan mb-2">INSCRIPTION</h1>
+            <p className="text-gray-500 text-sm font-medium">Rejoins la meute de Wacké! 🐺🎨</p>
           </div>
 
-          <div>
-            <label className="block text-sm font-bold text-gray-300 mb-1.5">
-              Nom d&apos;affichage (Display Name)
-            </label>
-            <input
-              type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Ex: Ti-Coune 👑"
-              maxLength={64}
-              className="w-full bg-wacke-dark border border-wacke-purple/40 rounded-xl px-4 py-3
-                         text-sm text-white focus:outline-none focus:border-wacke-cyan/60 transition-colors"
-              disabled={isLoading}
-              required
-            />
-          </div>
+          {errorMsg && (
+            <div className="mb-4 px-4 py-3 bg-red-900/30 border border-red-500/30 rounded-xl text-sm text-red-300 animate-fade-in">
+              {errorMsg}
+            </div>
+          )}
 
-          {!isMock && (
+          {successMsg && (
+            <div className="mb-4 px-4 py-3 bg-green-900/30 border border-green-500/30 rounded-xl text-sm text-green-300 animate-fade-in">
+              {successMsg}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-bold text-gray-300 mb-1.5">
-                Adresse courriel
+              <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">
+                Nom d&apos;utilisateur (Pseudo unique)
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ""))}
+                  placeholder="Ex: ti_coune_99"
+                  maxLength={32}
+                  className="w-full bg-white/3 border border-wacke-purple/20 rounded-xl px-4 py-3 pr-10
+                             text-sm focus:border-wacke-cyan/40 transition-all"
+                  disabled={isLoading}
+                  required
+                />
+                {/* Username availability indicator */}
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  {usernameStatus === "checking" && (
+                    <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
+                  )}
+                  {usernameStatus === "available" && (
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                  )}
+                  {usernameStatus === "taken" && (
+                    <XCircle className="w-4 h-4 text-red-400" />
+                  )}
+                </div>
+              </div>
+              {usernameStatus === "taken" && (
+                <p className="text-[10px] text-red-400 mt-1 font-medium">Ce pseudo est déjà pris</p>
+              )}
+              {usernameStatus === "available" && (
+                <p className="text-[10px] text-green-400 mt-1 font-medium">Pseudo disponible ✓</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">
+                Nom d&apos;affichage (Display Name)
               </label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="chum@wacke.ca"
-                className="w-full bg-wacke-dark border border-wacke-purple/40 rounded-xl px-4 py-3
-                           text-sm text-white focus:outline-none focus:border-wacke-cyan/60 transition-colors"
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="Ex: Ti-Coune 👑"
+                maxLength={64}
+                className="w-full bg-white/3 border border-wacke-purple/20 rounded-xl px-4 py-3
+                           text-sm focus:border-wacke-cyan/40 transition-all"
                 disabled={isLoading}
                 required
               />
             </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-gradient-to-r from-wacke-cyan to-wacke-purple py-4 rounded-xl
-                       font-bold text-lg hover:opacity-90 transition-opacity mt-4
-                       disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? "Création en cours..." : "🔥 S'inscrire maintenant"}
-          </button>
-        </form>
+            {!isMock && (
+              <div>
+                <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">
+                  Adresse courriel
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="chum@wacke.ca"
+                  className="w-full bg-white/3 border border-wacke-purple/20 rounded-xl px-4 py-3
+                             text-sm focus:border-wacke-cyan/40 transition-all"
+                  disabled={isLoading}
+                  required
+                />
+              </div>
+            )}
 
-        <div className="mt-6 text-center border-t border-wacke-purple/20 pt-6">
-          <p className="text-sm text-gray-400">
-            Déjà inscrit?{" "}
-            <Link href="/auth/login" className="text-wacke-pink font-bold hover:underline">
-              Se connecter
-            </Link>
-          </p>
+            <button
+              type="submit"
+              disabled={isLoading || usernameStatus === "taken"}
+              className="w-full bg-gradient-to-r from-wacke-cyan to-wacke-purple py-4 rounded-xl
+                         font-bold text-lg hover:opacity-90 transition-all mt-2
+                         disabled:opacity-50 disabled:cursor-not-allowed
+                         shadow-lg shadow-wacke-cyan/20"
+            >
+              {isLoading ? "Création en cours..." : "🔥 S'inscrire maintenant"}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center border-t border-wacke-purple/15 pt-6">
+            <p className="text-sm text-gray-500">
+              Déjà inscrit?{" "}
+              <Link href="/auth/login" className="text-wacke-pink font-bold hover:underline">
+                Se connecter
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

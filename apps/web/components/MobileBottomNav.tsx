@@ -1,112 +1,82 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "./AuthProvider";
 import { useState } from "react";
-import { Home, Search, Radio, User } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Home, Search, Radio, Coins, User } from "lucide-react";
+import { useAuth } from "./AuthProvider";
 
+/**
+ * MobileBottomNav — Floating bottom navigation for small screens.
+ * Visible only on mobile (md:hidden).
+ */
 export default function MobileBottomNav() {
   const pathname = usePathname();
-  const router = useRouter();
-  const { user, claimDailyTokens, isLoading } = useAuth();
-  const [claiming, setClaiming] = useState(false);
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const { user, claimDailyTokens } = useAuth();
+  const [claimFeedback, setClaimFeedback] = useState<string | null>(null);
 
-  const handleClaim = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!user) {
-      router.push("/auth/login");
-      return;
-    }
-    setClaiming(true);
+  const handleClaim = async () => {
     const res = await claimDailyTokens();
-    setClaiming(false);
-    
-    if (res.success) {
-      setFeedback("+500 🪙");
-    } else {
-      setFeedback("Déjà pris!");
-    }
-    setTimeout(() => setFeedback(null), 2500);
+    setClaimFeedback(res.success ? "+500 🪙" : "⏰ Déjà réclamé");
+    setTimeout(() => setClaimFeedback(null), 2000);
   };
 
-  const isActive = (path: string) => {
-    if (path === "/") return pathname === "/";
-    return pathname.startsWith(path);
+  const items = [
+    { href: "/",               icon: <Home className="w-5 h-5" />,   label: "Accueil" },
+    { href: "/browse",         icon: <Search className="w-5 h-5" />, label: "Explore" },
+    { href: "/dashboard/stream", icon: <Radio className="w-5 h-5" />,  label: "Stream" },
+    { href: user ? `/profile/${user.username}` : "/auth/login", icon: <User className="w-5 h-5" />, label: "Profil" },
+  ];
+
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
   };
 
   return (
-    <>
-      {/* Toast Feedback for Claiming */}
-      {feedback && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-wacke-pink border border-white/20 text-white font-extrabold text-xs px-4 py-2 rounded-full shadow-2xl animate-bounce z-50">
-          {feedback}
+    <nav className="fixed bottom-0 left-0 right-0 z-50 glass-dark border-t border-wacke-purple/20 md:hidden">
+      {/* Claim feedback toast */}
+      {claimFeedback && (
+        <div className="absolute -top-12 left-1/2 -translate-x-1/2 glass-dark rounded-xl px-4 py-2 text-xs font-bold animate-slide-up neon-border">
+          {claimFeedback}
         </div>
       )}
 
-      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-wacke-darker/90 backdrop-blur-md border-t border-wacke-purple/30 pb-[env(safe-area-inset-bottom)]">
-        <div className="flex items-center justify-around h-16 px-2">
-          {/* Home */}
-          <Link
-            href="/"
-            className={`flex flex-col items-center justify-center flex-1 h-full transition-colors
-                       ${isActive("/") ? "text-wacke-pink" : "text-gray-400 hover:text-gray-200"}`}
-          >
-            <Home className="w-5 h-5 mb-1" />
-            <span className="text-[10px] font-bold mt-1">Accueil</span>
-          </Link>
+      <div className="flex items-center justify-around py-2 px-4">
+        {items.map((item) => {
+          const active = isActive(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex flex-col items-center space-y-0.5 py-1 px-3 rounded-xl transition-all active:scale-90
+                         ${active ? "text-wacke-pink" : "text-gray-500 hover:text-gray-300"}`}
+            >
+              <span className="relative">
+                {item.icon}
+                {active && (
+                  <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-wacke-pink shadow-[0_0_6px_rgba(255,20,147,0.6)]" />
+                )}
+              </span>
+              <span className="text-[9px] font-bold">{item.label}</span>
+            </Link>
+          );
+        })}
 
-          {/* Browse */}
-          <Link
-            href="/browse"
-            className={`flex flex-col items-center justify-center flex-1 h-full transition-colors
-                       ${isActive("/browse") ? "text-wacke-cyan" : "text-gray-400 hover:text-gray-200"}`}
-          >
-            <Search className="w-5 h-5 mb-1" />
-            <span className="text-[10px] font-bold mt-1">Parcourir</span>
-          </Link>
-
-          {/* Claim Tokens Button */}
-          <button
-            onClick={handleClaim}
-            disabled={claiming}
-            className="flex flex-col items-center justify-center flex-1 h-full relative"
-          >
-            <div className="w-12 h-12 -mt-6 rounded-full bg-gradient-to-tr from-yellow-500 to-amber-300 border-4 border-wacke-dark flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95">
-              <img src="/token.png" alt="Token" className="w-6 h-6 object-contain" />
-            </div>
-            <span className="text-[10px] font-extrabold text-yellow-400 mt-1">
-              {user ? `${user.tokenBalance}` : "Réclamer"}
+        {/* Token Claim Button */}
+        <button
+          onClick={handleClaim}
+          className="flex flex-col items-center space-y-0.5 py-1 px-3 rounded-xl text-yellow-400 hover:text-yellow-300 transition-all active:scale-90"
+        >
+          <span className="relative">
+            <Coins className="w-5 h-5" />
+            <span className="absolute -top-1 -right-1.5 w-3 h-3 bg-wacke-red rounded-full text-[7px] text-white font-bold flex items-center justify-center animate-pulse">
+              !
             </span>
-          </button>
-
-          {/* Dashboard/Streamer */}
-          <Link
-            href="/dashboard/stream"
-            className={`flex flex-col items-center justify-center flex-1 h-full transition-colors
-                       ${isActive("/dashboard/stream") ? "text-wacke-pink" : "text-gray-400 hover:text-gray-200"}`}
-          >
-            <Radio className="w-5 h-5 mb-1" />
-            <span className="text-[10px] font-bold mt-1">Streamer</span>
-          </Link>
-
-          {/* Account/Profile */}
-          <Link
-            href={user ? "/dashboard/stream" : "/auth/login"}
-            className="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-gray-200"
-          >
-            {user ? (
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-[10px] font-black text-white uppercase border border-white/20 mb-1">
-                {user.username.substring(0, 2)}
-              </div>
-            ) : (
-              <User className="w-5 h-5 mb-1" />
-            )}
-            <span className="text-[10px] font-bold mt-1">Compte</span>
-          </Link>
-        </div>
+          </span>
+          <span className="text-[9px] font-bold">Jetons</span>
+        </button>
       </div>
-    </>
+    </nav>
   );
 }

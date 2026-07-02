@@ -1,5 +1,6 @@
 import Link from "next/link";
 import KickStreamGrid from "@/components/KickStreamGrid";
+import { Gamepad2, Music, Dices, Glasses, Snowflake, Palette, MapPin, Mic } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -8,14 +9,14 @@ interface BrowsePageProps {
 }
 
 const CATEGORIES = [
-  { slug: "gaming",  name: "Gaming",  color: "from-green-600 to-green-800",  icon: "🎮" },
-  { slug: "musique", name: "Musique", color: "from-pink-600 to-pink-800",    icon: "🎵" },
-  { slug: "jeu",     name: "Jeu",     color: "from-purple-600 to-purple-800", icon: "🎲" },
-  { slug: "chile",   name: "Chilé",   color: "from-red-600 to-red-800",      icon: "😎" },
-  { slug: "frette",  name: "Frette",  color: "from-cyan-600 to-cyan-800",    icon: "❄️" },
-  { slug: "art",     name: "Art",     color: "from-yellow-600 to-yellow-800", icon: "🎨" },
-  { slug: "irl",     name: "IRL",     color: "from-orange-600 to-orange-800", icon: "📍" },
-  { slug: "talk",    name: "Talk",    color: "from-indigo-600 to-indigo-800", icon: "🎤" },
+  { slug: "gaming",  name: "Gaming",  icon: <Gamepad2 className="w-6 h-6" />, color: "from-green-600 to-green-800" },
+  { slug: "musique", name: "Musique", icon: <Music className="w-6 h-6" />,    color: "from-pink-600 to-pink-800" },
+  { slug: "jeu",     name: "Jeu",     icon: <Dices className="w-6 h-6" />,    color: "from-purple-600 to-purple-800" },
+  { slug: "chile",   name: "Chilé",   icon: <Glasses className="w-6 h-6" />,  color: "from-red-600 to-red-800" },
+  { slug: "frette",  name: "Frette",  icon: <Snowflake className="w-6 h-6" />,color: "from-cyan-600 to-cyan-800" },
+  { slug: "art",     name: "Art",     icon: <Palette className="w-6 h-6" />,  color: "from-yellow-600 to-yellow-800" },
+  { slug: "irl",     name: "IRL",     icon: <MapPin className="w-6 h-6" />,   color: "from-orange-600 to-orange-800" },
+  { slug: "talk",    name: "Talk",    icon: <Mic className="w-6 h-6" />,      color: "from-indigo-600 to-indigo-800" },
 ];
 
 // Category slug → Kick category slug mapping
@@ -41,22 +42,22 @@ export default function BrowsePage({ searchParams }: BrowsePageProps) {
   const gridTitle = searchQuery
     ? `🔍 RECHERCHE : "${searchQuery}"`
     : selectedCategory
-    ? `${selectedCategory.icon} LIVES ${selectedCategory.name.toUpperCase()}`
+    ? `${selectedCategory.name.toUpperCase()} — LIVES`
     : "🔴 LIVES DU MOMENT";
 
   return (
-    <div className="p-8 max-w-7xl mx-auto min-h-screen bg-wacke-dark">
+    <div className="p-6 lg:p-8 max-w-7xl mx-auto min-h-screen">
       {/* ── Header ────────────────────────────────────────────────────── */}
-      <div className="mb-8 flex items-baseline justify-between border-b border-wacke-purple/20 pb-4">
+      <div className="mb-8 flex items-baseline justify-between border-b border-wacke-purple/15 pb-5">
         <div>
-          <h1 className="text-4xl font-bold mb-2 neon-pink graffiti-text">
+          <h1 className="text-3xl md:text-4xl font-black mb-2 graffiti-text neon-pink">
             {searchQuery
               ? `RECHERCHE : "${searchQuery}" 🔍`
               : selectedCategory
-              ? `PARCOURIR : ${selectedCategory.name.toUpperCase()} ${selectedCategory.icon}`
+              ? `${selectedCategory.name.toUpperCase()}`
               : "PARCOURIR"}
           </h1>
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-500 text-sm">
             {searchQuery
               ? "Résultats de recherche pour les streams en direct"
               : selectedCategory
@@ -67,7 +68,7 @@ export default function BrowsePage({ searchParams }: BrowsePageProps) {
         {(selectedCategory || searchQuery) && (
           <Link
             href="/browse"
-            className="text-sm font-bold text-wacke-cyan hover:underline border border-wacke-cyan/30 px-4 py-2 rounded-xl transition-all"
+            className="text-sm font-bold text-wacke-cyan hover:text-white border border-wacke-cyan/30 hover:border-wacke-cyan/60 px-4 py-2 rounded-xl transition-all hover:scale-105"
           >
             ← Toutes les catégories
           </Link>
@@ -77,17 +78,20 @@ export default function BrowsePage({ searchParams }: BrowsePageProps) {
       {/* ── Category Grid ─────────────────────────────────────────────── */}
       {!selectedCategory && !searchQuery && (
         <section className="mb-12">
-          <h2 className="text-xl font-bold mb-6 text-gray-300">Catégories</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-4">
+          <h2 className="text-lg font-bold mb-5 text-gray-300">Catégories</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3 stagger-children">
             {CATEGORIES.map((category) => (
               <Link
                 key={category.slug}
                 href={`/browse?category=${category.slug}`}
-                className={`bg-gradient-to-br ${category.color} p-4 rounded-xl cursor-pointer hover:scale-105
-                           transition-transform text-center border border-white/5 overflow-hidden`}
+                className={`bg-gradient-to-br ${category.color} p-4 rounded-2xl cursor-pointer
+                           hover:scale-105 hover:shadow-xl transition-all duration-300 text-center
+                           border border-white/5 overflow-hidden group card-glow`}
               >
-                <div className="text-3xl mb-2">{category.icon}</div>
-                <h3 className="text-sm font-bold truncate text-white">{category.name}</h3>
+                <div className="mb-2 flex justify-center group-hover:scale-110 transition-transform duration-300">
+                  {category.icon}
+                </div>
+                <h3 className="text-xs font-bold truncate text-white">{category.name}</h3>
               </Link>
             ))}
           </div>
