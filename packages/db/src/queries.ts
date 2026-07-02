@@ -886,6 +886,79 @@ export async function claimDailyTokenReward(userId: string) {
   return { success: true, newBalance: updatedBalance };
 }
 
+export async function deductTokens({
+  userId,
+  amount,
+  reason,
+  streamId,
+}: {
+  userId: string;
+  amount: number;
+  reason: string;
+  streamId?: string;
+}) {
+  if (isDbMocked()) {
+    const state = getMockDbState();
+    const user = state.users.find((u) => u.id === userId);
+    if (!user) throw new Error("Utilisateur introuvable");
+
+    if (amount > 0 && user.tokenBalance < amount) {
+      throw new Error("Solde de jetons insuffisant");
+    }
+
+    user.tokenBalance -= amount;
+
+    state.transactions.push({
+      id: "mock-tx-" + Math.random().toString(36).substring(5),
+      fromUserId: amount > 0 ? userId : null,
+      toUserId: amount < 0 ? userId : null,
+      streamId,
+      type: amount > 0 ? "spend" : "refund",
+      amount: Math.abs(amount),
+      reason,
+      createdAt: new Date(),
+    });
+
+    return true;
+  }
+
+  return db.transaction(async (tx) => {
+    if (amount > 0) {
+      const [updatedUser] = await tx
+        .update(users)
+        .set({ tokenBalance: sql`${users.tokenBalance} - ${amount}` })
+        .where(and(eq(users.id, userId), sql`${users.tokenBalance} >= ${amount}`))
+        .returning();
+
+      if (!updatedUser) {
+        throw new Error("Solde de jetons insuffisant");
+      }
+
+      await tx.insert(tokenTransactions).values({
+        fromUserId: userId,
+        streamId,
+        type: "spend",
+        amount,
+        reason,
+      });
+    } else {
+      const absoluteAmount = Math.abs(amount);
+      await tx
+        .update(users)
+        .set({ tokenBalance: sql`${users.tokenBalance} + ${absoluteAmount}` })
+        .where(eq(users.id, userId));
+
+      await tx.insert(tokenTransactions).values({
+        toUserId: userId,
+        streamId,
+        type: "refund",
+        amount: absoluteAmount,
+        reason,
+      });
+    }
+  });
+}
+
 // ─── Follow Queries ───────────────────────────────────────────────────────────
 
 export async function getFollowerCount(userId: string) {
