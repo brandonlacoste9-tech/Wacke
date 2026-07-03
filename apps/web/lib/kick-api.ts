@@ -160,14 +160,16 @@ export async function getKickLivestreams(
   const params = new URLSearchParams({
     page: "1",
     limit: String(Math.min(limit * 2, 100)), // request more to filter locally if needed
-    language: "fr",
     ...(categorySlug ? { category: categorySlug } : {}),
   });
 
   const res = await kickFetch<KickLivestreamsResponse>(`/livestreams?${params}`);
   const streams = res?.data ?? [];
   return streams
-    .filter((s) => s.language?.toLowerCase() === "fr" || s.language?.toLowerCase() === "french")
+    .filter((s) => {
+      const lang = s.language?.toLowerCase();
+      return lang === "fr" || lang === "french" || lang === "en" || lang === "english";
+    })
     .slice(0, limit);
 }
 

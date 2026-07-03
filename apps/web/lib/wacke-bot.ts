@@ -4,6 +4,7 @@ export class WackeBotManager {
   private static instance: WackeBotManager | null = null;
   private client: tmi.Client | null = null;
   private joinedChannels: Set<string> = new Set();
+  private channelLanguages: Map<string, string> = new Map();
   private isRunning: boolean = false;
   private monitorInterval: NodeJS.Timeout | null = null;
 
@@ -88,6 +89,7 @@ export class WackeBotManager {
     }
 
     this.joinedChannels.clear();
+    this.channelLanguages.clear();
     console.log("[WackeBot] Bot service stopped.");
   }
 
@@ -116,7 +118,14 @@ export class WackeBotManager {
       if (!res.ok) throw new Error("Failed to fetch active streams");
       
       const data = await res.json();
-      const activeStreams: string[] = (data.streams || []).map((s: any) => s.user_login.toLowerCase());
+      const activeStreamsMap = new Map<string, string>();
+      for (const s of data.streams || []) {
+        const userLogin = s.user_login.toLowerCase();
+        const lang = s.language || "fr";
+        activeStreamsMap.set(userLogin, lang);
+        this.channelLanguages.set(userLogin, lang);
+      }
+      const activeStreams = Array.from(activeStreamsMap.keys());
 
       // 1. Join new live channels
       for (const channel of activeStreams) {
@@ -173,14 +182,19 @@ export class WackeBotManager {
 
   private postAnnouncement(channel: string) {
     const streamer = channel.charAt(0).toUpperCase() + channel.slice(1);
-    const msg = `Allô @${streamer}! Ton live est actuellement mis en avant sur Wacké (wacke.live). Tes spectateurs peuvent y utiliser notre soundboard interactive et TTS québécois en temps réel! Bon live! 🪙🔥`;
+    const lang = this.channelLanguages.get(channel) || "fr";
+    const isEn = lang.toLowerCase() === "en" || lang.toLowerCase() === "english";
+
+    const msg = isEn
+      ? `Hey @${streamer}! Your stream is currently featured on Wacké (wacke.live). Your viewers can use our interactive soundboard and TTS voices in real time here! Have a great stream! 🪙🔥`
+      : `Allô @${streamer}! Ton live est actuellement mis en avant sur Wacké (wacke.live). Tes spectateurs peuvent y utiliser notre soundboard interactive et TTS québécois en temps réel! Bon live! 🪙🔥`;
 
     if (this.client) {
       this.client.say(channel, msg).catch((err) => {
         console.error(`[WackeBot] Failed to send greeting to #${channel}:`, err);
       });
     } else {
-      console.log(`[WackeBot Sandbox SIMULATION] Send to #${channel}: "${msg}"`);
+      console.log(`[WackeBot Sandbox SIMULATION] Send to #${channel} (${lang}): "${msg}"`);
     }
   }
 
@@ -189,15 +203,19 @@ export class WackeBotManager {
     
     if (formattedMsg.startsWith("!wacke") || formattedMsg.startsWith("!tokens")) {
       const channelClean = channel.replace("#", "");
-      const streamer = channelClean.charAt(0).toUpperCase() + channelClean.slice(1);
-      const reply = `@${userstate.username}, Wacké est le hub québécois de streaming. Viens tip des jetons et déclencher le TTS en temps réel sur https://wacke.live/stream/${channelClean} !`;
+      const lang = this.channelLanguages.get(channelClean) || "fr";
+      const isEn = lang.toLowerCase() === "en" || lang.toLowerCase() === "english";
+
+      const reply = isEn
+        ? `@${userstate.username}, Wacké is the streaming hub. Come tip tokens and trigger real-time TTS voices at https://wacke.live/stream/${channelClean} !`
+        : `@${userstate.username}, Wacké est le hub québécois de streaming. Viens tip des jetons et déclencher le TTS en temps réel sur https://wacke.live/stream/${channelClean} !`;
 
       if (this.client) {
         this.client.say(channel, reply).catch((err) => {
           console.error(`[WackeBot] Failed to reply in #${channel}:`, err);
         });
       } else {
-        console.log(`[WackeBot Sandbox SIMULATION] Reply to #${channel}: "${reply}"`);
+        console.log(`[WackeBot Sandbox SIMULATION] Reply to #${channel} (${lang}): "${reply}"`);
       }
     }
   }

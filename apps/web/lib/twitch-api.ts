@@ -136,15 +136,12 @@ export async function getTwitchLivestreams(
   limit = 20,
   gameId?: string
 ): Promise<TwitchStream[]> {
-  const params = new URLSearchParams({
-    first: String(Math.min(limit, 100)),
-    language: "fr",
-    ...(gameId ? { game_id: gameId } : {}),
-  });
+  let path = `/streams?first=${Math.min(limit, 100)}&language=fr&language=en`;
+  if (gameId) {
+    path += `&game_id=${encodeURIComponent(gameId)}`;
+  }
 
-  const res = await twitchFetch<{ data: TwitchStream[]; pagination: unknown }>(
-    `/streams?${params}`
-  );
+  const res = await twitchFetch<{ data: TwitchStream[]; pagination: unknown }>(path);
   return res?.data ?? [];
 }
 
