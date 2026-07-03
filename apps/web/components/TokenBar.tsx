@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTokens } from "@/hooks/useTokens";
 import { Heart, ChevronUp, Flame } from "lucide-react";
+import TokenShopModal from "./TokenShopModal";
 
 interface TokenBarProps {
   initialBalance: number;
@@ -27,6 +28,7 @@ export default function TokenBar({
   const [showGiftPanel, setShowGiftPanel] = useState(false);
   const [customAmount, setCustomAmount] = useState("");
   const [boumAnimate, setBoumAnimate] = useState(false);
+  const [isShopOpen, setIsShopOpen] = useState(false);
 
   const showFeedback = (msg: string) => {
     setFeedback(msg);
@@ -113,7 +115,11 @@ export default function TokenBar({
       {/* ── Main Token Bar ─────────────────────────────────────────────── */}
       <div className="flex items-center space-x-2 glass-dark rounded-2xl px-4 py-3 animate-glow-pulse">
         {/* Balance */}
-        <div className="flex items-center space-x-1.5 text-sm font-bold text-yellow-400 mr-1">
+        <div 
+          onClick={() => setIsShopOpen(true)}
+          className="flex items-center space-x-1.5 text-sm font-bold text-yellow-400 mr-1 cursor-pointer hover:bg-yellow-500/10 rounded-xl px-2.5 py-1.5 -mx-1 transition-all select-none border border-transparent hover:border-yellow-500/20"
+          title="Acheter des jetons Wacké"
+        >
           <img src="/token.png" alt="Token" className="h-4 w-4 object-contain rounded-full shadow-[0_0_6px_rgba(255,215,0,0.4)]" />
           <span>{balance.toLocaleString("fr-CA")}</span>
         </div>
@@ -146,6 +152,8 @@ export default function TokenBar({
           <ChevronUp className={`w-3 h-3 transition-transform ${showGiftPanel ? "rotate-180" : ""}`} />
         </button>
       </div>
+
+      <TokenShopModal isOpen={isShopOpen} onClose={() => setIsShopOpen(false)} />
     </div>
   );
 }
