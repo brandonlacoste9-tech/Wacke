@@ -21,6 +21,33 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [channels, setChannels] = useState<SidebarChannel[]>([]);
+  
+  interface Spender {
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl: string | null;
+    totalSpent: number;
+  }
+
+  const [spenders, setSpenders] = useState<Spender[]>([]);
+
+  useEffect(() => {
+    fetch("/api/tokens/top-spenders")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.spenders) setSpenders(data.spenders);
+      })
+      .catch(console.error);
+  }, []);
+
+  const SPENDER_TIERS = [
+    { title: "Gérant de nuit", icon: "👑" },
+    { title: "Habitué", icon: "🏪" },
+    { title: "Livreur", icon: "🍕" },
+    { title: "Chum", icon: "🛴" },
+    { title: "Chum", icon: "🛴" },
+  ];
 
   // Fetch live channels from API
   useEffect(() => {
@@ -137,6 +164,70 @@ export default function Sidebar() {
               )}
             </Link>
           ))}
+        </div>
+      </div>
+
+      {/* ── La Caisse de Bière Leaderboard ───────────────────────────────── */}
+      <div className="p-3 border-t border-wacke-purple/10 overflow-y-auto">
+        {!collapsed ? (
+          <h2 className="text-[10px] font-bold text-wacke-cyan uppercase tracking-wider mb-3 px-3 flex items-center space-x-1.5">
+            <span>🍺</span>
+            <span>La Caisse de Bière</span>
+          </h2>
+        ) : (
+          <div className="text-center mb-3" title="La Caisse de Bière (Donateurs)">
+            <span>🍺</span>
+          </div>
+        )}
+
+        <div className="space-y-1.5">
+          {spenders.slice(0, 5).map((spender, i) => {
+            const tier = SPENDER_TIERS[i] || { title: "Chum", icon: "🛴" };
+            const initials = spender.displayName.substring(0, 2).toUpperCase();
+
+            return (
+              <div
+                key={spender.id}
+                className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-white/2 border border-wacke-purple/5"
+                title={`${spender.displayName} - ${tier.title} (${spender.totalSpent} 🪙)`}
+              >
+                <div className="flex items-center space-x-2 min-w-0">
+                  {/* Avatar or Tier Icon */}
+                  {spender.avatarUrl ? (
+                    <img
+                      src={spender.avatarUrl}
+                      alt={spender.displayName}
+                      className="w-5.5 h-5.5 rounded-lg object-cover border border-white/10 shrink-0"
+                    />
+                  ) : (
+                    <div className="w-5.5 h-5.5 rounded-lg bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-[9px] font-bold text-white shrink-0 border border-white/5">
+                      {initials}
+                    </div>
+                  )}
+
+                  {!collapsed && (
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold text-white truncate flex items-center space-x-1">
+                        <span>{spender.displayName}</span>
+                        <span className="text-[8px] opacity-75 shrink-0" title={tier.title}>{tier.icon}</span>
+                      </p>
+                      <p className="text-[8px] text-gray-500 truncate">{tier.title}</p>
+                    </div>
+                  )}
+                </div>
+
+                {!collapsed && (
+                  <span className="text-[9px] font-bold text-yellow-400 shrink-0">
+                    {spender.totalSpent} 🪙
+                  </span>
+                )}
+              </div>
+            );
+          })}
+
+          {spenders.length === 0 && !collapsed && (
+            <p className="text-[9px] text-gray-600 px-3 text-center py-2">Aucun donateur aujourd&apos;hui</p>
+          )}
         </div>
       </div>
 

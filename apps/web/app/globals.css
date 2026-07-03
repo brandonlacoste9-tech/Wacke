@@ -4,11 +4,41 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Themes & Variables ─────────────────────────────────────────────────── */
+
+:root {
+  --wacke-primary: 255, 20, 147;       /* #FF1493 - Pink */
+  --wacke-secondary: 0, 255, 255;      /* #00FFFF - Cyan */
+  --wacke-glow: rgba(255, 20, 147, 0.4);
+  --wacke-glow-sec: rgba(0, 255, 255, 0.2);
+  --wacke-border: rgba(139, 0, 255, 0.15);
+  --wacke-accent: 139, 0, 255;
+}
+
+.theme-graffiti {
+  --wacke-primary: 83, 252, 24;        /* #53fc18 - Acid Green */
+  --wacke-secondary: 139, 0, 255;      /* #8B00FF - Purple */
+  --wacke-glow: rgba(83, 252, 24, 0.4);
+  --wacke-glow-sec: rgba(139, 0, 255, 0.2);
+  --wacke-border: rgba(83, 252, 24, 0.15);
+  --wacke-accent: 83, 252, 24;
+}
+
+.theme-gold {
+  --wacke-primary: 255, 215, 0;        /* #FFD700 - Gold */
+  --wacke-secondary: 255, 255, 255;    /* White */
+  --wacke-glow: rgba(255, 215, 0, 0.4);
+  --wacke-glow-sec: rgba(255, 255, 255, 0.1);
+  --wacke-border: rgba(255, 215, 0, 0.2);
+  --wacke-accent: 255, 215, 0;
+}
+
 /* ─── Base ─────────────────────────────────────────────────────────────────── */
 
 body {
   background-color: #0A0A0F;
   color: white;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* ─── Glassmorphism Utilities ──────────────────────────────────────────────── */
@@ -24,51 +54,53 @@ body {
   background: rgba(5, 5, 10, 0.7);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(139, 0, 255, 0.15);
+  border: 1px solid var(--wacke-border);
+  transition: border-color 0.3s ease;
 }
 
 .glass-card {
   background: rgba(10, 10, 15, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(139, 0, 255, 0.12);
+  border: 1px solid var(--wacke-border);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
   background: rgba(15, 15, 25, 0.8);
-  border-color: rgba(255, 20, 147, 0.25);
-  box-shadow: 0 8px 32px rgba(255, 20, 147, 0.08);
+  border-color: rgba(var(--wacke-primary), 0.25);
+  box-shadow: 0 8px 32px rgba(var(--wacke-primary), 0.08);
 }
 
 /* ─── Neon Glow Effects ────────────────────────────────────────────────────── */
 
 .neon-pink {
-  text-shadow: 0 0 10px #FF1493, 0 0 20px #FF1493, 0 0 30px #FF1493;
+  text-shadow: 0 0 8px rgba(var(--wacke-primary), 0.8), 0 0 15px rgba(var(--wacke-primary), 0.4);
 }
 
 .neon-cyan {
-  text-shadow: 0 0 10px #00FFFF, 0 0 20px #00FFFF, 0 0 30px #00FFFF;
+  text-shadow: 0 0 8px rgba(var(--wacke-secondary), 0.8), 0 0 15px rgba(var(--wacke-secondary), 0.4);
 }
 
 .neon-green {
-  text-shadow: 0 0 10px #53fc18, 0 0 20px #53fc18, 0 0 30px #53fc18;
+  text-shadow: 0 0 8px rgba(83, 252, 24, 0.8), 0 0 15px rgba(83, 252, 24, 0.4);
 }
 
 .neon-gold {
-  text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700, 0 0 30px #FFD700;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.8), 0 0 15px rgba(255, 215, 0, 0.4);
 }
 
 .neon-border {
-  box-shadow: 0 0 10px rgba(255, 20, 147, 0.5), 0 0 20px rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 8px var(--wacke-glow), 0 0 16px var(--wacke-glow-sec);
+  border-color: var(--wacke-border);
 }
 
 .neon-border-cyan {
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.4), 0 0 20px rgba(0, 255, 255, 0.2);
+  box-shadow: 0 0 8px rgba(var(--wacke-secondary), 0.4), 0 0 16px rgba(var(--wacke-secondary), 0.2);
 }
 
 .neon-border-green {
-  box-shadow: 0 0 10px rgba(83, 252, 24, 0.4), 0 0 20px rgba(83, 252, 24, 0.2);
+  box-shadow: 0 0 8px rgba(83, 252, 24, 0.4), 0 0 16px rgba(83, 252, 24, 0.2);
 }
 
 /* ─── Gradient Text ────────────────────────────────────────────────────────── */

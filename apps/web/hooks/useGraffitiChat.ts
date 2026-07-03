@@ -34,10 +34,14 @@ interface UseGraffitiChatReturn {
   sendMessage: (content: string) => Promise<{ error?: string }>;
   sendTtsMessage: (content: string) => Promise<{ error?: string }>;
   sendSprayMessage: (prompt: string) => Promise<{ error?: string }>;
+  sendSoundboardMessage: (soundType: string) => Promise<{ error?: string }>;
+  sendSacreMessage: (prefix: string, core: string, suffix: string, useTts: boolean) => Promise<{ error?: string }>;
   isConnected: boolean;
   isSending: boolean;
   isSendingTts: boolean;
   isSendingSpray: boolean;
+  isSendingSound: boolean;
+  isSendingSacre: boolean;
 }
 
 /**
@@ -226,14 +230,115 @@ export function useGraffitiChat({
     [streamId, currentUserId, isSendingSpray, authToken]
   );
 
+  // ─── Soundboard & Sacre Triggers ──────────────────────────────────────────
+  const [isSendingSound, setIsSendingSound] = useState(false);
+  const [isSendingSacre, setIsSendingSacre] = useState(false);
+
+  const sendSoundboardMessage = useCallback(
+    async (soundType: string): Promise<{ error?: string }> => {
+      if (!currentUserId || !authToken) return { error: "Tu dois être connecté pour jouer un son" };
+      if (isSendingSound) return { error: "Attends la fin de la lecture..." };
+
+      setIsSendingSound(true);
+
+      try {
+        const response = await fetch("/api/chat/sound", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({
+            streamId,
+            soundType,
+          }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          return { error: data.error ?? "Erreur lors du soundboard" };
+        }
+
+        return {};
+      } catch {
+        return { error: "Connexion perdue. Réessaie." };
+      } finally {
+        setIsSendingSound(false);
+      }
+    },
+    [streamId, currentUserId, isSendingSound, authToken]
+  );
+
+  const sendSacreMessage = useCallback(
+    async (prefix: string, core: string, suffix: string, useTts: boolean): Promise<{ error?: string }> => {
+      if (!currentUserId || !authToken) return { error: "Tu dois être connecté pour jurer" };
+      if (isSendingSacre) return { error: "Attends que le sacre soit envoyé..." };
+
+      setIsSendingSacre(true);
+
+      try {
+        if (useTts) {
+          const sentence = `${prefix} ${core} ${suffix}!`;
+          const response = await fetch("/api/chat/tts", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({
+              streamId,
+              content: sentence,
+              isSacre: true,
+            }),
+          });
+
+          if (!response.ok) {
+            const data = await response.json();
+            return { error: data.error ?? "Erreur TTS" };
+          }
+        } else {
+          const response = await fetch("/api/chat/sacre", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({
+              streamId,
+              prefix,
+              core,
+              suffix,
+            }),
+          });
+
+          if (!response.ok) {
+            const data = await response.json();
+            return { error: data.error ?? "Erreur sacre" };
+          }
+        }
+
+        return {};
+      } catch {
+        return { error: "Connexion perdue. Réessaie." };
+      } finally {
+        setIsSendingSacre(false);
+      }
+    },
+    [streamId, currentUserId, isSendingSacre, authToken]
+  );
+
   return {
     messages,
     sendMessage,
     sendTtsMessage,
     sendSprayMessage,
+    sendSoundboardMessage,
+    sendSacreMessage,
     isConnected,
     isSending,
     isSendingTts,
     isSendingSpray,
+    isSendingSound,
+    isSendingSacre,
   };
 }

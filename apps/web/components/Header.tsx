@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "./AuthProvider";
 import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search, Palette } from "lucide-react";
 import NotificationBell from "./NotificationBell";
 import UserDropdown from "./UserDropdown";
 
@@ -19,6 +19,36 @@ export default function Header() {
   const [isClaiming, setIsClaiming] = useState(false);
   const [coinAnimate, setCoinAnimate] = useState(false);
   const router = useRouter();
+
+  const [theme, setTheme] = useState<"cyber" | "graffiti" | "gold">("cyber");
+
+  // Load theme from localStorage on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("wacke-theme") as any;
+    if (savedTheme && ["cyber", "graffiti", "gold"].includes(savedTheme)) {
+      setTheme(savedTheme);
+      applyTheme(savedTheme);
+    }
+  }, []);
+
+  const applyTheme = (t: "cyber" | "graffiti" | "gold") => {
+    const root = document.documentElement;
+    root.classList.remove("theme-cyber", "theme-graffiti", "theme-gold");
+    if (t !== "cyber") {
+      root.classList.add(`theme-${t}`);
+    }
+  };
+
+  const cycleTheme = () => {
+    let next: "cyber" | "graffiti" | "gold" = "cyber";
+    if (theme === "cyber") next = "graffiti";
+    else if (theme === "graffiti") next = "gold";
+    else next = "cyber";
+
+    setTheme(next);
+    localStorage.setItem("wacke-theme", next);
+    applyTheme(next);
+  };
 
   const handleClaim = async () => {
     setIsClaiming(true);
@@ -140,6 +170,18 @@ export default function Header() {
 
               {/* Notification Bell */}
               <NotificationBell />
+
+              {/* Theme Cycle Button */}
+              <button
+                onClick={cycleTheme}
+                className="p-2 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white"
+                title={`Thème : ${theme.toUpperCase()} (Mode Nuit Blanche)`}
+                type="button"
+              >
+                <Palette className={`w-4 h-4 transition-colors ${
+                  theme === "cyber" ? "text-wacke-pink" : theme === "graffiti" ? "text-green-400" : "text-yellow-400"
+                }`} />
+              </button>
 
               {/* User Dropdown */}
               <UserDropdown />

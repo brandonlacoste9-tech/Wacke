@@ -2,9 +2,10 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useGraffitiChat, type ChatMessage } from "@/hooks/useGraffitiChat";
-import { Moon, Flame, Mic, Users, Sparkles } from "lucide-react";
+import { Moon, Flame, Mic, Users, Sparkles, Volume2 } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import EmojiPicker from "./EmojiPicker";
+import { playSyntheticSound } from "@/lib/audio";
 
 // ─── Colour palette for usernames ─────────────────────────────────────────────
 const USER_COLORS = [
@@ -52,6 +53,21 @@ function renderContent(content: string): React.ReactNode {
       </div>
     );
   }
+  if (content.startsWith("[sound]:")) {
+    const soundType = content.substring(8);
+    const soundLabels: Record<string, string> = {
+      bell: "🔔 Cling-Cling",
+      coin: "🪙 Coin-Coin",
+      alarm: "🚨 Alerte!",
+      laser: "⚡ Laser",
+    };
+    return (
+      <span className="text-yellow-400 font-bold italic tracking-wide text-[10px] bg-yellow-500/10 px-2 py-0.5 rounded-lg border border-yellow-500/25 inline-flex items-center space-x-1">
+        <span>a joué le son</span>
+        <span className="underline">{soundLabels[soundType] || soundType}</span>
+      </span>
+    );
+  }
   const parts = content.split(/(@\w+)/g);
   return parts.map((part, i) => {
     if (part.startsWith("@")) {
@@ -88,15 +104,31 @@ export default function GraffitiChat({
   const [showSprayPanel, setShowSprayPanel] = useState(false);
   const [sprayPrompt, setSprayPrompt] = useState("");
 
+  const [showSoundboard, setShowSoundboard] = useState(false);
+  const [showSacres, setShowSacres] = useState(false);
+
+  const SACRE_PREFIXES = ["Saint-ciboire de", "Calvaire de", "Ostie de", "Jésus de"];
+  const SACRE_CORES = ["tabarnak", "câlisse", "ciboire", "crisse"];
+  const SACRE_SUFFIXES = ["de marde", "sale", "d'enfer", "d'épais"];
+
+  const [sacrePrefix, setSacrePrefix] = useState(SACRE_PREFIXES[0]);
+  const [sacreCore, setSacreCore] = useState(SACRE_CORES[0]);
+  const [sacreSuffix, setSacreSuffix] = useState(SACRE_SUFFIXES[0]);
+  const [sacreTts, setSacreTts] = useState(false);
+
   const {
     messages,
     sendMessage,
     sendTtsMessage,
     sendSprayMessage,
+    sendSoundboardMessage,
+    sendSacreMessage,
     isConnected,
     isSending,
     isSendingTts,
     isSendingSpray,
+    isSendingSound,
+    isSendingSacre,
   } = useGraffitiChat({
     streamId,
     currentUserId,
@@ -117,20 +149,48 @@ export default function GraffitiChat({
     setShowSprayPanel(false);
   };
 
+  const handleTriggerSound = async (soundType: string) => {
+    setErrorMsg(null);
+    const { error } = await sendSoundboardMessage(soundType);
+    if (error) {
+      setErrorMsg(error);
+      return;
+    }
+    setShowSoundboard(false);
+  };
+
+  const handleSacreSubmit = async () => {
+    setErrorMsg(null);
+    const { error } = await sendSacreMessage(sacrePrefix, sacreCore, sacreSuffix, sacreTts);
+    if (error) {
+      setErrorMsg(error);
+      return;
+    }
+    setShowSacres(false);
+  };
+
   // Track played audio to prevent duplicate playback on re-renders
   const playedAudioRef = useRef<Set<string>>(new Set());
 
-  // Auto-scroll to bottom on new messages and play TTS
+  // Auto-scroll to bottom on new messages and play TTS/WebAudio chimes
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
-    // Check if the latest message has TTS and we haven't played it yet
     if (messages.length > 0) {
       const latestMessage = messages[messages.length - 1];
+      
+      // Play TTS audio
       if (latestMessage.audioUrl && !playedAudioRef.current.has(latestMessage.id)) {
         playedAudioRef.current.add(latestMessage.id);
         const audio = new Audio(latestMessage.audioUrl);
         audio.play().catch(e => console.error("Auto-play prevented", e));
+      }
+
+      // Play soundboard chimes
+      if (latestMessage.content.startsWith("[sound]:") && !playedAudioRef.current.has(latestMessage.id)) {
+        playedAudioRef.current.add(latestMessage.id);
+        const soundType = latestMessage.content.substring(8);
+        playSyntheticSound(soundType);
       }
     }
   }, [messages]);
@@ -310,12 +370,128 @@ export default function GraffitiChat({
         </div>
       )}
 
+      {/* ── Soundboard Panel ───────────────────────────────────────────── */}
+      {showSoundboard && (
+        <div className="p-3.5 border-t border-wacke-purple/20 bg-wacke-purple/5 space-y-2.5 animate-scale-in">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold text-yellow-400 flex items-center space-x-1">
+              <Volume2 className="w-3.5 h-3.5" />
+              <span>SOUNDBOARD INTERACTIVE</span>
+            </span>
+            <button
+              onClick={() => setShowSoundboard(false)}
+              className="text-gray-500 hover:text-white text-xs font-bold"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { type: "bell", label: "🔔 Cling-Cling", cost: 20 },
+              { type: "coin", label: "🪙 Coin-Coin", cost: 30 },
+              { type: "alarm", label: "🚨 Alerte!", cost: 40 },
+              { type: "laser", label: "⚡ Laser", cost: 50 },
+            ].map((snd) => (
+              <button
+                key={snd.type}
+                onClick={() => handleTriggerSound(snd.type)}
+                disabled={isSendingSound}
+                className="bg-wacke-purple/10 hover:bg-wacke-purple/35 border border-wacke-purple/25
+                           px-3 py-2 rounded-xl text-left transition-all hover:scale-105 active:scale-95 flex flex-col justify-between"
+              >
+                <span className="text-[11px] font-bold text-white">{snd.label}</span>
+                <span className="text-[9px] font-extrabold text-yellow-400 mt-1">{snd.cost} 🪙</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Swears Generator Panel ──────────────────────────────────────── */}
+      {showSacres && (
+        <div className="p-3.5 border-t border-wacke-purple/20 bg-wacke-purple/5 space-y-3 animate-scale-in">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold text-red-400 flex items-center space-x-1">
+              <span>🤬</span>
+              <span>GÉNÉRATEUR DE SACRES QUÉBÉCOIS</span>
+            </span>
+            <button
+              onClick={() => setShowSacres(false)}
+              className="text-gray-500 hover:text-white text-xs font-bold"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="grid grid-cols-3 gap-1.5">
+            {/* Prefixes */}
+            <div className="flex flex-col space-y-1">
+              <label className="text-[8px] font-extrabold text-gray-500 uppercase px-1">Préfixe</label>
+              <select
+                value={sacrePrefix}
+                onChange={(e) => setSacrePrefix(e.target.value)}
+                className="bg-wacke-dark border border-wacke-purple/25 rounded-lg px-2 py-1 text-[10px] text-white focus:outline-none"
+              >
+                {SACRE_PREFIXES.map(p => <option key={p} value={p}>{p}</option>)}
+              </select>
+            </div>
+            {/* Core */}
+            <div className="flex flex-col space-y-1">
+              <label className="text-[8px] font-extrabold text-gray-500 uppercase px-1">Sacre</label>
+              <select
+                value={sacreCore}
+                onChange={(e) => setSacreCore(e.target.value)}
+                className="bg-wacke-dark border border-wacke-purple/25 rounded-lg px-2 py-1 text-[10px] text-white focus:outline-none"
+              >
+                {SACRE_CORES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            {/* Suffix */}
+            <div className="flex flex-col space-y-1">
+              <label className="text-[8px] font-extrabold text-gray-500 uppercase px-1">Suffixe</label>
+              <select
+                value={sacreSuffix}
+                onChange={(e) => setSacreSuffix(e.target.value)}
+                className="bg-wacke-dark border border-wacke-purple/25 rounded-lg px-2 py-1 text-[10px] text-white focus:outline-none"
+              >
+                {SACRE_SUFFIXES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-1 border-t border-wacke-purple/10">
+            <label className="flex items-center space-x-1.5 cursor-pointer select-none text-[9px] font-bold text-gray-400">
+              <input
+                type="checkbox"
+                checked={sacreTts}
+                onChange={(e) => setSacreTts(e.target.checked)}
+                className="rounded border-wacke-purple/20 bg-white/5 text-wacke-pink focus:ring-0 focus:ring-offset-0"
+              />
+              <span>Hurler via TTS (+50 🪙)</span>
+            </label>
+
+            <button
+              onClick={handleSacreSubmit}
+              disabled={isSendingSacre}
+              className="bg-gradient-to-r from-red-600 to-orange-500 text-[10px] font-extrabold px-3 py-1.5 rounded-lg text-white hover:scale-105 active:scale-95 transition-all shadow-md shadow-red-500/10 shrink-0"
+            >
+              {isSendingSacre ? "Cri en cours..." : `Crier (${sacreTts ? 60 : 10} 🪙)`}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── Chat Input ────────────────────────────────────────────────────── */}
       <div className="p-3 border-t border-wacke-purple/20">
         <div className="flex space-x-2">
           {/* Emoji toggle */}
           <button
-            onClick={() => setShowEmojis((prev) => !prev)}
+            onClick={() => {
+              setShowEmojis((prev) => !prev);
+              setShowSprayPanel(false);
+              setShowSoundboard(false);
+              setShowSacres(false);
+            }}
             className={`px-2 py-2 rounded-lg text-sm transition-all shrink-0 ${
               showEmojis ? "bg-wacke-purple/20 text-wacke-pink" : "text-gray-500 hover:text-white hover:bg-white/5"
             }`}
@@ -326,7 +502,12 @@ export default function GraffitiChat({
           </button>
           {/* AI Spray toggle */}
           <button
-            onClick={() => setShowSprayPanel((prev) => !prev)}
+            onClick={() => {
+              setShowSprayPanel((prev) => !prev);
+              setShowEmojis(false);
+              setShowSoundboard(false);
+              setShowSacres(false);
+            }}
             className={`px-2 py-2 rounded-lg text-sm transition-all shrink-0 ${
               showSprayPanel ? "bg-wacke-purple/20 text-wacke-cyan" : "text-gray-500 hover:text-white hover:bg-white/5"
             }`}
@@ -334,6 +515,38 @@ export default function GraffitiChat({
             type="button"
           >
             🎨
+          </button>
+          {/* Soundboard toggle */}
+          <button
+            onClick={() => {
+              setShowSoundboard((prev) => !prev);
+              setShowEmojis(false);
+              setShowSprayPanel(false);
+              setShowSacres(false);
+            }}
+            className={`px-2 py-2 rounded-lg text-sm transition-all shrink-0 ${
+              showSoundboard ? "bg-wacke-purple/20 text-yellow-400" : "text-gray-500 hover:text-white hover:bg-white/5"
+            }`}
+            title="Soundboard interactive (20-50 jetons)"
+            type="button"
+          >
+            📢
+          </button>
+          {/* Sacres toggle */}
+          <button
+            onClick={() => {
+              setShowSacres((prev) => !prev);
+              setShowEmojis(false);
+              setShowSprayPanel(false);
+              setShowSoundboard(false);
+            }}
+            className={`px-2 py-2 rounded-lg text-sm transition-all shrink-0 ${
+              showSacres ? "bg-wacke-purple/20 text-red-400" : "text-gray-500 hover:text-white hover:bg-white/5"
+            }`}
+            title="Générateur de sacres (10 jetons)"
+            type="button"
+          >
+            🤬
           </button>
           <input
             ref={inputRef}

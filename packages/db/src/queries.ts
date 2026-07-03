@@ -1,4 +1,4 @@
-import { eq, desc, and, sql, gt } from "drizzle-orm";
+import { eq, desc, and, or, sql, gt } from "drizzle-orm";
 import { db, isDbMocked } from "./client";
 import {
   users,
@@ -1049,4 +1049,64 @@ export async function getStreamReactionCount(streamId: string) {
     .from(reactions)
     .where(eq(reactions.streamId, streamId));
   return result[0]?.count ?? 0;
+}
+
+// ─── Leaderboard Queries ──────────────────────────────────────────────────────
+
+export async function getDailyTopSpenders(limit = 5) {
+  if (isDbMocked()) {
+    const state = getMockDbState();
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const spenderSums: Record<string, number> = {};
+
+    state.transactions.forEach((tx) => {
+      // both fromUserId must be valid, and the transaction occurred within the last 24h
+      if (tx.fromUserId && tx.createdAt > oneDayAgo && (tx.type === "spend" || tx.type === "gift")) {
+        spenderSums[tx.fromUserId] = (spenderSums[tx.fromUserId] || 0) + tx.amount;
+      }
+    });
+
+    return Object.entries(spenderSums)
+      .map(([userId, totalSpent]) => {
+        const user = state.users.find((u) => u.id === userId);
+        return {
+          id: userId,
+          username: user?.username ?? "user",
+          displayName: user?.displayName ?? "User",
+          avatarUrl: user?.avatarUrl ?? null,
+          totalSpent,
+        };
+      })
+      .sort((a, b) => b.totalSpent - a.totalSpent)
+      .slice(0, limit);
+  }
+
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const result = await db
+    .select({
+      id: users.id,
+      username: users.username,
+      displayName: users.displayName,
+      avatarUrl: users.avatarUrl,
+      totalSpent: sql<number>`sum(${tokenTransactions.amount})`,
+    })
+    .from(tokenTransactions)
+    .innerJoin(users, eq(tokenTransactions.fromUserId, users.id))
+    .where(
+      and(
+        gt(tokenTransactions.createdAt, oneDayAgo),
+        or(eq(tokenTransactions.type, "spend"), eq(tokenTransactions.type, "gift"))
+      )
+    )
+    .groupBy(users.id)
+    .orderBy(desc(sql`sum(${tokenTransactions.amount})`))
+    .limit(limit);
+
+  return result.map(r => ({
+    id: r.id,
+    username: r.username,
+    displayName: r.displayName,
+    avatarUrl: r.avatarUrl,
+    totalSpent: Number(r.totalSpent || 0)
+  }));
 }
