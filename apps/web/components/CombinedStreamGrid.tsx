@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { Users, ChevronDown } from "lucide-react";
+import { useLanguage } from "./LanguageProvider";
 
 export interface UnifiedStream {
   id: string;
@@ -132,8 +133,10 @@ interface CombinedStreamGridProps {
 
 export default function CombinedStreamGrid({
   limit = 20,
-  title = "🔴 LIVE MAINTENANT",
+  title,
 }: CombinedStreamGridProps) {
+  const { t } = useLanguage();
+  const displayTitle = title || t("liveNow");
   const [kickStreams, setKickStreams] = useState<UnifiedStream[]>([]);
   const [twitchStreams, setTwitchStreams] = useState<UnifiedStream[]>([]);
   const [loadingKick, setLoadingKick] = useState(true);
@@ -214,12 +217,12 @@ export default function CombinedStreamGrid({
     <section>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h2 className="text-2xl font-black tracking-tight">
-          <span className="neon-pink graffiti-text">{title}</span>
+          <span className="neon-pink graffiti-text">{displayTitle}</span>
         </h2>
 
         <div className="flex items-center space-x-2">
           <Tab active={activeTab === "all"} onClick={() => setActiveTab("all")}>
-            🌐 Tout ({allStreams.length})
+            🌐 {t("all")} ({allStreams.length})
           </Tab>
           <Tab active={activeTab === "kick"} onClick={() => setActiveTab("kick")}>
             <span className="text-wacke-green">●</span> Kick ({kickStreams.length})
@@ -229,7 +232,7 @@ export default function CombinedStreamGrid({
           </Tab>
 
           <Link href="/browse" className="text-xs text-wacke-cyan hover:underline ml-2 font-medium">
-            Voir tout →
+            {t("seeAll")} →
           </Link>
         </div>
       </div>
@@ -248,7 +251,7 @@ export default function CombinedStreamGrid({
             onClick={() => setShowCount((c) => c + 8)}
             className="inline-flex items-center space-x-2 bg-white/3 hover:bg-white/5 border border-wacke-purple/20 hover:border-wacke-purple/40 text-gray-300 hover:text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all"
           >
-            <span>Charger plus</span>
+            <span>{t("loadMore")}</span>
             <ChevronDown className="w-4 h-4" />
           </button>
         </div>
@@ -259,7 +262,7 @@ export default function CombinedStreamGrid({
           <div className="flex justify-center mb-6">
             <img src="/sleeping_server.png" alt="Sleeping Server" className="w-40 h-40 object-contain drop-shadow-[0_0_12px_rgba(255,0,255,0.2)] opacity-80" />
           </div>
-          <p className="text-sm">Aucun stream en direct pour le moment</p>
+          <p className="text-sm">{t("noLiveStreams")}</p>
         </div>
       )}
     </section>

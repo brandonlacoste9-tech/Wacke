@@ -1,15 +1,17 @@
+"use client";
+
 import Link from "next/link";
 import KickFeaturedCarousel from "@/components/KickFeaturedCarousel";
 import CombinedStreamGrid from "@/components/CombinedStreamGrid";
 import TrendingGames from "@/components/TrendingGames";
 import FeatureShowcase from "@/components/FeatureShowcase";
 import ParticleBackground from "@/components/ParticleBackground";
+import { useLanguage } from "@/components/LanguageProvider";
 import { Gamepad2, Music, Dices, Glasses, Snowflake, Palette, TrendingUp, Users, Zap } from "lucide-react";
 
-// Always server-render — never statically cache this page
-export const dynamic = "force-dynamic";
-
 export default function HomePage() {
+  const { t } = useLanguage();
+
   return (
     <main className="min-h-screen bg-wacke-dark">
       {/* ── Hero Banner ──────────────────────────────────────────────────────── */}
@@ -21,10 +23,10 @@ export default function HomePage() {
 
         <div className="relative z-20 text-center px-4">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black graffiti-text neon-pink mb-4 tracking-wider uppercase drop-shadow-[0_0_20px_rgba(255,0,255,0.7)]">
-            Bienvenue sur Wacké
+            {t("welcome")}
           </h1>
           <p className="text-base md:text-lg text-gray-200 font-medium max-w-xl mx-auto drop-shadow-md mb-6">
-            Le hub du streaming québécois. Sans filtre. 100% pur jus.
+            {t("heroSubtitle")}
           </p>
 
           {/* Animated Stats */}
@@ -33,21 +35,21 @@ export default function HomePage() {
               <Users className="w-4 h-4 text-wacke-pink" />
               <div className="text-left">
                 <p className="text-sm font-bold text-white">142K+</p>
-                <p className="text-[9px] text-gray-400 uppercase tracking-wider">Spectateurs</p>
+                <p className="text-[9px] text-gray-400 uppercase tracking-wider">{t("spectators")}</p>
               </div>
             </div>
             <div className="flex items-center space-x-2 glass rounded-xl px-4 py-2">
               <TrendingUp className="w-4 h-4 text-wacke-cyan" />
               <div className="text-left">
                 <p className="text-sm font-bold text-white">500+</p>
-                <p className="text-[9px] text-gray-400 uppercase tracking-wider">Chaînes</p>
+                <p className="text-[9px] text-gray-400 uppercase tracking-wider">{t("channels")}</p>
               </div>
             </div>
             <div className="hidden sm:flex items-center space-x-2 glass rounded-xl px-4 py-2">
               <Zap className="w-4 h-4 text-yellow-400" />
               <div className="text-left">
                 <p className="text-sm font-bold text-white">2M+</p>
-                <p className="text-[9px] text-gray-400 uppercase tracking-wider">BOUM!</p>
+                <p className="text-[9px] text-gray-400 uppercase tracking-wider">{t("boom")}</p>
               </div>
             </div>
           </div>
@@ -63,7 +65,6 @@ export default function HomePage() {
       <section className="px-6 lg:px-8 pb-12 max-w-7xl mx-auto">
         <CombinedStreamGrid
           limit={20}
-          title="🔴 LIVE MAINTENANT"
         />
       </section>
 
@@ -74,7 +75,7 @@ export default function HomePage() {
       <section className="px-6 lg:px-8 pb-12 max-w-7xl mx-auto">
         <h2 className="text-2xl font-bold mb-6 flex items-center space-x-2">
           <Palette className="w-6 h-6 text-wacke-cyan drop-shadow-[0_0_5px_rgba(0,255,255,0.6)]" />
-          <span className="neon-cyan graffiti-text">PARCOURIR PAR CATÉGORIE</span>
+          <span className="neon-cyan graffiti-text">{t("browseByCategory")}</span>
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 stagger-children">
           {[
