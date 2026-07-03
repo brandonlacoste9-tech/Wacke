@@ -56,6 +56,9 @@ importers:
       stripe:
         specifier: ^15.12.0
         version: 15.12.0
+      tmi.js:
+        specifier: ^1.8.5
+        version: 1.8.5
     devDependencies:
       '@types/node':
         specifier: ^20.14.0
@@ -66,6 +69,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.3.0
         version: 18.3.7(@types/react@18.3.28)
+      '@types/tmi.js':
+        specifier: ^1.8.6
+        version: 1.8.6
       autoprefixer:
         specifier: ^10.4.19
         version: 10.4.27(postcss@8.5.8)
@@ -601,6 +607,9 @@ packages:
 
   '@types/react@18.3.28':
     resolution: {integrity: sha512-z9VXpC7MWrhfWipitjNdgCauoMLRdIILQsAEV+ZesIzBq/oUlxk0m3ApZuMFCXdnS4U7KrI+l3WRUEGQ8K1QKw==}
+
+  '@types/tmi.js@1.8.6':
+    resolution: {integrity: sha512-LVzNK7AxTMyh9qHLanAQR1o0I9XzfbIcXk85cx85igmCJHHO1Sm71sdhQ8Mj1WmRGzynPIoCXx6mVaFynWbsQw==}
 
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
@@ -1345,6 +1354,10 @@ packages:
     resolution: {integrity: sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ==}
     engines: {node: '>=12.0.0'}
 
+  tmi.js@1.8.5:
+    resolution: {integrity: sha512-A9qrydfe1e0VWM9MViVhhxVgvLpnk7pFShVUWePsSTtoi+A1X+Zjdoa7OJd7/YsgHXGj3GkNEvnWop/1WwZuew==}
+    engines: {node: '>=10.0.0'}
+
   to-regex-range@5.0.1:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
     engines: {node: '>=8.0'}
@@ -1759,6 +1772,8 @@ snapshots:
     dependencies:
       '@types/prop-types': 15.7.15
       csstype: 3.2.3
+
+  '@types/tmi.js@1.8.6': {}
 
   '@types/ws@8.18.1':
     dependencies:
@@ -2434,6 +2449,15 @@ snapshots:
     dependencies:
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
+
+  tmi.js@1.8.5:
+    dependencies:
+      node-fetch: 2.7.0
+      ws: 8.19.0
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - utf-8-validate
 
   to-regex-range@5.0.1:
     dependencies:
