@@ -84,11 +84,11 @@ export default function Header() {
     setIsClaiming(false);
 
     if (res.success) {
-      setClaimFeedback(res.message || "+500 jetons! 🪙");
+      setClaimFeedback(res.message || t("claimSuccess"));
       setCoinAnimate(true);
       setTimeout(() => setCoinAnimate(false), 1000);
     } else {
-      setClaimFeedback(res.error || "Déjà réclamé aujourd'hui!");
+      setClaimFeedback(res.error || t("claimAlready"));
     }
     setTimeout(() => setClaimFeedback(null), 3000);
   };
@@ -171,7 +171,7 @@ export default function Header() {
               <div 
                 onClick={() => setIsShopOpen(true)}
                 className="flex items-center space-x-2 bg-yellow-500/5 border border-yellow-500/20 rounded-xl px-3 py-1.5 group cursor-pointer hover:bg-yellow-500/10 hover:border-yellow-500/35 transition-all select-none"
-                title="Ouvrir la boutique de jetons Wacké"
+                title={t("openShop")}
               >
                 <img
                   src="/token.png"
@@ -186,7 +186,7 @@ export default function Header() {
                   }}
                   disabled={isClaiming}
                   className="text-[10px] bg-yellow-500/15 hover:bg-yellow-500/30 text-yellow-300 px-2 py-0.5 rounded-md font-bold transition-all disabled:opacity-50 uppercase tracking-wider"
-                  title="Réclamer ton bonus quotidien de 500 jetons"
+                  title={t("claimTooltip")}
                 >
                   {isClaiming ? "..." : "+500"}
                 </button>
@@ -209,7 +209,7 @@ export default function Header() {
               <button
                 onClick={cycleTheme}
                 className="p-2 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white"
-                title={`Thème : ${theme.toUpperCase()} (Mode Nuit Blanche)`}
+                title={`${t("themeLabel")} : ${theme.toUpperCase()} (${t("nightMode")})`}
                 type="button"
               >
                 <Palette className={`w-4 h-4 transition-colors ${

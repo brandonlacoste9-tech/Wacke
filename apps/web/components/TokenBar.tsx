@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useTokens } from "@/hooks/useTokens";
 import { Heart, ChevronUp, Flame } from "lucide-react";
 import TokenShopModal from "./TokenShopModal";
+import { useLanguage } from "./LanguageProvider";
+
+import { useAuth } from "./AuthProvider";
 
 interface TokenBarProps {
   initialBalance: number;
@@ -20,15 +23,19 @@ export default function TokenBar({
   streamId,
   authToken,
 }: TokenBarProps) {
+  const { token: authClientToken } = useAuth();
+  const activeToken = (authToken || authClientToken) ?? undefined;
+
   const { balance, isLoading, sendBoum, giftTokens } = useTokens({
     initialBalance,
-    authToken,
+    authToken: activeToken,
   });
   const [feedback, setFeedback] = useState<string | null>(null);
   const [showGiftPanel, setShowGiftPanel] = useState(false);
   const [customAmount, setCustomAmount] = useState("");
   const [boumAnimate, setBoumAnimate] = useState(false);
   const [isShopOpen, setIsShopOpen] = useState(false);
+  const { t, language } = useLanguage();
 
   const showFeedback = (msg: string) => {
     setFeedback(msg);
@@ -69,7 +76,7 @@ export default function TokenBar({
       {showGiftPanel && (
         <div className="mb-3 p-4 glass-dark rounded-2xl space-y-3 animate-scale-in">
           <p className="text-xs font-bold text-wacke-cyan flex items-center space-x-1">
-            <span>Envoyer des tokens</span>
+            <span>{language === "fr" ? "Envoyer des tokens" : "Send tokens"}</span>
             <Heart className="w-3.5 h-3.5 fill-current" />
           </p>
           <div className="grid grid-cols-2 gap-2">
@@ -92,7 +99,7 @@ export default function TokenBar({
           <div className="flex space-x-2">
             <input
               type="number"
-              placeholder="Montant"
+              placeholder={language === "fr" ? "Montant" : "Amount"}
               value={customAmount}
               onChange={(e) => setCustomAmount(e.target.value)}
               min={10}
@@ -118,7 +125,7 @@ export default function TokenBar({
         <div 
           onClick={() => setIsShopOpen(true)}
           className="flex items-center space-x-1.5 text-sm font-bold text-yellow-400 mr-1 cursor-pointer hover:bg-yellow-500/10 rounded-xl px-2.5 py-1.5 -mx-1 transition-all select-none border border-transparent hover:border-yellow-500/20"
-          title="Acheter des jetons Wacké"
+          title={language === "fr" ? "Acheter des jetons Wacké" : "Buy Wacké tokens"}
         >
           <img src="/token.png" alt="Token" className="h-4 w-4 object-contain rounded-full shadow-[0_0_6px_rgba(255,215,0,0.4)]" />
           <span>{balance.toLocaleString("fr-CA")}</span>
@@ -133,7 +140,7 @@ export default function TokenBar({
                      transition-all hover:scale-105 active:scale-95 disabled:opacity-30
                      disabled:cursor-not-allowed disabled:hover:scale-100
                      shadow-lg shadow-red-500/20"
-          title="Envoyer un Boum! (5 tokens)"
+          title={language === "fr" ? "Envoyer un Boum! (5 tokens)" : "Send a Boom! (5 tokens)"}
         >
           <Flame className="w-4 h-4 text-white fill-current animate-pulse" />
           <span>BOUM!</span>
@@ -145,7 +152,7 @@ export default function TokenBar({
           className="bg-wacke-purple/30 hover:bg-wacke-purple/50 border border-wacke-purple/30
                      px-3.5 py-2 rounded-xl font-bold text-xs flex items-center space-x-1
                      transition-all hover:scale-105 active:scale-95"
-          title="Envoyer des tokens"
+          title={language === "fr" ? "Envoyer des tokens" : "Send tokens"}
         >
           <Heart className="w-3.5 h-3.5 text-wacke-purple fill-current" />
           <span>DONATION</span>

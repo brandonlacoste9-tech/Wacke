@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "./LanguageProvider";
+import { useAuth } from "./AuthProvider";
 
 interface FollowButtonProps {
   streamerId: string;
@@ -20,10 +22,14 @@ export default function FollowButton({
   const [isLoading, setIsLoading] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const router = useRouter();
+  const { t } = useLanguage();
+  const { token: authClientToken } = useAuth();
+
+  const activeToken = (authToken || authClientToken) ?? undefined;
 
   const handleFollow = async () => {
-    if (!authToken) {
-      setToastMsg("Connecte-toi pour suivre ce streamer!");
+    if (!activeToken) {
+      setToastMsg(t("loginToFollow"));
       setTimeout(() => setToastMsg(null), 3000);
       router.push("/auth/login");
       return;
@@ -37,14 +43,14 @@ export default function FollowButton({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
+          Authorization: `Bearer ${activeToken}`,
         },
         body: JSON.stringify({ streamerId }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        setToastMsg(data.error || "Erreur de connexion.");
+        setToastMsg(data.error || t("followError"));
         setTimeout(() => setToastMsg(null), 3000);
         return;
       }
@@ -57,7 +63,7 @@ export default function FollowButton({
         onFollowChange(data.following);
       }
     } catch {
-      setToastMsg("Connexion perdue. Réessaie.");
+      setToastMsg(t("connectionLost"));
       setTimeout(() => setToastMsg(null), 3000);
     } finally {
       setIsLoading(false);
@@ -76,7 +82,7 @@ export default function FollowButton({
         }`}
       >
         <span>💜</span>
-        <span>{isFollowing ? "ABONNÉ ✅" : "SUIVRE"}</span>
+        <span>{isFollowing ? t("following") : t("follow")}</span>
       </button>
 
       {toastMsg && (

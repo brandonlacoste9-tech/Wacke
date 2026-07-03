@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Search, Radio, Coins, User } from "lucide-react";
 import { useAuth } from "./AuthProvider";
+import { useLanguage } from "./LanguageProvider";
 
 /**
  * MobileBottomNav — Floating bottom navigation for small screens.
@@ -13,19 +14,20 @@ import { useAuth } from "./AuthProvider";
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const { user, claimDailyTokens } = useAuth();
+  const { t } = useLanguage();
   const [claimFeedback, setClaimFeedback] = useState<string | null>(null);
 
   const handleClaim = async () => {
     const res = await claimDailyTokens();
-    setClaimFeedback(res.success ? "+500 🪙" : "⏰ Déjà réclamé");
+    setClaimFeedback(res.success ? "+500 🪙" : t("alreadyClaimed"));
     setTimeout(() => setClaimFeedback(null), 2000);
   };
 
   const items = [
-    { href: "/",               icon: <Home className="w-5 h-5" />,   label: "Accueil" },
-    { href: "/browse",         icon: <Search className="w-5 h-5" />, label: "Explore" },
-    { href: "/dashboard/stream", icon: <Radio className="w-5 h-5" />,  label: "Stream" },
-    { href: user ? `/profile/${user.username}` : "/auth/login", icon: <User className="w-5 h-5" />, label: "Profil" },
+    { href: "/",               icon: <Home className="w-5 h-5" />,   label: t("home") },
+    { href: "/browse",         icon: <Search className="w-5 h-5" />, label: t("explore") },
+    { href: "/dashboard/stream", icon: <Radio className="w-5 h-5" />,  label: t("stream") },
+    { href: user ? `/profile/${user.username}` : "/auth/login", icon: <User className="w-5 h-5" />, label: t("profile") },
   ];
 
   const isActive = (href: string) => {
@@ -74,7 +76,7 @@ export default function MobileBottomNav() {
               !
             </span>
           </span>
-          <span className="text-[9px] font-bold">Jetons</span>
+          <span className="text-[9px] font-bold">{t("tokensNav")}</span>
         </button>
       </div>
     </nav>

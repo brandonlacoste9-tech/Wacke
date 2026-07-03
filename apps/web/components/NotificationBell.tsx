@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Bell } from "lucide-react";
+import { useLanguage } from "./LanguageProvider";
 
 const MOCK_NOTIFICATIONS = [
   { id: "1", type: "follow", message: "Sophie 🎮 t'a suivi!", time: "il y a 2 min", read: false },
@@ -15,6 +16,7 @@ const MOCK_NOTIFICATIONS = [
  */
 export default function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useLanguage();
   const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
   const [hasRung, setHasRung] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -70,13 +72,13 @@ export default function NotificationBell() {
         <div className="absolute right-0 top-full mt-2 w-80 glass-dark rounded-2xl shadow-2xl overflow-hidden animate-scale-in z-50">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-wacke-purple/20">
-            <h3 className="text-sm font-bold text-white">Notifications</h3>
+            <h3 className="text-sm font-bold text-white">{t("notifications")}</h3>
             {unreadCount > 0 && (
               <button
                 onClick={markAllRead}
                 className="text-[10px] text-wacke-cyan hover:underline font-bold"
               >
-                Tout marquer lu
+                {t("markAllRead")}
               </button>
             )}
           </div>
@@ -108,7 +110,7 @@ export default function NotificationBell() {
           {/* Footer */}
           <div className="px-4 py-2.5 border-t border-wacke-purple/20 text-center">
             <button className="text-[10px] text-gray-500 hover:text-wacke-cyan font-bold uppercase tracking-wider transition-colors">
-              Voir toutes les notifications
+              {t("viewAllNotifications")}
             </button>
           </div>
         </div>

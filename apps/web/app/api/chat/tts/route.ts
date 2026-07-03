@@ -103,7 +103,24 @@ export async function POST(req: NextRequest) {
       audioUrl,
     });
 
-    return NextResponse.json({ success: true, message });
+    // 4. Broadcast via Supabase Realtime so chat rooms and overlays catch it instantly
+    const hydratedMessage = {
+      ...message,
+      user: {
+        id: user.id,
+        username: user.username,
+        displayName: user.displayName,
+        avatarUrl: user.avatarUrl,
+      },
+    };
+
+    await supabase.channel(`graffiti-chat:${streamId}`).send({
+      type: "broadcast",
+      event: "chat_message",
+      payload: hydratedMessage,
+    });
+
+    return NextResponse.json({ success: true, message: hydratedMessage });
   } catch (error) {
     console.error("[TTS_ERROR]", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

@@ -1,23 +1,34 @@
+"use client";
+
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import KickStreamGrid from "@/components/KickStreamGrid";
 import { Gamepad2, Music, Dices, Glasses, Snowflake, Palette, MapPin, Mic } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
 
-export const dynamic = "force-dynamic";
-
-interface BrowsePageProps {
-  searchParams: { category?: string; search?: string };
-}
-
-const CATEGORIES = [
-  { slug: "gaming",  name: "Gaming",  icon: <Gamepad2 className="w-6 h-6" />, color: "from-green-600 to-green-800" },
-  { slug: "musique", name: "Musique", icon: <Music className="w-6 h-6" />,    color: "from-pink-600 to-pink-800" },
-  { slug: "jeu",     name: "Jeu",     icon: <Dices className="w-6 h-6" />,    color: "from-purple-600 to-purple-800" },
-  { slug: "chile",   name: "Chilé",   icon: <Glasses className="w-6 h-6" />,  color: "from-red-600 to-red-800" },
-  { slug: "frette",  name: "Frette",  icon: <Snowflake className="w-6 h-6" />,color: "from-cyan-600 to-cyan-800" },
-  { slug: "art",     name: "Art",     icon: <Palette className="w-6 h-6" />,  color: "from-yellow-600 to-yellow-800" },
-  { slug: "irl",     name: "IRL",     icon: <MapPin className="w-6 h-6" />,   color: "from-orange-600 to-orange-800" },
-  { slug: "talk",    name: "Talk",    icon: <Mic className="w-6 h-6" />,      color: "from-indigo-600 to-indigo-800" },
+const CATEGORIES_META = [
+  { slug: "gaming",  icon: <Gamepad2 className="w-6 h-6" />, color: "from-green-600 to-green-800" },
+  { slug: "musique", icon: <Music className="w-6 h-6" />,    color: "from-pink-600 to-pink-800" },
+  { slug: "jeu",     icon: <Dices className="w-6 h-6" />,    color: "from-purple-600 to-purple-800" },
+  { slug: "chile",   icon: <Glasses className="w-6 h-6" />,  color: "from-red-600 to-red-800" },
+  { slug: "frette",  icon: <Snowflake className="w-6 h-6" />,color: "from-cyan-600 to-cyan-800" },
+  { slug: "art",     icon: <Palette className="w-6 h-6" />,  color: "from-yellow-600 to-yellow-800" },
+  { slug: "irl",     icon: <MapPin className="w-6 h-6" />,   color: "from-orange-600 to-orange-800" },
+  { slug: "talk",    icon: <Mic className="w-6 h-6" />,      color: "from-indigo-600 to-indigo-800" },
 ];
+
+// Category slug → translated name key mapping
+const CATEGORY_NAME_KEYS: Record<string, string> = {
+  gaming: "catGaming",
+  musique: "catMusique",
+  jeu: "catJeu",
+  chile: "catChile",
+  frette: "catFrette",
+  art: "catArt",
+  irl: "catIrl",
+  talk: "catTalk",
+};
 
 // Category slug → Kick category slug mapping
 const CATEGORY_TO_KICK: Record<string, string> = {
@@ -31,19 +42,28 @@ const CATEGORY_TO_KICK: Record<string, string> = {
   talk:    "Just Chatting",
 };
 
-export default function BrowsePage({ searchParams }: BrowsePageProps) {
-  const selectedSlug = searchParams.category;
-  const searchQuery  = searchParams.search;
+function BrowseContent() {
+  const searchParams = useSearchParams();
+  const { t } = useLanguage();
+
+  const selectedSlug = searchParams.get("category") ?? undefined;
+  const searchQuery  = searchParams.get("search") ?? undefined;
+
+  const CATEGORIES = CATEGORIES_META.map((cat) => ({
+    ...cat,
+    name: t(CATEGORY_NAME_KEYS[cat.slug] as any),
+  }));
+
   const selectedCategory = CATEGORIES.find((c) => c.slug === selectedSlug);
 
   // Map our local category slug to a Kick category slug
   const kickCategory = selectedSlug ? CATEGORY_TO_KICK[selectedSlug] : undefined;
 
   const gridTitle = searchQuery
-    ? `🔍 RECHERCHE : "${searchQuery}"`
+    ? `🔍 ${t("searchLabel")} : "${searchQuery}"`
     : selectedCategory
-    ? `${selectedCategory.name.toUpperCase()} — LIVES`
-    : "🔴 LIVES DU MOMENT";
+    ? `${selectedCategory.name.toUpperCase()} — ${t("livesLabel")}`
+    : t("livesDuMoment");
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto min-h-screen">
@@ -52,17 +72,17 @@ export default function BrowsePage({ searchParams }: BrowsePageProps) {
         <div>
           <h1 className="text-3xl md:text-4xl font-black mb-2 graffiti-text neon-pink">
             {searchQuery
-              ? `RECHERCHE : "${searchQuery}" 🔍`
+              ? `${t("searchLabel")} : "${searchQuery}" 🔍`
               : selectedCategory
               ? `${selectedCategory.name.toUpperCase()}`
-              : "PARCOURIR"}
+              : t("browsePage")}
           </h1>
           <p className="text-gray-500 text-sm">
             {searchQuery
-              ? "Résultats de recherche pour les streams en direct"
+              ? t("searchResults")
               : selectedCategory
-              ? `Explore les streams de la catégorie ${selectedCategory.name}`
-              : "Explore les streams les plus wackés du moment"}
+              ? `${t("exploreCategory")} ${selectedCategory.name}`
+              : t("exploreWacke")}
           </p>
         </div>
         {(selectedCategory || searchQuery) && (
@@ -70,7 +90,7 @@ export default function BrowsePage({ searchParams }: BrowsePageProps) {
             href="/browse"
             className="text-sm font-bold text-wacke-cyan hover:text-white border border-wacke-cyan/30 hover:border-wacke-cyan/60 px-4 py-2 rounded-xl transition-all hover:scale-105"
           >
-            ← Toutes les catégories
+            {t("allCategories")}
           </Link>
         )}
       </div>
@@ -78,7 +98,7 @@ export default function BrowsePage({ searchParams }: BrowsePageProps) {
       {/* ── Category Grid ─────────────────────────────────────────────── */}
       {!selectedCategory && !searchQuery && (
         <section className="mb-12">
-          <h2 className="text-lg font-bold mb-5 text-gray-300">Catégories</h2>
+          <h2 className="text-lg font-bold mb-5 text-gray-300">{t("categories")}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3 stagger-children">
             {CATEGORIES.map((category) => (
               <Link
@@ -106,5 +126,22 @@ export default function BrowsePage({ searchParams }: BrowsePageProps) {
         columns={4}
       />
     </div>
+  );
+}
+
+export default function BrowsePage() {
+  return (
+    <Suspense fallback={
+      <div className="p-6 lg:p-8 max-w-7xl mx-auto min-h-screen">
+        <div className="animate-pulse space-y-6">
+          <div className="h-12 bg-white/5 rounded-xl w-1/3" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3">
+            {[...Array(8)].map((_, i) => <div key={i} className="aspect-square bg-white/5 rounded-2xl" />)}
+          </div>
+        </div>
+      </div>
+    }>
+      <BrowseContent />
+    </Suspense>
   );
 }

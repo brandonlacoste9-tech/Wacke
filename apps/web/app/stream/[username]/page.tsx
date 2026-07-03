@@ -12,6 +12,8 @@ import { getMuxThumbnailUrl } from "@/lib/mux";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import type { Metadata } from "next";
 
+import ObsOverlayButton from "@/components/ObsOverlayButton";
+
 interface StreamPageProps {
   params: { username: string };
 }
@@ -162,6 +164,8 @@ export default async function StreamPage({ params }: StreamPageProps) {
     TOP_KICK_STREAMERS.includes(user.username.toLowerCase());
 
 
+  const isOwner = viewer !== null && user !== null && viewer.id === user.id;
+
   return (
     <div className="flex h-[calc(100vh-64px)] relative">
       {/* ── Main Stream Area ─────────────────────────────────────────────── */}
@@ -197,9 +201,13 @@ export default async function StreamPage({ params }: StreamPageProps) {
           </div>
         )}
 
+        {isOwner && (
+          <ObsOverlayButton username={user.username} />
+        )}
+
         {/* ── Stream Info ───────────────────────────────────────────────── */}
         <div className="bg-wacke-darker rounded-xl p-6 border border-wacke-purple/20">
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between border-b border-white/5 pb-5 mb-5">
             <div className="flex items-center space-x-4">
               {/* Avatar */}
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-2xl font-bold">

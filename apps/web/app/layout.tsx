@@ -8,6 +8,8 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import { AuthProvider } from "@/components/AuthProvider";
 import { LanguageProvider } from "@/components/LanguageProvider";
 
+import MainLayoutWrapper from "@/components/MainLayoutWrapper";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -51,15 +53,9 @@ export default function RootLayout({
       >
         <AuthProvider>
           <LanguageProvider>
-            <LiveStatsTicker />
-            <Header />
-            <div className="flex">
-              <Sidebar />
-              <main className="flex-1 min-h-[calc(100vh-64px)] overflow-x-hidden pb-16 md:pb-0">
-                {children}
-              </main>
-            </div>
-            <MobileBottomNav />
+            <MainLayoutWrapper>
+              {children}
+            </MainLayoutWrapper>
           </LanguageProvider>
         </AuthProvider>
       </body>

@@ -93,7 +93,7 @@ export default function TrendingGames() {
 
               {/* Hover overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2">
-                <span className="text-[9px] font-bold text-wacke-cyan">Voir les streams →</span>
+                <span className="text-[9px] font-bold text-wacke-cyan">{t("viewStreams")}</span>
               </div>
             </div>
 

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Flame } from "lucide-react";
+import { useLanguage } from "./LanguageProvider";
+import { useAuth } from "./AuthProvider";
 
 interface ReactionButtonProps {
   streamerId: string;
@@ -20,10 +22,14 @@ export default function ReactionButton({
   const [isLoading, setIsLoading] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const router = useRouter();
+  const { t, language } = useLanguage();
+  const { token: authClientToken } = useAuth();
+  
+  const activeToken = (authToken || authClientToken) ?? undefined;
 
   const handleReact = async () => {
-    if (!authToken) {
-      setToastMsg("Connecte-toi pour envoyer un BOUM!");
+    if (!activeToken) {
+      setToastMsg(language === "fr" ? "Connecte-toi pour envoyer un BOUM!" : "Log in to send a BOOM!");
       setTimeout(() => setToastMsg(null), 3000);
       router.push("/auth/login");
       return;
@@ -37,7 +43,7 @@ export default function ReactionButton({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
+          Authorization: `Bearer ${activeToken}`,
         },
         body: JSON.stringify({
           action: "boum",
@@ -49,12 +55,12 @@ export default function ReactionButton({
 
       const data = await res.json();
       if (!res.ok) {
-        setToastMsg(data.error || "Erreur.");
+        setToastMsg(data.error || (language === "fr" ? "Erreur." : "Error."));
         setTimeout(() => setToastMsg(null), 3000);
         return;
       }
 
-      setToastMsg("BOUM! Épique!");
+      setToastMsg(language === "fr" ? "BOUM! Épique!" : "BOOM! Epic!");
       setTimeout(() => setToastMsg(null), 2000);
 
       // Trigger callback to update balance globally or trigger animation
@@ -65,7 +71,7 @@ export default function ReactionButton({
       // Refresh page elements (like local token balances)
       router.refresh();
     } catch {
-      setToastMsg("Connexion perdue. Réessaie.");
+      setToastMsg(t("connectionLost"));
       setTimeout(() => setToastMsg(null), 3000);
     } finally {
       setIsLoading(false);

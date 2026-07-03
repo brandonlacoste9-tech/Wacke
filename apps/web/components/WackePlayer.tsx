@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Maximize2, Minimize2, PictureInPicture2 } from "lucide-react";
+import { useLanguage } from "./LanguageProvider";
 
 interface WackePlayerProps {
   playbackId: string;
@@ -34,6 +35,7 @@ export default function WackePlayer({
   const [volume, setVolume] = useState(1);
   const [isTheater, setIsTheater] = useState(false);
   const [hostname, setHostname] = useState<string>("");
+  const { t } = useLanguage();
 
   const hlsUrl = `https://stream.mux.com/${playbackId}.m3u8`;
 
@@ -155,7 +157,7 @@ export default function WackePlayer({
                 <span className="w-1.5 h-1.5 rounded-full bg-wacke-green animate-pulse" />
                 <span className="text-[10px] font-bold text-wacke-green">KICK LIVE</span>
               </div>
-              <button onClick={() => setIsTheater(p => !p)} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors" title="Mode théâtre">
+              <button onClick={() => setIsTheater(p => !p)} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors" title={t("theaterMode")}>
                 {isTheater ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
               </button>
             </div>
@@ -193,7 +195,7 @@ export default function WackePlayer({
                 <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
                 <span className="text-[10px] font-bold text-purple-400">TWITCH LIVE</span>
               </div>
-              <button onClick={() => setIsTheater(p => !p)} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors" title="Mode théâtre">
+              <button onClick={() => setIsTheater(p => !p)} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors" title={t("theaterMode")}>
                 {isTheater ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
               </button>
             </div>
@@ -214,7 +216,7 @@ export default function WackePlayer({
           <div className="absolute inset-0 flex items-center justify-center bg-wacke-darker/80 animate-fade-in">
             <div className="text-center">
               <div className="w-10 h-10 border-3 border-wacke-pink border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-              <p className="text-wacke-cyan text-xs font-bold">Connexion au stream...</p>
+              <p className="text-wacke-cyan text-xs font-bold">{t("connectingStream")}</p>
             </div>
           </div>
         )}
@@ -224,8 +226,8 @@ export default function WackePlayer({
           <div className="absolute inset-0 flex items-center justify-center bg-wacke-darker/90 animate-fade-in">
             <div className="text-center">
               <img src="/offline_mascot.png" alt="Offline" className="w-24 h-24 mx-auto mb-3 opacity-60" />
-              <p className="text-wacke-pink font-bold text-sm">Stream hors ligne</p>
-              <p className="text-gray-500 text-xs mt-1">Le streamer revient bientôt...</p>
+              <p className="text-wacke-pink font-bold text-sm">{t("streamOffline")}</p>
+              <p className="text-gray-500 text-xs mt-1">{t("streamerReturns")}</p>
             </div>
           </div>
         )}
@@ -249,7 +251,7 @@ export default function WackePlayer({
             <button onClick={handlePiP} className="p-1.5 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors" title="Picture-in-Picture">
               <PictureInPicture2 className="w-4 h-4" />
             </button>
-            <button onClick={() => setIsTheater(p => !p)} className="p-1.5 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors" title="Mode théâtre">
+            <button onClick={() => setIsTheater(p => !p)} className="p-1.5 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors" title={t("theaterMode")}>
               {isTheater ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
           </div>
@@ -268,7 +270,7 @@ export default function WackePlayer({
             <button
               onClick={toggleMute}
               className="text-gray-400 hover:text-white transition-colors text-base"
-              aria-label={isMuted ? "Activer le son" : "Couper le son"}
+              aria-label={isMuted ? t("unmute") : t("mute")}
             >
               {isMuted ? "🔇" : "🔊"}
             </button>
@@ -282,7 +284,7 @@ export default function WackePlayer({
             <button
               onClick={handleFullscreen}
               className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
-              title="Plein écran"
+              title={t("fullscreen")}
             >
               <Maximize2 className="w-4 h-4" />
             </button>

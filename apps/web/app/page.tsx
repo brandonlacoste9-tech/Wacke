@@ -12,6 +12,15 @@ import { Gamepad2, Music, Dices, Glasses, Snowflake, Palette, TrendingUp, Users,
 export default function HomePage() {
   const { t } = useLanguage();
 
+  const categories = [
+    { name: t("catGaming"),  icon: <Gamepad2 className="w-7 h-7 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]" />, slug: "gaming" },
+    { name: t("catMusique"), icon: <Music className="w-7 h-7 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]" />, slug: "musique" },
+    { name: t("catJeu"),     icon: <Dices className="w-7 h-7 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]" />, slug: "jeu" },
+    { name: t("catChile"),   icon: <Glasses className="w-7 h-7 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]" />, slug: "chile" },
+    { name: t("catFrette"),  icon: <Snowflake className="w-7 h-7 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]" />, slug: "frette" },
+    { name: t("catArt"),     icon: <Palette className="w-7 h-7 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]" />, slug: "art" },
+  ];
+
   return (
     <main className="min-h-screen bg-wacke-dark">
       {/* ── Hero Banner ──────────────────────────────────────────────────────── */}
@@ -78,14 +87,7 @@ export default function HomePage() {
           <span className="neon-cyan graffiti-text">{t("browseByCategory")}</span>
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 stagger-children">
-          {[
-            { name: "Gaming",  icon: <Gamepad2 className="w-7 h-7 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]" />, slug: "gaming" },
-            { name: "Musique", icon: <Music className="w-7 h-7 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]" />, slug: "musique" },
-            { name: "Jeu",     icon: <Dices className="w-7 h-7 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]" />, slug: "jeu" },
-            { name: "Chilé",   icon: <Glasses className="w-7 h-7 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]" />, slug: "chile" },
-            { name: "Frette",  icon: <Snowflake className="w-7 h-7 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]" />, slug: "frette" },
-            { name: "Art",     icon: <Palette className="w-7 h-7 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]" />, slug: "art" },
-          ].map((cat) => (
+          {categories.map((cat) => (
             <Link
               key={cat.slug}
               href={`/browse?category=${cat.slug}`}

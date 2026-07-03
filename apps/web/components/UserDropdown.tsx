@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "./AuthProvider";
 import Link from "next/link";
 import { User, Settings, Radio, LogOut, ChevronDown } from "lucide-react";
+import { useLanguage } from "./LanguageProvider";
 
 /**
  * UserDropdown — Avatar dropdown menu for authenticated users.
@@ -11,6 +12,7 @@ import { User, Settings, Radio, LogOut, ChevronDown } from "lucide-react";
  */
 export default function UserDropdown() {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -67,7 +69,7 @@ export default function UserDropdown() {
             <div className="mt-3 flex items-center space-x-2 bg-yellow-500/10 border border-yellow-500/20 rounded-lg px-3 py-1.5">
               <img src="/token.png" alt="Token" className="w-4 h-4 object-contain" />
               <span className="text-xs font-bold text-yellow-400">
-                {user.tokenBalance.toLocaleString("fr-CA")} jetons
+                {user.tokenBalance.toLocaleString("fr-CA")} {t("tokens")}
               </span>
             </div>
           </div>
@@ -80,7 +82,7 @@ export default function UserDropdown() {
               className="flex items-center space-x-3 px-4 py-2.5 hover:bg-white/3 transition-colors text-gray-300 hover:text-white"
             >
               <User className="w-4 h-4" />
-              <span className="text-sm">Mon profil</span>
+              <span className="text-sm">{t("myProfile")}</span>
             </Link>
             <Link
               href="/dashboard/stream"
@@ -88,7 +90,7 @@ export default function UserDropdown() {
               className="flex items-center space-x-3 px-4 py-2.5 hover:bg-white/3 transition-colors text-gray-300 hover:text-white"
             >
               <Radio className="w-4 h-4" />
-              <span className="text-sm">Tableau de bord</span>
+              <span className="text-sm">{t("dashboard")}</span>
             </Link>
             <Link
               href="/settings"
@@ -96,7 +98,7 @@ export default function UserDropdown() {
               className="flex items-center space-x-3 px-4 py-2.5 hover:bg-white/3 transition-colors text-gray-300 hover:text-white"
             >
               <Settings className="w-4 h-4" />
-              <span className="text-sm">Paramètres</span>
+              <span className="text-sm">{t("settings")}</span>
             </Link>
           </div>
 
@@ -107,7 +109,7 @@ export default function UserDropdown() {
               className="flex items-center space-x-3 px-4 py-2.5 hover:bg-red-500/5 transition-colors text-gray-400 hover:text-red-400 w-full"
             >
               <LogOut className="w-4 h-4" />
-              <span className="text-sm">Déconnexion</span>
+              <span className="text-sm">{t("disconnect")}</span>
             </button>
           </div>
         </div>

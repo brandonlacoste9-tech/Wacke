@@ -37,6 +37,22 @@ function formatTime(dateStr: string): string {
   }
 }
 
+// Sub-components that need translation context (can't use hooks inside renderContent)
+function StickerLabel() {
+  const { t } = useLanguage();
+  return <span className="text-[8px] font-bold text-wacke-pink uppercase tracking-widest">{t("stickerLabel")}</span>;
+}
+
+function SoundDisplay({ soundType, soundLabels }: { soundType: string; soundLabels: Record<string, string> }) {
+  const { t } = useLanguage();
+  return (
+    <span className="text-yellow-400 font-bold italic tracking-wide text-[10px] bg-yellow-500/10 px-2 py-0.5 rounded-lg border border-yellow-500/25 inline-flex items-center space-x-1">
+      <span>{t("playedSound")}</span>
+      <span className="underline">{soundLabels[soundType] || soundType}</span>
+    </span>
+  );
+}
+
 // Highlight @mentions in message content
 function renderContent(content: string): React.ReactNode {
   if (content.startsWith("[spray]:")) {
@@ -49,7 +65,7 @@ function renderContent(content: string): React.ReactNode {
           className="w-full h-auto rounded-lg object-contain drop-shadow-[0_0_8px_rgba(255,20,147,0.5)]"
         />
         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-          <span className="text-[8px] font-bold text-wacke-pink uppercase tracking-widest">STICKER AI</span>
+          <StickerLabel />
         </div>
       </div>
     );
@@ -63,10 +79,7 @@ function renderContent(content: string): React.ReactNode {
       laser: "⚡ Laser",
     };
     return (
-      <span className="text-yellow-400 font-bold italic tracking-wide text-[10px] bg-yellow-500/10 px-2 py-0.5 rounded-lg border border-yellow-500/25 inline-flex items-center space-x-1">
-        <span>a joué le son</span>
-        <span className="underline">{soundLabels[soundType] || soundType}</span>
-      </span>
+      <SoundDisplay soundType={soundType} soundLabels={soundLabels} />
     );
   }
   const parts = content.split(/(@\w+)/g);
@@ -265,7 +278,7 @@ export default function GraffitiChat({
                 ? "bg-red-600/80 text-white shadow-[0_0_8px_rgba(255,0,0,0.3)]"
                 : "bg-gray-700/50 text-gray-400"
             }`}
-            title={sacreMode ? "Mode Sacré actif — sacres permis" : "Mode Sacré désactivé"}
+            title={sacreMode ? t("sacreActive") : t("sacreDisabled")}
           >
             <span>SACRÉ</span>
             {sacreMode ? (
@@ -283,7 +296,7 @@ export default function GraffitiChat({
           <div className="text-center mt-12 space-y-3">
             <img src="/spray_can.png" alt="Spray" className="w-10 h-10 mx-auto opacity-30" />
             <p className="text-gray-600 text-xs font-medium">
-              Sois le premier à sprayer un message...
+              {t("chatEmpty")}
             </p>
           </div>
         )}
@@ -329,7 +342,7 @@ export default function GraffitiChat({
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-wacke-cyan flex items-center space-x-1">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>GÉNÉRATEUR DE STICKERS AI (100 🪙)</span>
+              <span>{t("stickerTitle")}</span>
             </span>
             <button
               onClick={() => setShowSprayPanel(false)}
@@ -365,8 +378,8 @@ export default function GraffitiChat({
           </div>
           {isSendingSpray && (
             <div className="flex items-center space-x-2 text-[9px] text-wacke-pink animate-pulse mt-1">
-              <span className="w-1.5 h-1.5 bg-wacke-pink rounded-full animate-ping shrink-0" />
-              <span>L&apos;IA dessine ton graffiti... (2s)</span>
+               <span className="w-1.5 h-1.5 bg-wacke-pink rounded-full animate-ping shrink-0" />
+               <span>{t("aiDrawing")}</span>
             </div>
           )}
         </div>
@@ -428,7 +441,7 @@ export default function GraffitiChat({
           <div className="grid grid-cols-3 gap-1.5">
             {/* Prefixes */}
             <div className="flex flex-col space-y-1">
-              <label className="text-[8px] font-extrabold text-gray-500 uppercase px-1">Préfixe</label>
+               <label className="text-[8px] font-extrabold text-gray-500 uppercase px-1">{t("prefixLabel")}</label>
               <select
                 value={sacrePrefix}
                 onChange={(e) => setSacrePrefix(e.target.value)}
@@ -439,7 +452,7 @@ export default function GraffitiChat({
             </div>
             {/* Core */}
             <div className="flex flex-col space-y-1">
-              <label className="text-[8px] font-extrabold text-gray-500 uppercase px-1">Sacre</label>
+               <label className="text-[8px] font-extrabold text-gray-500 uppercase px-1">{t("sacreLabel")}</label>
               <select
                 value={sacreCore}
                 onChange={(e) => setSacreCore(e.target.value)}
@@ -450,7 +463,7 @@ export default function GraffitiChat({
             </div>
             {/* Suffix */}
             <div className="flex flex-col space-y-1">
-              <label className="text-[8px] font-extrabold text-gray-500 uppercase px-1">Suffixe</label>
+               <label className="text-[8px] font-extrabold text-gray-500 uppercase px-1">{t("suffixLabel")}</label>
               <select
                 value={sacreSuffix}
                 onChange={(e) => setSacreSuffix(e.target.value)}
@@ -477,7 +490,7 @@ export default function GraffitiChat({
               disabled={isSendingSacre}
               className="bg-gradient-to-r from-red-600 to-orange-500 text-[10px] font-extrabold px-3 py-1.5 rounded-lg text-white hover:scale-105 active:scale-95 transition-all shadow-md shadow-red-500/10 shrink-0"
             >
-              {isSendingSacre ? (language === "fr" ? "Cri en cours..." : "Shouting...") : `${t("sacreBtn")} (${sacreTts ? 60 : 10} 🪙)`}
+               {isSendingSacre ? t("shouting") : `${t("sacreBtn")} (${sacreTts ? 60 : 10} 🪙)`}
             </button>
           </div>
         </div>
@@ -513,7 +526,7 @@ export default function GraffitiChat({
             className={`px-2 py-2 rounded-lg text-sm transition-all shrink-0 ${
               showSprayPanel ? "bg-wacke-purple/20 text-wacke-cyan" : "text-gray-500 hover:text-white hover:bg-white/5"
             }`}
-            title="Générateur de stickers AI (100 jetons)"
+             title={t("stickerTooltip")}
             type="button"
           >
             🎨
@@ -529,7 +542,7 @@ export default function GraffitiChat({
             className={`px-2 py-2 rounded-lg text-sm transition-all shrink-0 ${
               showSoundboard ? "bg-wacke-purple/20 text-yellow-400" : "text-gray-500 hover:text-white hover:bg-white/5"
             }`}
-            title="Soundboard interactive (20-50 jetons)"
+             title={t("soundTooltip")}
             type="button"
           >
             📢
@@ -545,7 +558,7 @@ export default function GraffitiChat({
             className={`px-2 py-2 rounded-lg text-sm transition-all shrink-0 ${
               showSacres ? "bg-wacke-purple/20 text-red-400" : "text-gray-500 hover:text-white hover:bg-white/5"
             }`}
-            title="Générateur de sacres (10 jetons)"
+             title={t("sacreTooltip")}
             type="button"
           >
             🤬
@@ -556,8 +569,8 @@ export default function GraffitiChat({
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={
-              currentUserId ? t("chatPlaceholder") : (language === "fr" ? "Connecte-toi pour chatter..." : "Log in to chat...")
+             placeholder={
+               currentUserId ? t("chatPlaceholder") : t("loginToChat")
             }
             disabled={!currentUserId || isSending || isSendingTts}
             maxLength={500}
@@ -571,7 +584,7 @@ export default function GraffitiChat({
             className="bg-gradient-to-r from-wacke-pink to-wacke-purple px-3.5 py-2 rounded-xl
                        hover:opacity-80 transition-all disabled:opacity-30 disabled:cursor-not-allowed
                        hover:scale-105 active:scale-95"
-            aria-label="Envoyer"
+             aria-label={t("sendLabel")}
           >
             {isSending ? "..." : "➤"}
           </button>

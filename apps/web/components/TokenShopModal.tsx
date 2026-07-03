@@ -19,7 +19,7 @@ export default function TokenShopModal({ isOpen, onClose }: TokenShopModalProps)
 
   const handlePurchase = async (amount: number) => {
     if (!token) {
-      setErrorMsg("Tu dois être connecté pour acheter des jetons");
+      setErrorMsg(t("loginToBuy"));
       return;
     }
 
@@ -38,17 +38,17 @@ export default function TokenShopModal({ isOpen, onClose }: TokenShopModalProps)
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || "Erreur Stripe");
+        throw new Error(data.error || t("stripeError"));
       }
 
       if (data.url) {
         // Redirect browser to Checkout URL (could be real Stripe or mock sandbox success URL)
         window.location.href = data.url;
       } else {
-        throw new Error("L'URL de paiement est introuvable");
+        throw new Error(t("paymentUrlMissing"));
       }
     } catch (err: any) {
-      setErrorMsg(err.message || "Erreur de connexion");
+      setErrorMsg(err.message || t("connectionError"));
       setLoadingAmount(null);
     }
   };
@@ -110,7 +110,7 @@ export default function TokenShopModal({ isOpen, onClose }: TokenShopModalProps)
               >
                 {pack.popular && (
                   <span className="absolute -top-2 right-4 bg-gradient-to-r from-wacke-pink to-wacke-purple text-[8px] font-black text-white px-2 py-0.5 rounded-full uppercase tracking-wider shadow">
-                    🔥 POPULAIRE
+                    🔥 {t("popular")}
                   </span>
                 )}
 
@@ -147,7 +147,7 @@ export default function TokenShopModal({ isOpen, onClose }: TokenShopModalProps)
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
-            <span>Sécurisé par Stripe</span>
+            <span>{t("securedByStripe")}</span>
           </div>
           <span className="text-[9px] text-gray-600 font-bold uppercase tracking-wide">
             © Wacké Corp.

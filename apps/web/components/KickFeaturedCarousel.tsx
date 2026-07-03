@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useLanguage } from "./LanguageProvider";
 
 interface KickStream {
   id: string;
@@ -26,6 +27,7 @@ function formatViewers(n: number): string {
 }
 
 export default function KickFeaturedCarousel() {
+  const { t } = useLanguage();
   const [streams, setStreams] = useState<KickStream[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -162,7 +164,7 @@ export default function KickFeaturedCarousel() {
               href={`/stream/${username}`}
               className="bg-wacke-green hover:brightness-110 text-black font-extrabold text-xs px-5 py-2 rounded-xl transition-all duration-200 hover:scale-105 shadow-lg shadow-wacke-green/20"
             >
-              Regarder Live 🟢
+              {t("watchLive")}
             </Link>
             <div className="flex items-center space-x-1 bg-red-600/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-md backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
@@ -175,7 +177,7 @@ export default function KickFeaturedCarousel() {
       {/* ── Sidebar selector ────────────────────────────────────────────── */}
       <div className="w-full lg:w-80 flex flex-col gap-1.5 overflow-y-auto max-h-[360px] lg:max-h-none scrollbar-hide">
         <h2 className="text-[10px] font-extrabold text-gray-600 uppercase tracking-widest mb-1 px-2">
-          🔴 À l'affiche sur Wacké
+          {t("featuredOn")}
         </h2>
         {streams.slice(0, 6).map((stream, idx) => {
           if (!stream) return null;

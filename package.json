@@ -10,9 +10,10 @@
     "db:migrate": "turbo run db:migrate"
   },
   "devDependencies": {
+    "@types/node": "^20.14.0",
+    "dotenv": "^17.4.2",
     "turbo": "latest",
-    "typescript": "^5.4.5",
-    "@types/node": "^20.14.0"
+    "typescript": "^5.4.5"
   },
   "packageManager": "pnpm@9.15.4",
   "engines": {

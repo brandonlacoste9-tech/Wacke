@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useLanguage } from "./LanguageProvider";
 
 interface KickStream {
   id: string;
@@ -157,9 +158,11 @@ function StreamCard({ stream }: { stream: KickStream }) {
 export default function KickStreamGrid({
   limit = 20,
   category,
-  title = "🔴 LIVES DU MOMENT",
+  title,
   columns = 4,
 }: KickStreamGridProps) {
+  const { t } = useLanguage();
+  const displayTitle = title || t("livesDuMoment");
   const [streams, setStreams] = useState<KickStream[]>([]);
   const [loading, setLoading] = useState(true);
   const [source, setSource] = useState<"kick" | "fallback" | "error">("fallback");
@@ -184,7 +187,7 @@ export default function KickStreamGrid({
     <section>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-black tracking-tight">
-          <span className="neon-pink graffiti-text">{title}</span>
+          <span className="neon-pink graffiti-text">{displayTitle}</span>
         </h2>
         <div className="flex items-center space-x-3">
           {source === "kick" && (
@@ -194,7 +197,7 @@ export default function KickStreamGrid({
             </span>
           )}
           <Link href="/browse" className="text-sm text-wacke-cyan hover:underline">
-            Voir tout →
+            {t("viewAll")}
           </Link>
         </div>
       </div>
@@ -208,7 +211,7 @@ export default function KickStreamGrid({
       {!loading && streams.length === 0 && (
         <div className="text-center py-20 text-gray-500">
           <p className="text-4xl mb-3">😴</p>
-          <p>Aucun stream en direct pour le moment</p>
+          <p>{t("noStreamsNow")}</p>
         </div>
       )}
     </section>
