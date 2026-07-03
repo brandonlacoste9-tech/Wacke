@@ -1,30 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Radio, Copy, Eye, EyeOff, Shield, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
-
-const STREAM_CATEGORIES = [
-  { value: "gaming", label: "🎮 Gaming" },
-  { value: "musique", label: "🎵 Musique" },
-  { value: "jeu", label: "🎲 Jeu" },
-  { value: "chile", label: "😎 Chilé" },
-  { value: "frette", label: "❄️ Frette" },
-  { value: "art", label: "🎨 Art" },
-  { value: "irl", label: "📍 IRL" },
-  { value: "talk", label: "🎤 Talk" },
-];
-
-const OBS_STEPS = [
-  { step: "Ouvre OBS Studio ou Streamlabs", detail: "Télécharge-le sur obsproject.com si tu l'as pas" },
-  { step: "Va dans Paramètres → Flux", detail: "Settings → Stream" },
-  { step: "Sélectionne «Personnalisé» comme Service", detail: "Custom..." },
-  { step: "Colle l'URL du serveur RTMP", detail: "Le champ «Server» ou «URL»" },
-  { step: "Colle ta clé de stream", detail: "Le champ «Stream Key»" },
-  { step: "Clique «Démarrer le streaming»", detail: "Start Streaming" },
-];
+import { useLanguage } from "@/components/LanguageProvider";
 
 /**
  * Streamer Dashboard — Stream Key Management with OBS guide
@@ -32,6 +13,45 @@ const OBS_STEPS = [
 export default function StreamDashboardPage() {
   const { token, user, isLoading: authLoading } = useAuth();
   const router = useRouter();
+  const { t, language } = useLanguage();
+
+  const STREAM_CATEGORIES = useMemo(() => [
+    { value: "gaming", label: `🎮 ${t("catGaming")}` },
+    { value: "musique", label: `🎵 ${t("catMusique")}` },
+    { value: "jeu", label: `🎲 ${t("catJeu")}` },
+    { value: "chile", label: `😎 ${t("catChile")}` },
+    { value: "frette", label: `❄️ ${t("catFrette")}` },
+    { value: "art", label: `🎨 ${t("catArt")}` },
+    { value: "irl", label: `📍 ${t("catIrl")}` },
+    { value: "talk", label: `🎤 ${t("catTalk")}` },
+  ], [t]);
+
+  const OBS_STEPS = useMemo(() => [
+    { 
+      step: language === "fr" ? "Ouvre OBS Studio ou Streamlabs" : "Open OBS Studio or Streamlabs", 
+      detail: language === "fr" ? "Télécharge-le sur obsproject.com si tu l'as pas" : "Download it from obsproject.com if you don't have it" 
+    },
+    { 
+      step: language === "fr" ? "Va dans Paramètres → Flux" : "Go to Settings → Stream", 
+      detail: "Settings → Stream" 
+    },
+    { 
+      step: language === "fr" ? "Sélectionne «Personnalisé» comme Service" : "Select 'Custom' as Service", 
+      detail: "Custom..." 
+    },
+    { 
+      step: language === "fr" ? "Colle l'URL du serveur RTMP" : "Paste the RTMP server URL", 
+      detail: language === "fr" ? "Le champ «Server» ou «URL»" : "The 'Server' or 'URL' field" 
+    },
+    { 
+      step: language === "fr" ? "Colle ta clé de stream" : "Paste your stream key", 
+      detail: language === "fr" ? "Le champ «Stream Key»" : "The 'Stream Key' field" 
+    },
+    { 
+      step: language === "fr" ? "Clique «Démarrer le streaming»" : "Click 'Start Streaming'", 
+      detail: "Start Streaming" 
+    },
+  ], [language]);
 
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("gaming");
@@ -53,13 +73,13 @@ export default function StreamDashboardPage() {
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text || "");
-    setCopyFeedback(`✅ ${label} copié!`);
+    setCopyFeedback(`✅ ${label} ${t("dashCopiedFeedback")}`);
     setTimeout(() => setCopyFeedback(null), 2000);
   };
 
   const handleCreateStream = async () => {
     if (!title.trim()) {
-      setError("Donne un titre à ton stream!");
+      setError(t("dashErrorEmptyTitle"));
       return;
     }
     setIsLoading(true);
@@ -77,7 +97,7 @@ export default function StreamDashboardPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Erreur lors de la création du stream");
+        setError(data.error ?? t("dashErrorCreateStream"));
         return;
       }
 
@@ -85,7 +105,7 @@ export default function StreamDashboardPage() {
       setRtmpUrl(data.rtmpUrl);
       setStreamId(data.streamId);
     } catch {
-      setError("Connexion perdue. Réessaie.");
+      setError(t("dashErrorConnection"));
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +123,7 @@ export default function StreamDashboardPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Erreur lors de l'arrêt du stream");
+        setError(data.error ?? t("dashErrorEndStream"));
         return;
       }
 
@@ -112,7 +132,7 @@ export default function StreamDashboardPage() {
       setStreamId(null);
       setTitle("");
     } catch {
-      setError("Connexion perdue. Réessaie.");
+      setError(t("dashErrorConnection"));
     } finally {
       setIsLoading(false);
     }
@@ -135,18 +155,18 @@ export default function StreamDashboardPage() {
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-3xl md:text-4xl font-black graffiti-text neon-pink flex items-center space-x-3">
             <Radio className="w-8 h-8" />
-            <span>TABLEAU DE BORD</span>
+            <span>{t("dashTitle")}</span>
           </h1>
           {streamId && (
             <Link
               href={`/stream/${user.username}`}
               className="text-xs bg-wacke-cyan/10 hover:bg-wacke-cyan/20 border border-wacke-cyan/30 text-wacke-cyan px-4 py-2 rounded-xl font-bold transition-all hover:scale-105"
             >
-              👁 Voir ma chaîne
+              {t("dashViewMyChannel")}
             </Link>
           )}
         </div>
-        <p className="text-gray-500 mb-10 text-sm">Configure ton stream et obtiens ta clé RTMP pour OBS.</p>
+        <p className="text-gray-500 mb-10 text-sm">{t("dashSubtitle")}</p>
 
         {/* Copy feedback toast */}
         {copyFeedback && (
@@ -159,12 +179,12 @@ export default function StreamDashboardPage() {
         {!streamKey ? (
           <div className="glass-card rounded-2xl p-8 space-y-6">
             <div>
-              <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Titre du stream</label>
+              <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">{t("dashStreamTitleLabel")}</label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Ex: Gaming avec les boys, Chilage du vendredi..."
+                placeholder={language === "fr" ? "Ex: Gaming avec les boys, Chilage du vendredi..." : "Ex: Gaming session, Friday chill..."}
                 maxLength={128}
                 className="w-full bg-white/3 border border-wacke-purple/20 rounded-xl px-4 py-3
                            text-sm focus:border-wacke-cyan/40 transition-all"
@@ -172,7 +192,7 @@ export default function StreamDashboardPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Catégorie</label>
+              <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">{t("dashCategoryLabel")}</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
@@ -189,9 +209,9 @@ export default function StreamDashboardPage() {
               <div>
                 <p className="text-sm font-bold text-white flex items-center space-x-1.5">
                   <Shield className="w-4 h-4 text-red-500" />
-                  <span>Mode Sacré 🔥</span>
+                  <span>{t("dashSacreModeLabel")}</span>
                 </p>
-                <p className="text-[10px] text-gray-500 mt-0.5">Permet les sacres québécois dans le chat</p>
+                <p className="text-[10px] text-gray-500 mt-0.5">{t("dashSacreModeDesc")}</p>
               </div>
               <button
                 onClick={() => setSacreMode((prev) => !prev)}
@@ -215,7 +235,7 @@ export default function StreamDashboardPage() {
                          disabled:opacity-50 disabled:cursor-not-allowed
                          shadow-lg shadow-wacke-pink/20 hover:scale-[1.01]"
             >
-              {isLoading ? "Création en cours..." : "🔴 Créer mon stream"}
+              {isLoading ? t("dashBtnCreatingStream") : t("dashBtnCreateStream")}
             </button>
           </div>
         ) : (
@@ -223,12 +243,12 @@ export default function StreamDashboardPage() {
           <div className="glass-card border-green-500/20 rounded-2xl p-8 space-y-6">
             <div className="flex items-center space-x-2">
               <span className="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse" />
-              <h2 className="text-lg font-bold text-green-400">Stream créé! Configure OBS maintenant.</h2>
+              <h2 className="text-lg font-bold text-green-400">{t("dashKeyCreatedTitle")}</h2>
             </div>
 
             <div>
               <label className="block text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-widest">
-                URL du serveur RTMP
+                {t("dashRtmpUrlLabel")}
               </label>
               <div className="flex items-center space-x-2">
                 <code className="flex-1 bg-white/3 border border-wacke-purple/20 rounded-lg px-4 py-2.5 text-sm text-wacke-cyan font-mono truncate">
@@ -239,14 +259,14 @@ export default function StreamDashboardPage() {
                   className="flex items-center space-x-1 text-xs bg-wacke-purple/20 hover:bg-wacke-purple/40 px-3 py-2.5 rounded-lg transition-colors shrink-0 font-bold"
                 >
                   <Copy className="w-3 h-3" />
-                  <span>Copier</span>
+                  <span>{t("dashBtnCopy")}</span>
                 </button>
               </div>
             </div>
 
             <div>
               <label className="block text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-widest">
-                Clé de stream (garde ça secret!)
+                {t("dashStreamKeyLabel")}
               </label>
               <div className="flex items-center space-x-2">
                 <code className="flex-1 bg-white/3 border border-wacke-purple/20 rounded-lg px-4 py-2.5 text-sm text-yellow-400 font-mono truncate">
@@ -257,18 +277,18 @@ export default function StreamDashboardPage() {
                   className="flex items-center space-x-1 text-xs bg-wacke-purple/20 hover:bg-wacke-purple/40 px-3 py-2.5 rounded-lg transition-colors shrink-0 font-bold"
                 >
                   {keyVisible ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                  <span>{keyVisible ? "Cacher" : "Voir"}</span>
+                  <span>{keyVisible ? t("dashBtnHideKey") : t("dashBtnShowKey")}</span>
                 </button>
                 <button
                   onClick={() => handleCopy(streamKey || "", "Clé")}
                   className="flex items-center space-x-1 text-xs bg-wacke-purple/20 hover:bg-wacke-purple/40 px-3 py-2.5 rounded-lg transition-colors shrink-0 font-bold"
                 >
                   <Copy className="w-3 h-3" />
-                  <span>Copier</span>
+                  <span>{t("dashBtnCopy")}</span>
                 </button>
               </div>
               <p className="text-[10px] text-red-400/80 mt-2 font-medium">
-                ⚠️ Ne partage jamais ta clé de stream. Elle donne accès total à ton canal.
+                {t("dashWarningSecretKey")}
               </p>
             </div>
 
@@ -280,7 +300,7 @@ export default function StreamDashboardPage() {
               >
                 <div className="flex items-center space-x-2">
                   <BookOpen className="w-4 h-4 text-wacke-cyan" />
-                  <span className="text-sm font-bold text-wacke-cyan">Guide de configuration OBS</span>
+                  <span className="text-sm font-bold text-wacke-cyan">{t("dashObsGuideTitle")}</span>
                 </div>
                 {showOBSGuide ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
               </button>
@@ -314,7 +334,7 @@ export default function StreamDashboardPage() {
                 disabled={isLoading}
                 className="flex-1 bg-red-950/50 hover:bg-red-900/60 border border-red-500/30 text-red-400 py-3 rounded-xl font-bold transition-all active:scale-95 disabled:opacity-50"
               >
-                {isLoading ? "Fermeture..." : "⛔ Arrêter le stream"}
+                {isLoading ? t("dashBtnEndingStream") : t("dashBtnEndStream")}
               </button>
             </div>
           </div>

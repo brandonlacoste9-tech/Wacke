@@ -20,22 +20,28 @@ interface StreamPageProps {
 
 export async function generateMetadata({ params }: StreamPageProps): Promise<Metadata> {
   const cleanUsername = params.username.toLowerCase();
+  const cookieStore = cookies();
+  const lang = (cookieStore.get("wacke_lang")?.value || "fr") as "fr" | "en";
+  const isEn = lang === "en";
+
   if (cleanUsername.startsWith("twitch-")) {
     const twitchUsername = cleanUsername.substring(7);
     const displayName = twitchUsername.charAt(0).toUpperCase() + twitchUsername.slice(1);
     return {
-      title: `🔴 Live de ${displayName} | Wacké`,
-      description: `Regarde ${displayName} diffuser en direct sur Wacké via Twitch!`,
+      title: isEn ? `🔴 ${displayName} Live | Wacké` : `🔴 Live de ${displayName} | Wacké`,
+      description: isEn 
+        ? `Watch ${displayName} broadcasting live on Wacké via Twitch!`
+        : `Regarde ${displayName} diffuser en direct sur Wacké via Twitch!`,
     };
   }
 
   const user = await getUserByUsername(params.username);
-  if (!user) return { title: "Stream introuvable — Wacké" };
+  if (!user) return { title: isEn ? "Stream not found — Wacké" : "Stream introuvable — Wacké" };
 
   const stream = await getStreamByUserId(user.id);
   return {
     title: stream ? `${stream.title} — ${user.displayName} | Wacké` : `${user.displayName} | Wacké`,
-    description: stream?.description ?? `Regarde ${user.displayName} sur Wacké`,
+    description: stream?.description ?? (isEn ? `Watch ${user.displayName} on Wacké` : `Regarde ${user.displayName} sur Wacké`),
     openGraph: {
       images: stream?.muxPlaybackId
         ? [getMuxThumbnailUrl(stream.muxPlaybackId)]
@@ -48,10 +54,16 @@ export default async function StreamPage({ params }: StreamPageProps) {
   const cleanUsername = params.username.toLowerCase();
   const isTwitchStream = cleanUsername.startsWith("twitch-");
 
+  const cookieStore = cookies();
+  const lang = (cookieStore.get("wacke_lang")?.value || "fr") as "fr" | "en";
+  const isEn = lang === "en";
+
   if (isTwitchStream) {
     const twitchUsername = cleanUsername.substring(7); // Remove "twitch-" prefix
     const displayName = twitchUsername.charAt(0).toUpperCase() + twitchUsername.slice(1);
-    const fallbackTitle = `🔴 Diffusion en direct de Twitch.tv`;
+    const fallbackTitle = isEn 
+      ? `🔴 Live stream from Twitch.tv`
+      : `🔴 Diffusion en direct de Twitch.tv`;
 
     return (
       <div className="flex h-[calc(100vh-64px)] relative">
@@ -104,7 +116,6 @@ export default async function StreamPage({ params }: StreamPageProps) {
       : [];
 
     // Read auth token from cookie and fetch database viewer info
-    const cookieStore = cookies();
     token = cookieStore.get("wacke_token")?.value;
 
     if (token) {
@@ -125,7 +136,9 @@ export default async function StreamPage({ params }: StreamPageProps) {
     console.error("[STREAM_PAGE_DB_FAIL_FALLBACK]", dbErr);
     // Graceful database fallback: render the Kick live player directly using path params
     const cleanUsername = params.username.toLowerCase();
-    const fallbackTitle = `🔴 Diffusion en direct de Kick.com`;
+    const fallbackTitle = isEn 
+      ? `🔴 Live stream from Kick.com`
+      : `🔴 Diffusion en direct de Kick.com`;
     
     return (
       <div className="flex h-[calc(100vh-64px)] relative">
@@ -190,12 +203,14 @@ export default async function StreamPage({ params }: StreamPageProps) {
             {/* Content */}
             <div className="text-center relative z-10 p-6 bg-wacke-darker/70 rounded-2xl border border-wacke-purple/30 backdrop-blur-md shadow-2xl max-w-sm">
               <img src="/offline_mascot.png" alt="Offline Mascot" className="w-48 h-auto mx-auto mb-2 drop-shadow-[0_0_15px_rgba(255,0,255,0.5)]" />
-              <p className="text-wacke-pink font-black text-xl tracking-tight uppercase">Stream hors ligne</p>
+              <p className="text-wacke-pink font-black text-xl tracking-tight uppercase">
+                {isEn ? "Stream Offline" : "Stream hors ligne"}
+              </p>
               <p className="text-gray-300 text-sm mt-2 font-medium">
-                {user.displayName} n&apos;est pas en live pour l&apos;instant
+                {isEn ? `${user.displayName} is offline right now` : `${user.displayName} n'est pas en live pour l'instant`}
               </p>
               <div className="mt-4 flex items-center justify-center space-x-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                <span>🔴 Reviens plus tard pour le live</span>
+                <span>{isEn ? "🔴 Come back later for the live" : "🔴 Reviens plus tard pour le live"}</span>
               </div>
             </div>
           </div>

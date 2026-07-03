@@ -7,9 +7,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ParticleBackground from "@/components/ParticleBackground";
 import { CheckCircle, XCircle } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function SignupPage() {
   const { signup, user, isLoading } = useAuth();
+  const { t } = useLanguage();
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
@@ -49,22 +51,22 @@ export default function SignupPage() {
     setSuccessMsg(null);
 
     if (!username.trim() || !displayName.trim()) {
-      setErrorMsg("Remplis ton pseudo et ton nom d'affichage.");
+      setErrorMsg(t("signupErrorEmpty"));
       return;
     }
 
     if (username.length > 32) {
-      setErrorMsg("Le pseudo doit faire max 32 caractères.");
+      setErrorMsg(t("signupErrorLength"));
       return;
     }
 
     if (usernameStatus === "taken") {
-      setErrorMsg("Ce pseudo est déjà pris. Choisis-en un autre.");
+      setErrorMsg(t("signupErrorTaken"));
       return;
     }
 
     if (!isMock && !email.trim()) {
-      setErrorMsg("Donne ton adresse courriel.");
+      setErrorMsg(t("signupErrorEmail"));
       return;
     }
 
@@ -75,10 +77,10 @@ export default function SignupPage() {
       if (isMock) {
         router.push("/");
       } else {
-        setSuccessMsg(res.error || "Compte créé! Valide tes courriels pour activer ta session.");
+        setSuccessMsg(res.error || t("signupSuccessMessage"));
       }
     } else {
-      setErrorMsg(res.error || "Erreur de création du compte.");
+      setErrorMsg(res.error || t("signupErrorMessage"));
     }
   };
 
@@ -91,8 +93,8 @@ export default function SignupPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-wacke-dark via-transparent to-transparent z-0" />
         <ParticleBackground count={12} />
         <div className="relative z-10 p-16 mt-auto self-end w-full">
-          <h2 className="text-5xl font-black text-white drop-shadow-[0_0_15px_rgba(0,255,255,0.8)] mb-3 uppercase tracking-wide graffiti-text neon-cyan">Rejoins la meute</h2>
-          <p className="text-xl text-gray-200 font-bold max-w-md drop-shadow-md">Crée ton compte en 30 secondes. Gratuit pour toujours.</p>
+          <h2 className="text-5xl font-black text-white drop-shadow-[0_0_15px_rgba(0,255,255,0.8)] mb-3 uppercase tracking-wide graffiti-text neon-cyan">{t("signupArtworkTitle")}</h2>
+          <p className="text-xl text-gray-200 font-bold max-w-md drop-shadow-md">{t("signupArtworkSub")}</p>
         </div>
       </div>
 
@@ -102,8 +104,8 @@ export default function SignupPage() {
 
         <div className="max-w-md w-full glass-dark p-10 rounded-3xl shadow-[0_0_40px_rgba(0,255,255,0.08)] relative z-10 animate-scale-in">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold graffiti-text neon-cyan mb-2">INSCRIPTION</h1>
-            <p className="text-gray-500 text-sm font-medium">Rejoins la meute de Wacké! 🐺🎨</p>
+            <h1 className="text-4xl font-bold graffiti-text neon-cyan mb-2">{t("signupTitle")}</h1>
+            <p className="text-gray-500 text-sm font-medium">{t("signupSubtitle")}</p>
           </div>
 
           {errorMsg && (
@@ -121,7 +123,7 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">
-                Nom d&apos;utilisateur (Pseudo unique)
+                {t("signupUsernameLabel")}
               </label>
               <div className="relative">
                 <input
@@ -149,16 +151,16 @@ export default function SignupPage() {
                 </div>
               </div>
               {usernameStatus === "taken" && (
-                <p className="text-[10px] text-red-400 mt-1 font-medium">Ce pseudo est déjà pris</p>
+                <p className="text-[10px] text-red-400 mt-1 font-medium">{t("signupUsernameTaken")}</p>
               )}
               {usernameStatus === "available" && (
-                <p className="text-[10px] text-green-400 mt-1 font-medium">Pseudo disponible ✓</p>
+                <p className="text-[10px] text-green-400 mt-1 font-medium">{t("signupUsernameAvailable")}</p>
               )}
             </div>
 
             <div>
               <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">
-                Nom d&apos;affichage (Display Name)
+                {t("signupDisplayNameLabel")}
               </label>
               <input
                 type="text"
@@ -176,7 +178,7 @@ export default function SignupPage() {
             {!isMock && (
               <div>
                 <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">
-                  Adresse courriel
+                  {t("signupEmailLabel")}
                 </label>
                 <input
                   type="email"
@@ -199,15 +201,15 @@ export default function SignupPage() {
                          disabled:opacity-50 disabled:cursor-not-allowed
                          shadow-lg shadow-wacke-cyan/20"
             >
-              {isLoading ? "Création en cours..." : "🔥 S'inscrire maintenant"}
+              {isLoading ? t("signupBtnRegistering") : t("signupBtnRegister")}
             </button>
           </form>
 
           <div className="mt-6 text-center border-t border-wacke-purple/15 pt-6">
             <p className="text-sm text-gray-500">
-              Déjà inscrit?{" "}
+              {t("signupAlreadyRegistered")}{" "}
               <Link href="/auth/login" className="text-wacke-pink font-bold hover:underline">
-                Se connecter
+                {t("signupLoginLink")}
               </Link>
             </p>
           </div>

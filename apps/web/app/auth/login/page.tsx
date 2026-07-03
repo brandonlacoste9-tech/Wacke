@@ -6,9 +6,11 @@ import { isSupabaseMocked } from "@/lib/config";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ParticleBackground from "@/components/ParticleBackground";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function LoginPage() {
   const { login, user, isLoading } = useAuth();
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [mockUsername, setMockUsername] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -31,25 +33,25 @@ export default function LoginPage() {
 
     if (isMock) {
       if (!mockUsername.trim()) {
-        setErrorMsg("Remplis ton nom d'utilisateur de test.");
+        setErrorMsg(t("loginErrorEmptyPseudo"));
         return;
       }
       const res = await login(`${mockUsername.trim()}@mock.wacke.ca`, mockUsername.trim());
       if (res.success) {
         router.push("/");
       } else {
-        setErrorMsg(res.error || "Erreur de connexion.");
+        setErrorMsg(res.error || t("loginErrorFetch"));
       }
     } else {
       if (!email.trim()) {
-        setErrorMsg("Donne ton adresse courriel.");
+        setErrorMsg(t("loginErrorEmptyEmail"));
         return;
       }
       const res = await login(email.trim());
       if (res.success) {
-        setSuccessMsg(res.error || "Lien de connexion envoyé! Valide ton courriel.");
+        setSuccessMsg(res.error || t("loginSuccessMagicLink"));
       } else {
-        setErrorMsg(res.error || "Erreur lors de l'envoi du lien.");
+        setErrorMsg(res.error || t("loginErrorMagicLink"));
       }
     }
   };
@@ -63,8 +65,8 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-wacke-dark via-transparent to-transparent z-0" />
         <ParticleBackground count={15} />
         <div className="relative z-10 p-16 mt-auto self-end w-full">
-          <h2 className="text-5xl font-black text-white drop-shadow-[0_0_15px_rgba(255,0,255,0.8)] mb-3 uppercase tracking-wide graffiti-text neon-pink">Entrez dans la matrice</h2>
-          <p className="text-xl text-gray-200 font-bold max-w-md drop-shadow-md">Le hub du streaming québécois. Sans filtre. 100% pur jus.</p>
+          <h2 className="text-5xl font-black text-white drop-shadow-[0_0_15px_rgba(255,0,255,0.8)] mb-3 uppercase tracking-wide graffiti-text neon-pink">{t("signupArtworkTitle")}</h2>
+          <p className="text-xl text-gray-200 font-bold max-w-md drop-shadow-md">{t("heroSubtitle")}</p>
         </div>
       </div>
 
@@ -74,8 +76,8 @@ export default function LoginPage() {
 
         <div className="max-w-md w-full glass-dark p-10 rounded-3xl shadow-[0_0_40px_rgba(255,0,255,0.1)] relative z-10 animate-scale-in">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold graffiti-text neon-pink mb-2">CONNEXION</h1>
-          <p className="text-gray-500 text-sm">Prêt à sprayer ton feedback live? 🏪🔥</p>
+          <h1 className="text-4xl font-bold graffiti-text neon-pink mb-2">{t("loginTitle")}</h1>
+          <p className="text-gray-500 text-sm font-medium">{t("loginSubtitle")}</p>
         </div>
 
         {errorMsg && (
@@ -100,9 +102,9 @@ export default function LoginPage() {
                          shadow-[0_0_20px_rgba(83,252,24,0.3)] hover:shadow-[0_0_30px_rgba(83,252,24,0.5)]"
             >
               <span>🟢</span>
-              <span>Se connecter avec Kick</span>
+              <span>{t("loginWithKick")}</span>
               <span className="bg-black text-[#53fc18] text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-md ml-2 border border-[#53fc18]/30 animate-pulse">
-                Recommandé
+                {t("recommendedLabel")}
               </span>
             </a>
           </div>
@@ -129,7 +131,7 @@ export default function LoginPage() {
 
           <div className="flex items-center my-2">
             <hr className="flex-grow border-t border-wacke-purple/15" />
-            <span className="px-3 text-[10px] text-gray-600 uppercase tracking-wider font-bold">ou continuer avec</span>
+            <span className="px-3 text-[10px] text-gray-600 uppercase tracking-wider font-bold">{t("orContinueWith")}</span>
             <hr className="flex-grow border-t border-wacke-purple/15" />
           </div>
 
@@ -138,7 +140,7 @@ export default function LoginPage() {
             {isMock ? (
               <div>
                 <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">
-                  Pseudo de test (Mock Mode)
+                  {t("testPseudoLabel")}
                 </label>
                 <input
                   type="text"
@@ -150,13 +152,13 @@ export default function LoginPage() {
                   disabled={isLoading}
                 />
                 <p className="text-[10px] text-gray-600 mt-2">
-                  Le mode mock est actif car les variables Supabase ne sont pas configurées.
+                  {t("mockModeNotice")}
                 </p>
               </div>
             ) : (
               <div>
                 <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">
-                  Adresse courriel
+                  {t("emailLabel")}
                 </label>
                 <input
                   type="email"
@@ -168,7 +170,7 @@ export default function LoginPage() {
                   disabled={isLoading}
                 />
                 <p className="text-[10px] text-gray-600 mt-2">
-                  On t&apos;enverra un lien magique pour te connecter en toute sécurité.
+                  {t("magicLinkNotice")}
                 </p>
               </div>
             )}
@@ -181,16 +183,16 @@ export default function LoginPage() {
                          disabled:opacity-50 disabled:cursor-not-allowed
                          shadow-lg shadow-wacke-pink/20"
             >
-              {isLoading ? "Chargement..." : isMock ? "🚀 Connexion instantanée" : "Envoyer le lien magique"}
+              {isLoading ? t("btnLoading") : isMock ? t("btnInstantConnect") : t("btnSendMagicLink")}
             </button>
           </form>
         </div>
 
         <div className="mt-8 text-center border-t border-wacke-purple/15 pt-6">
           <p className="text-sm text-gray-500">
-            Nouveau sur Wacké?{" "}
+            {t("noAccountYet")}{" "}
             <Link href="/auth/signup" className="text-wacke-cyan font-bold hover:underline">
-              Crée un compte ici
+              {t("createAccountHere")}
             </Link>
           </p>
         </div>

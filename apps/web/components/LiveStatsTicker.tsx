@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { useLanguage } from "./LanguageProvider";
 
 interface StatsData {
   totalViewers: number;
@@ -11,6 +12,7 @@ interface StatsData {
 }
 
 export default function LiveStatsTicker() {
+  const { t } = useLanguage();
   const [stats, setStats] = useState<StatsData>({
     totalViewers: 0, totalStreams: 0, kickCount: 0, twitchCount: 0, topGame: "Gaming",
   });
@@ -97,7 +99,7 @@ export default function LiveStatsTicker() {
           </div>
           <div className="hidden sm:flex items-center space-x-1.5 text-gray-500">
             <span>•</span>
-            <span>{stats.totalStreams} chaînes</span>
+            <span>{stats.totalStreams} {t("liveStatsChaines")}</span>
           </div>
         </div>
 
@@ -105,12 +107,12 @@ export default function LiveStatsTicker() {
         <div className="flex-1 overflow-hidden relative h-4 hidden md:block select-none">
           <div className="animate-marquee whitespace-nowrap absolute flex items-center space-x-12 pl-[100%]">
             <span className="flex items-center space-x-1">
-              <span className="text-wacke-cyan font-bold">Top:</span>
+              <span className="text-wacke-cyan font-bold">{t("liveStatsTop")}</span>
               <span className="text-white">{stats.topGame}</span>
             </span>
             <span className="flex items-center space-x-1">
               <span className="text-wacke-pink font-bold">Boost:</span>
-              <span className="text-gray-300">Réclame 500 jetons chaque jour!</span>
+              <span className="text-gray-300">{t("liveStatsBoost")}</span>
             </span>
             <span className="flex items-center space-x-2">
               <span className="flex items-center space-x-1">
@@ -121,7 +123,7 @@ export default function LiveStatsTicker() {
                 <span className="w-1.5 h-1.5 rounded-full bg-[#9146ff]" />
                 <span className="text-[#9146ff] font-bold">Twitch</span>
               </span>
-              <span className="text-gray-400">Double flux activé</span>
+              <span className="text-gray-400">{t("liveStatsDoubleFlux")}</span>
             </span>
           </div>
         </div>
