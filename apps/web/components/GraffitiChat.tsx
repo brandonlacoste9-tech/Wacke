@@ -6,6 +6,7 @@ import { Moon, Flame, Mic, Users, Sparkles, Volume2 } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import EmojiPicker from "./EmojiPicker";
 import { playSyntheticSound } from "@/lib/audio";
+import { useLanguage } from "./LanguageProvider";
 
 // ─── Colour palette for usernames ─────────────────────────────────────────────
 const USER_COLORS = [
@@ -92,6 +93,7 @@ export default function GraffitiChat({
   currentUserId,
   initialMessages = [],
 }: GraffitiChatProps) {
+  const { language, t } = useLanguage();
   const [sacreMode, setSacreMode] = useState(true);
   const [inputValue, setInputValue] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -347,7 +349,7 @@ export default function GraffitiChat({
                   handleSpray();
                 }
               }}
-              placeholder="Ex: un canard punk en veste noire..."
+              placeholder={t("stickerPlaceholder")}
               disabled={isSendingSpray}
               className="flex-1 bg-white/3 border border-wacke-purple/20 rounded-xl px-3 py-1.5 text-xs
                          focus:border-wacke-cyan/40 transition-all placeholder:text-gray-600"
@@ -358,7 +360,7 @@ export default function GraffitiChat({
               className="bg-gradient-to-r from-wacke-pink to-wacke-purple text-xs font-bold px-3 py-1.5 rounded-xl
                          hover:opacity-90 disabled:opacity-40 transition-all active:scale-95 shrink-0"
             >
-              {isSendingSpray ? "Spray..." : "Sprayer"}
+              {isSendingSpray ? t("ttsGenerating") : t("stickerBtn")}
             </button>
           </div>
           {isSendingSpray && (
@@ -376,7 +378,7 @@ export default function GraffitiChat({
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-yellow-400 flex items-center space-x-1">
               <Volume2 className="w-3.5 h-3.5" />
-              <span>SOUNDBOARD INTERACTIVE</span>
+              <span>{t("soundboardTitle")}</span>
             </span>
             <button
               onClick={() => setShowSoundboard(false)}
@@ -413,7 +415,7 @@ export default function GraffitiChat({
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-red-400 flex items-center space-x-1">
               <span>🤬</span>
-              <span>GÉNÉRATEUR DE SACRES QUÉBÉCOIS</span>
+              <span>{t("sacreTitle")}</span>
             </span>
             <button
               onClick={() => setShowSacres(false)}
@@ -467,7 +469,7 @@ export default function GraffitiChat({
                 onChange={(e) => setSacreTts(e.target.checked)}
                 className="rounded border-wacke-purple/20 bg-white/5 text-wacke-pink focus:ring-0 focus:ring-offset-0"
               />
-              <span>Hurler via TTS (+50 🪙)</span>
+              <span>{t("sacreTtsCheckbox")}</span>
             </label>
 
             <button
@@ -475,7 +477,7 @@ export default function GraffitiChat({
               disabled={isSendingSacre}
               className="bg-gradient-to-r from-red-600 to-orange-500 text-[10px] font-extrabold px-3 py-1.5 rounded-lg text-white hover:scale-105 active:scale-95 transition-all shadow-md shadow-red-500/10 shrink-0"
             >
-              {isSendingSacre ? "Cri en cours..." : `Crier (${sacreTts ? 60 : 10} 🪙)`}
+              {isSendingSacre ? (language === "fr" ? "Cri en cours..." : "Shouting...") : `${t("sacreBtn")} (${sacreTts ? 60 : 10} 🪙)`}
             </button>
           </div>
         </div>
@@ -555,7 +557,7 @@ export default function GraffitiChat({
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={
-              currentUserId ? "Spray ton message..." : "Connecte-toi pour chatter..."
+              currentUserId ? t("chatPlaceholder") : (language === "fr" ? "Connecte-toi pour chatter..." : "Log in to chat...")
             }
             disabled={!currentUserId || isSending || isSendingTts}
             maxLength={500}
@@ -583,7 +585,7 @@ export default function GraffitiChat({
             className="flex items-center space-x-1.5 text-[9px] bg-wacke-cyan/5 border border-wacke-cyan/20 text-wacke-cyan px-2.5 py-1 rounded-lg hover:bg-wacke-cyan/10 transition-all disabled:opacity-30 font-bold uppercase tracking-wider"
           >
             <Mic className="w-3 h-3" />
-            <span>{isSendingTts ? "Génération..." : "TTS (50 🪙)"}</span>
+            <span>{isSendingTts ? t("ttsGenerating") : t("ttsBtn")}</span>
           </button>
         </div>
       </div>

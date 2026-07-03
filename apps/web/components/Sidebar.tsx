@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Search, Radio, ChevronLeft, ChevronRight, Users } from "lucide-react";
+import { useLanguage } from "./LanguageProvider";
 
 interface SidebarChannel {
   username: string;
@@ -20,6 +21,7 @@ interface SidebarChannel {
 export default function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const { language, t } = useLanguage();
   const [channels, setChannels] = useState<SidebarChannel[]>([]);
   
   interface Spender {
@@ -41,12 +43,18 @@ export default function Sidebar() {
       .catch(console.error);
   }, []);
 
-  const SPENDER_TIERS = [
+  const SPENDER_TIERS = language === "fr" ? [
     { title: "Gérant de nuit", icon: "👑" },
     { title: "Habitué", icon: "🏪" },
     { title: "Livreur", icon: "🍕" },
     { title: "Chum", icon: "🛴" },
     { title: "Chum", icon: "🛴" },
+  ] : [
+    { title: "Night Manager", icon: "👑" },
+    { title: "Regular", icon: "🏪" },
+    { title: "Delivery Guy", icon: "🍕" },
+    { title: "Friend", icon: "🛴" },
+    { title: "Friend", icon: "🛴" },
   ];
 
   // Fetch live channels from API
@@ -125,7 +133,7 @@ export default function Sidebar() {
       <div className="flex-1 p-3 border-t border-wacke-purple/10 overflow-y-auto scrollbar-hide">
         {!collapsed && (
           <h2 className="text-[10px] font-bold text-gray-600 uppercase tracking-wider mb-3 px-3">
-            Chaînes Recommandées
+            {t("recommended")}
           </h2>
         )}
         <div className="space-y-0.5">
@@ -172,7 +180,7 @@ export default function Sidebar() {
         {!collapsed ? (
           <h2 className="text-[10px] font-bold text-wacke-cyan uppercase tracking-wider mb-3 px-3 flex items-center space-x-1.5">
             <span>🍺</span>
-            <span>La Caisse de Bière</span>
+            <span>{t("caisseDeBiere")}</span>
           </h2>
         ) : (
           <div className="text-center mb-3" title="La Caisse de Bière (Donateurs)">
@@ -226,7 +234,7 @@ export default function Sidebar() {
           })}
 
           {spenders.length === 0 && !collapsed && (
-            <p className="text-[9px] text-gray-600 px-3 text-center py-2">Aucun donateur aujourd&apos;hui</p>
+            <p className="text-[9px] text-gray-600 px-3 text-center py-2">{t("noDonors")}</p>
           )}
         </div>
       </div>
@@ -236,14 +244,14 @@ export default function Sidebar() {
         {/* Discord Banner */}
         {!collapsed && (
           <div className="bg-white/2 border border-wacke-purple/10 rounded-xl p-3">
-            <p className="text-[10px] text-gray-500 font-semibold mb-2">Rejoindre le Discord Wacké?</p>
+            <p className="text-[10px] text-gray-500 font-semibold mb-2">{t("joinDiscord")}</p>
             <a
               href="https://discord.gg"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full bg-[#5865F2] hover:bg-[#4752C4] py-1.5 rounded-lg font-bold text-[10px] text-white flex items-center justify-center space-x-1.5 transition-colors"
             >
-              <span>Rejoindre</span>
+              <span>{t("join")}</span>
               <img src="/icon_discord.png" alt="Discord" className="w-3.5 h-3.5 object-contain" />
             </a>
           </div>

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Search, Palette } from "lucide-react";
 import NotificationBell from "./NotificationBell";
 import UserDropdown from "./UserDropdown";
+import { useLanguage } from "./LanguageProvider";
 
 /**
  * Wacké Global Header
@@ -20,6 +21,7 @@ export default function Header() {
   const [coinAnimate, setCoinAnimate] = useState(false);
   const router = useRouter();
 
+  const { language, setLanguage, t } = useLanguage();
   const [theme, setTheme] = useState<"cyber" | "graffiti" | "gold">("cyber");
 
   // Load theme from localStorage on mount
@@ -92,7 +94,7 @@ export default function Header() {
         {/* ── Navigation ────────────────────────────────────────────────── */}
         <nav className="hidden md:flex items-center space-x-1 mx-6">
           {[
-            { href: "/browse", label: "Parcourir" },
+            { href: "/browse", label: t("browse") },
             { href: "/browse?category=gaming", label: "Gaming" },
             { href: "/browse?category=musique", label: "Musique" },
             { href: "/browse?category=irl", label: "IRL" },
@@ -113,7 +115,7 @@ export default function Header() {
           <div className="relative w-full">
             <input
               type="text"
-              placeholder="Chercher un stream..."
+              placeholder={t("searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-white/3 border border-wacke-purple/20 rounded-xl pl-4 pr-10 py-2
@@ -165,7 +167,7 @@ export default function Header() {
                            text-wacke-red text-xs font-bold px-3 py-2 rounded-xl transition-all hover:scale-[1.02]"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-wacke-red animate-pulse" />
-                <span>Stream</span>
+                <span>{t("dashboardStream")}</span>
               </Link>
 
               {/* Notification Bell */}
@@ -183,19 +185,41 @@ export default function Header() {
                 }`} />
               </button>
 
+              {/* Language Switch Button */}
+              <button
+                onClick={() => setLanguage(language === "fr" ? "en" : "fr")}
+                className="px-2.5 py-1.5 rounded-xl border border-wacke-purple/10 hover:bg-white/5 transition-all text-xs font-black text-wacke-cyan tracking-wide shrink-0"
+                title={language === "fr" ? "Switch to English" : "Passer en Français"}
+                type="button"
+              >
+                🌐 {language.toUpperCase()}
+              </button>
+
               {/* User Dropdown */}
               <UserDropdown />
             </>
           ) : (
             !isLoading && (
-              <Link
-                href="/auth/login"
-                className="bg-gradient-to-r from-wacke-pink to-wacke-purple text-white text-sm
-                           font-bold px-5 py-2 rounded-xl hover:opacity-90 transition-all hover:scale-[1.02]
-                           shadow-lg shadow-wacke-pink/20"
-              >
-                Connexion
-              </Link>
+              <div className="flex items-center space-x-2">
+                {/* Language Switch Button (Logged Out) */}
+                <button
+                  onClick={() => setLanguage(language === "fr" ? "en" : "fr")}
+                  className="px-2.5 py-1.5 rounded-xl border border-wacke-purple/10 hover:bg-white/5 transition-all text-xs font-black text-wacke-cyan tracking-wide shrink-0"
+                  title={language === "fr" ? "Switch to English" : "Passer en Français"}
+                  type="button"
+                >
+                  🌐 {language.toUpperCase()}
+                </button>
+
+                <Link
+                  href="/auth/login"
+                  className="bg-gradient-to-r from-wacke-pink to-wacke-purple text-white text-sm
+                             font-bold px-5 py-2 rounded-xl hover:opacity-90 transition-all hover:scale-[1.02]
+                             shadow-lg shadow-wacke-pink/20"
+                >
+                  {t("login")}
+                </Link>
+              </div>
             )
           )}
         </div>

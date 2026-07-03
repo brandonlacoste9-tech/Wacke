@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { TrendingUp } from "lucide-react";
+import { useLanguage } from "./LanguageProvider";
 
 interface TwitchGame {
   id: string;
@@ -12,6 +13,7 @@ interface TwitchGame {
 }
 
 export default function TrendingGames() {
+  const { t } = useLanguage();
   const [games, setGames] = useState<TwitchGame[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,7 +43,7 @@ export default function TrendingGames() {
       <section>
         <h2 className="text-2xl font-bold mb-5 flex items-center space-x-2">
           <TrendingUp className="w-5 h-5 text-wacke-cyan" />
-          <span className="neon-cyan graffiti-text">TENDANCES</span>
+          <span className="neon-cyan graffiti-text">{t("trending")}</span>
         </h2>
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3">
           {[...Array(8)].map((_, i) => (
@@ -63,7 +65,7 @@ export default function TrendingGames() {
     <section>
       <h2 className="text-2xl font-bold mb-5 flex items-center space-x-2">
         <TrendingUp className="w-5 h-5 text-wacke-cyan drop-shadow-[0_0_5px_rgba(0,255,255,0.6)]" />
-        <span className="neon-cyan graffiti-text">TENDANCES</span>
+        <span className="neon-cyan graffiti-text">{t("trending")}</span>
       </h2>
 
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3 stagger-children">

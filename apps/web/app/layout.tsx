@@ -6,6 +6,7 @@ import LiveStatsTicker from "@/components/LiveStatsTicker";
 import Sidebar from "@/components/Sidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { AuthProvider } from "@/components/AuthProvider";
+import { LanguageProvider } from "@/components/LanguageProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -49,15 +50,17 @@ export default function RootLayout({
         }}
       >
         <AuthProvider>
-          <LiveStatsTicker />
-          <Header />
-          <div className="flex">
-            <Sidebar />
-            <main className="flex-1 min-h-[calc(100vh-64px)] overflow-x-hidden pb-16 md:pb-0">
-              {children}
-            </main>
-          </div>
-          <MobileBottomNav />
+          <LanguageProvider>
+            <LiveStatsTicker />
+            <Header />
+            <div className="flex">
+              <Sidebar />
+              <main className="flex-1 min-h-[calc(100vh-64px)] overflow-x-hidden pb-16 md:pb-0">
+                {children}
+              </main>
+            </div>
+            <MobileBottomNav />
+          </LanguageProvider>
         </AuthProvider>
       </body>
     </html>
