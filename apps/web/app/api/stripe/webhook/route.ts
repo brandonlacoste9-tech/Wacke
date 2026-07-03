@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * POST /api/webhooks/stripe
+ * POST /api/stripe/webhook
  * Stripe Webhook event receiver.
  */
 export async function POST(req: NextRequest) {
