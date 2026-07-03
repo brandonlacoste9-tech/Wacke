@@ -159,12 +159,16 @@ export async function getKickLivestreams(
 ): Promise<KickLivestream[]> {
   const params = new URLSearchParams({
     page: "1",
-    limit: String(Math.min(limit, 100)),
+    limit: String(Math.min(limit * 2, 100)), // request more to filter locally if needed
+    language: "fr",
     ...(categorySlug ? { category: categorySlug } : {}),
   });
 
   const res = await kickFetch<KickLivestreamsResponse>(`/livestreams?${params}`);
-  return res?.data ?? [];
+  const streams = res?.data ?? [];
+  return streams
+    .filter((s) => s.language?.toLowerCase() === "fr" || s.language?.toLowerCase() === "french")
+    .slice(0, limit);
 }
 
 /**

@@ -138,6 +138,7 @@ export async function getTwitchLivestreams(
 ): Promise<TwitchStream[]> {
   const params = new URLSearchParams({
     first: String(Math.min(limit, 100)),
+    language: "fr",
     ...(gameId ? { game_id: gameId } : {}),
   });
 
