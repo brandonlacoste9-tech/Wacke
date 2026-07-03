@@ -120,9 +120,9 @@ export default function Header() {
         <nav className="hidden md:flex items-center space-x-1 mx-6">
           {[
             { href: "/browse", label: t("browse") },
-            { href: "/browse?category=gaming", label: "Gaming" },
-            { href: "/browse?category=musique", label: "Musique" },
-            { href: "/browse?category=irl", label: "IRL" },
+            { href: "/browse?category=gaming", label: t("gaming") },
+            { href: "/browse?category=musique", label: t("music") },
+            { href: "/browse?category=irl", label: t("irl") },
           ].map((link) => (
             <Link
               key={link.href}

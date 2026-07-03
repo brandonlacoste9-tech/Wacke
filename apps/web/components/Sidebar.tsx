@@ -90,9 +90,9 @@ export default function Sidebar() {
   const formatViewers = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
 
   const navItems = [
-    { href: "/", icon: <Home className="w-5 h-5" />, label: "Accueil", color: "text-wacke-pink" },
-    { href: "/browse", icon: <Search className="w-5 h-5" />, label: "Parcourir", color: "text-wacke-cyan" },
-    { href: "/dashboard/stream", icon: <Radio className="w-5 h-5" />, label: "Mon Stream", color: "text-wacke-red" },
+    { href: "/", icon: <Home className="w-5 h-5" />, label: t("home"), color: "text-wacke-pink" },
+    { href: "/browse", icon: <Search className="w-5 h-5" />, label: t("browse"), color: "text-wacke-cyan" },
+    { href: "/dashboard/stream", icon: <Radio className="w-5 h-5" />, label: t("dashboardStream"), color: "text-wacke-red" },
   ];
 
   const isActive = (href: string) => {
@@ -261,7 +261,7 @@ export default function Sidebar() {
         <button
           onClick={() => setCollapsed((prev) => !prev)}
           className="w-full flex items-center justify-center py-1.5 rounded-lg hover:bg-white/3 transition-colors text-gray-600 hover:text-gray-400"
-          title={collapsed ? "Agrandir" : "Réduire"}
+          title={collapsed ? t("expand") : t("collapse")}
         >
           {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </button>

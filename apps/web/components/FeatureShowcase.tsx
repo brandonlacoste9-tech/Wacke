@@ -1,58 +1,58 @@
 "use client";
 
 import { Flame, Shield, Coins } from "lucide-react";
-
-const FEATURES = [
-  {
-    icon: <Flame className="w-8 h-8" />,
-    title: "Graffiti Chat",
-    subtitle: "Chat en temps réel",
-    description:
-      "Un chat graffiti-style propulsé par WebSocket. Spraye tes réactions en direct avec le style urbain québécois.",
-    gradient: "from-wacke-pink to-rose-600",
-    glow: "rgba(255, 20, 147, 0.3)",
-    borderColor: "border-wacke-pink/20",
-  },
-  {
-    icon: <Shield className="w-8 h-8" />,
-    title: "Mode Sacré",
-    subtitle: "Culture authentique",
-    description:
-      "Les sacres québécois passent librement — c'est notre culture. Le vrai hate speech? Bloqué net. Zéro tolérance.",
-    gradient: "from-wacke-purple to-violet-600",
-    glow: "rgba(139, 0, 255, 0.3)",
-    borderColor: "border-wacke-purple/20",
-  },
-  {
-    icon: <Coins className="w-8 h-8" />,
-    title: "Économie de Tokens",
-    subtitle: "Récompense tes créateurs",
-    description:
-      "Gagne 500 jetons par jour. Envoie des BOUM! 🔥 à tes streamers préférés. Chaque réaction compte.",
-    gradient: "from-yellow-500 to-amber-600",
-    glow: "rgba(255, 215, 0, 0.3)",
-    borderColor: "border-yellow-500/20",
-  },
-];
+import { useLanguage } from "./LanguageProvider";
 
 /**
  * FeatureShowcase — "Why Wacké?" section for the home page.
  * 3 premium glassmorphism cards with icons and descriptions.
  */
 export default function FeatureShowcase() {
+  const { t } = useLanguage();
+
+  const features = [
+    {
+      icon: <Flame className="w-8 h-8" />,
+      title: t("feature1Title"),
+      subtitle: t("feature1Sub"),
+      description: t("feature1Desc"),
+      gradient: "from-wacke-pink to-rose-600",
+      glow: "rgba(255, 20, 147, 0.3)",
+      borderColor: "border-wacke-pink/20",
+    },
+    {
+      icon: <Shield className="w-8 h-8" />,
+      title: t("feature2Title"),
+      subtitle: t("feature2Sub"),
+      description: t("feature2Desc"),
+      gradient: "from-wacke-purple to-violet-600",
+      glow: "rgba(139, 0, 255, 0.3)",
+      borderColor: "border-wacke-purple/20",
+    },
+    {
+      icon: <Coins className="w-8 h-8" />,
+      title: t("feature3Title"),
+      subtitle: t("feature3Sub"),
+      description: t("feature3Desc"),
+      gradient: "from-yellow-500 to-amber-600",
+      glow: "rgba(255, 215, 0, 0.3)",
+      borderColor: "border-yellow-500/20",
+    },
+  ];
+
   return (
     <section className="px-8 py-16 max-w-7xl mx-auto">
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-black font-outfit uppercase tracking-tight mb-3">
-          <span className="gradient-text-cyber">Pourquoi Wacké?</span>
+          <span className="gradient-text-cyber">{t("whyWacke")}</span>
         </h2>
         <p className="text-gray-400 text-sm max-w-lg mx-auto">
-          Le premier hub de streaming 100% québécois. Voici ce qui nous rend uniques.
+          {t("whyWackeSub")}
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-children">
-        {FEATURES.map((feature) => (
+        {features.map((feature) => (
           <div
             key={feature.title}
             className={`glass-card rounded-2xl p-8 flex flex-col items-start group
