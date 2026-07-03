@@ -329,6 +329,17 @@ body {
 
 /* ─── Utility Overrides ────────────────────────────────────────────────────── */
 
+/* Sleek dark backgrounds for all text inputs, selects, and textareas to prevent browser default white background failures */
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="password"],
+select,
+textarea {
+  background-color: #12121A !important;
+  color: #FFFFFF !important;
+}
+
 /* Smooth focus ring for inputs */
 input:focus, select:focus, textarea:focus {
   outline: none;
