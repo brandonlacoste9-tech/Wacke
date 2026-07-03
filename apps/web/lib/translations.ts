@@ -24,6 +24,10 @@ export const translations = {
     sacreBtn: "Crier",
     trending: "Tendances",
     allStreams: "Tous les lives",
+    shopTitle: "BOUTIQUE DE JETONS 🪙",
+    shopSubtitle: "Recharge ton solde pour débloquer les modules sacrés, TTS, stickers et soundboard !",
+    buyBtn: "Recharger",
+    loadingCheckout: "Redirection vers Stripe...",
   },
   en: {
     browse: "Browse",
@@ -48,6 +52,10 @@ export const translations = {
     sacreBtn: "Shout",
     trending: "Trending",
     allStreams: "All Live Streams",
+    shopTitle: "TOKEN SHOP 🪙",
+    shopSubtitle: "Refill your balance to unlock swear generators, TTS voices, stickers, and soundboard chimes!",
+    buyBtn: "Purchase",
+    loadingCheckout: "Redirecting to Stripe...",
   }
 } as const;
 

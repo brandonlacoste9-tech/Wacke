@@ -8,6 +8,7 @@ import { Search, Palette } from "lucide-react";
 import NotificationBell from "./NotificationBell";
 import UserDropdown from "./UserDropdown";
 import { useLanguage } from "./LanguageProvider";
+import TokenShopModal from "./TokenShopModal";
 
 /**
  * Wacké Global Header
@@ -15,7 +16,7 @@ import { useLanguage } from "./LanguageProvider";
  */
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
-  const { user, claimDailyTokens, isLoading } = useAuth();
+  const { user, claimDailyTokens, isLoading, refreshUser } = useAuth();
   const [claimFeedback, setClaimFeedback] = useState<string | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
   const [coinAnimate, setCoinAnimate] = useState(false);
@@ -23,6 +24,30 @@ export default function Header() {
 
   const { language, setLanguage, t } = useLanguage();
   const [theme, setTheme] = useState<"cyber" | "graffiti" | "gold">("cyber");
+  
+  const [isShopOpen, setIsShopOpen] = useState(false);
+  const [showGoldRain, setShowGoldRain] = useState(false);
+
+  // Check URL parameters for successful checkout
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      if (searchParams.get("stripe-success") === "true") {
+        setShowGoldRain(true);
+        refreshUser();
+
+        // Clean the query parameters from URL
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+
+        // Stop coin animation after 4 seconds
+        const timer = setTimeout(() => {
+          setShowGoldRain(false);
+        }, 4000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [refreshUser]);
 
   // Load theme from localStorage on mount
   useEffect(() => {
@@ -143,7 +168,11 @@ export default function Header() {
               )}
 
               {/* Tokens Display */}
-              <div className="flex items-center space-x-2 bg-yellow-500/5 border border-yellow-500/20 rounded-xl px-3 py-1.5 group">
+              <div 
+                onClick={() => setIsShopOpen(true)}
+                className="flex items-center space-x-2 bg-yellow-500/5 border border-yellow-500/20 rounded-xl px-3 py-1.5 group cursor-pointer hover:bg-yellow-500/10 hover:border-yellow-500/35 transition-all select-none"
+                title="Ouvrir la boutique de jetons Wacké"
+              >
                 <img
                   src="/token.png"
                   alt="Token"
@@ -151,7 +180,10 @@ export default function Header() {
                 />
                 <span className="text-sm font-bold text-yellow-400">{user.tokenBalance.toLocaleString("fr-CA")}</span>
                 <button
-                  onClick={handleClaim}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleClaim();
+                  }}
                   disabled={isClaiming}
                   className="text-[10px] bg-yellow-500/15 hover:bg-yellow-500/30 text-yellow-300 px-2 py-0.5 rounded-md font-bold transition-all disabled:opacity-50 uppercase tracking-wider"
                   title="Réclamer ton bonus quotidien de 500 jetons"
@@ -224,6 +256,62 @@ export default function Header() {
           )}
         </div>
       </div>
+
+      {/* ── Token Shop Modal ────────────────────────────────────────────── */}
+      <TokenShopModal isOpen={isShopOpen} onClose={() => setIsShopOpen(false)} />
+
+      {/* ── Gold Coin Shower Overlay ────────────────────────────────────── */}
+      {showGoldRain && (
+        <>
+          <style>{`
+            @keyframes coinShower {
+              0% {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 0;
+              }
+              10% {
+                opacity: 1;
+              }
+              90% {
+                opacity: 1;
+              }
+              100% {
+                transform: translateY(105vh) rotate(720deg);
+                opacity: 0;
+              }
+            }
+            .animate-coin-shower {
+              animation-name: coinShower;
+              animation-timing-function: linear;
+              animation-iteration-count: infinite;
+            }
+          `}</style>
+          <div className="fixed inset-0 pointer-events-none z-[100] overflow-hidden">
+            {[...Array(30)].map((_, i) => {
+              const delay = Math.random() * 2;
+              const left = Math.random() * 100;
+              const size = Math.random() * 20 + 15;
+              const rotate = Math.random() * 360;
+              return (
+                <div
+                  key={i}
+                  className="absolute text-yellow-400 select-none animate-coin-shower text-xl"
+                  style={{
+                    left: `${left}%`,
+                    top: `-40px`,
+                    animationDelay: `${delay}s`,
+                    fontSize: `${size}px`,
+                    transform: `rotate(${rotate}deg)`,
+                    animationDuration: `${Math.random() * 1.5 + 2.5}s`,
+                  }}
+                >
+                  🪙
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
     </header>
   );
 }

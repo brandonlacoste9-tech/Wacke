@@ -1110,3 +1110,51 @@ export async function getDailyTopSpenders(limit = 5) {
     totalSpent: Number(r.totalSpent || 0)
   }));
 }
+
+export async function addTokens({
+  userId,
+  amount,
+  reason,
+  streamId,
+}: {
+  userId: string;
+  amount: number;
+  reason: string;
+  streamId?: string;
+}) {
+  if (isDbMocked()) {
+    const state = getMockDbState();
+    const user = state.users.find((u) => u.id === userId);
+    if (user) {
+      user.tokenBalance += amount;
+    }
+    state.transactions.push({
+      id: crypto.randomUUID(),
+      fromUserId: null,
+      toUserId: userId,
+      streamId: streamId ?? null,
+      type: "earn",
+      amount,
+      reason,
+      createdAt: new Date(),
+    });
+    return;
+  }
+
+  await db.transaction(async (tx) => {
+    // 1. Credit user balance
+    await tx
+      .update(users)
+      .set({ tokenBalance: sql`${users.tokenBalance} + ${amount}` })
+      .where(eq(users.id, userId));
+
+    // 2. Log in transactions ledger
+    await tx.insert(tokenTransactions).values({
+      toUserId: userId,
+      type: "earn",
+      amount,
+      reason,
+      streamId,
+    });
+  });
+}
