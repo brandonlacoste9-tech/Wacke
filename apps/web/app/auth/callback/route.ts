@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/dashboard/stream";
+  const next = searchParams.get("next") ?? "/";
 
   if (code) {
     try {

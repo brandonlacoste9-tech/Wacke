@@ -119,7 +119,7 @@ export async function GET(req: NextRequest) {
 
     // 3. Create Session Session Token & Redirect response
     const sessionToken = `mock-session:${dbUser.username}:${dbUser.supabaseId}`;
-    const redirectUrl = new URL("/dashboard/stream", origin);
+    const redirectUrl = new URL("/", origin);
     const response = NextResponse.redirect(redirectUrl);
 
     // Save session token in the global wacke_token cookie

@@ -20,7 +20,7 @@ export default function LoginPage() {
     setIsMock(isSupabaseMocked());
     // Redirect if already logged in
     if (user) {
-      router.push("/dashboard/stream");
+      router.push("/");
     }
   }, [user, router]);
 
@@ -36,7 +36,7 @@ export default function LoginPage() {
       }
       const res = await login(`${mockUsername.trim()}@mock.wacke.ca`, mockUsername.trim());
       if (res.success) {
-        router.push("/dashboard/stream");
+        router.push("/");
       } else {
         setErrorMsg(res.error || "Erreur de connexion.");
       }

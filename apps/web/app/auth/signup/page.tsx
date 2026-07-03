@@ -22,7 +22,7 @@ export default function SignupPage() {
   useEffect(() => {
     setIsMock(isSupabaseMocked());
     if (user) {
-      router.push("/dashboard/stream");
+      router.push("/");
     }
   }, [user, router]);
 
@@ -73,7 +73,7 @@ export default function SignupPage() {
 
     if (res.success) {
       if (isMock) {
-        router.push("/dashboard/stream");
+        router.push("/");
       } else {
         setSuccessMsg(res.error || "Compte créé! Valide tes courriels pour activer ta session.");
       }
