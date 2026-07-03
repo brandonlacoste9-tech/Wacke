@@ -110,6 +110,83 @@ export function useGraffitiChat({
     };
   }, [streamId, supabase]);
 
+  // ─── WackeBot Chat Welcome Announcement ────────────────────────────────────
+  useEffect(() => {
+    if (!streamId) return;
+    const timer = setTimeout(() => {
+      const isEn = typeof window !== "undefined" && localStorage.getItem("wacke-lang") === "en";
+      const welcomeMsg: ChatMessage = {
+        id: "wackebot-welcome-system",
+        streamId,
+        userId: "wackebot-system-id",
+        content: isEn 
+          ? "🤖 WackeBot: Streamer is featured right now on Wacke.live! Send tips to trigger TTS, AI stickers, or arcade soundboard effects! 🪙🔥"
+          : "🤖 WackeBot: Ce stream est en vedette sur Wacké ! Utilise tes jetons pour déclencher des alertes vocales (TTS), des stickers AI et des sons retro ! 🪙🔥",
+        isSacre: false,
+        createdAt: new Date().toISOString(),
+        user: {
+          id: "wackebot-system-id",
+          username: "WackeBot",
+          displayName: "WackeBot 🤖",
+          avatarUrl: "/token.png"
+        }
+      };
+      setMessages((prev) => {
+        if (prev.some(m => m.id === welcomeMsg.id)) return prev;
+        return [...prev, welcomeMsg];
+      });
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [streamId]);
+
+  // ─── WackeBot Periodic Helpful Reminders ─────────────────────────────────
+  useEffect(() => {
+    if (!streamId) return;
+    
+    const tips = {
+      fr: [
+        "💡 Astuce : Réclame ton bonus de +500 jetons dans le Header pour débloquer les stickers AI !",
+        "🔥 Hype : Ce stream est actuellement classé dans les tendances Wacké !",
+        "📢 Info : Tu peux jouer des sons rétro (Sirène, Laser, Cling) directement sur le stream !",
+        "🗣️ TTS : Fais lire ton message par Mathieu le québécois en cochant l'option TTS (50 🪙) !",
+      ],
+      en: [
+        "💡 Tip: Claim your daily +500 tokens bonus in the Header to unlock AI stickers!",
+        "🔥 Hype: This stream is currently trending on the Wacké homepage!",
+        "📢 Info: You can play arcade sounds (Siren, Laser, Chime) directly live on stream!",
+        "🗣️ TTS: Make Mathieu read your message aloud by ticking the TTS checkbox (50 🪙)!",
+      ]
+    };
+
+    const interval = setInterval(() => {
+      const isEn = typeof window !== "undefined" && localStorage.getItem("wacke-lang") === "en";
+      const pool = isEn ? tips.en : tips.fr;
+      const randomTip = pool[Math.floor(Math.random() * pool.length)];
+
+      const botMessage: ChatMessage = {
+        id: `wackebot-periodic-${Date.now()}`,
+        streamId,
+        userId: "wackebot-system-id",
+        content: `🤖 WackeBot: ${randomTip}`,
+        isSacre: false,
+        createdAt: new Date().toISOString(),
+        user: {
+          id: "wackebot-system-id",
+          username: "WackeBot",
+          displayName: "WackeBot 🤖",
+          avatarUrl: "/token.png"
+        }
+      };
+
+      setMessages((prev) => {
+        if (prev.some(m => m.content === botMessage.content)) return prev;
+        return [...prev, botMessage].slice(-100);
+      });
+    }, 120_000); // every 2 minutes
+
+    return () => clearInterval(interval);
+  }, [streamId]);
+
   // ─── Send Message ──────────────────────────────────────────────────────────
   const sendMessage = useCallback(
     async (content: string): Promise<{ error?: string }> => {
