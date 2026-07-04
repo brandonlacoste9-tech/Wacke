@@ -12,7 +12,7 @@ import { useLanguage } from "./LanguageProvider";
  */
 export default function UserDropdown() {
   const { user, logout } = useAuth();
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
