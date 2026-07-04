@@ -49,15 +49,20 @@ export function getSupabaseAdmin() {
     return mockAdmin as any;
   }
 
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    }
-  );
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+  // Fallback to anonKey if serviceKey is missing or is the default dummy placeholder
+  const finalKey = (!serviceKey || serviceKey.includes("your-supabase-service-role-key"))
+    ? anonKey
+    : serviceKey;
+
+  return createClient(url, finalKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
 }
 
