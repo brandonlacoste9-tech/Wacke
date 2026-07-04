@@ -581,7 +581,7 @@ export default function GraffitiChat({
   };
 
   return (
-    <aside className={`w-96 bg-wacke-darker/95 border-l border-wacke-purple/20 flex flex-col h-full backdrop-blur-sm ${isGrokTakeover ? 'grok-takeover theme-grok-xai' : ''}`}>
+    <aside className={`w-full lg:w-96 bg-wacke-darker/95 border-t lg:border-t-0 lg:border-l border-wacke-purple/20 flex flex-col h-full backdrop-blur-sm ${isGrokTakeover ? 'grok-takeover theme-grok-xai' : ''}`}>
 
       {/* ── Chat Header ───────────────────────────────────────────────────── */}
       <div className="p-4 border-b border-wacke-purple/20 flex items-center justify-between">

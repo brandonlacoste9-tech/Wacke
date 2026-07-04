@@ -160,13 +160,13 @@ export default function AuthCallbackPage() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-wacke-pink/5 rounded-full blur-[120px] pointer-events-none" />
 
       <Suspense fallback={
-        <div className="max-w-md w-full glass-dark p-10 rounded-3xl shadow-[0_0_40px_rgba(255,0,255,0.1)] relative z-10 text-center space-y-6">
+        <>
           <div className="w-16 h-16 border-4 border-wacke-pink border-t-transparent rounded-full animate-spin mx-auto" />
           <h2 className="text-2xl font-bold graffiti-text neon-pink uppercase tracking-wider">
             WACKÉ AUTH
           </h2>
           <p className="text-gray-400 font-mono text-sm">Chargement / Loading...</p>
-        </div>
+        </>
       }>
         <CallbackContent />
       </Suspense>

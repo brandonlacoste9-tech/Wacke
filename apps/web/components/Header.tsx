@@ -211,7 +211,7 @@ export default function Header() {
               {/* Theme Cycle Button */}
               <button
                 onClick={cycleTheme}
-                className="p-2 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white"
+                className="hidden sm:block p-2 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white"
                 title={`${t("themeLabel")} : ${theme.toUpperCase()} (${t("nightMode")})`}
                 type="button"
               >
@@ -223,7 +223,7 @@ export default function Header() {
               {/* Language Switch Button */}
               <button
                 onClick={() => setLanguage(language === "fr" ? "en" : "fr")}
-                className="px-2.5 py-1.5 rounded-xl border border-wacke-purple/10 hover:bg-white/5 transition-all text-xs font-black text-wacke-cyan tracking-wide shrink-0"
+                className="hidden sm:block px-2.5 py-1.5 rounded-xl border border-wacke-purple/10 hover:bg-white/5 transition-all text-xs font-black text-wacke-cyan tracking-wide shrink-0"
                 title={language === "fr" ? "Switch to English" : "Passer en Français"}
                 type="button"
               >
@@ -241,7 +241,7 @@ export default function Header() {
                     document.body.classList.remove("grok-takeover", "theme-grok-xai");
                   }
                 }}
-                className={`px-2 py-1.5 rounded-xl border text-xs font-black flex items-center gap-1 transition-all ${grokChaos ? "bg-red-600 text-white border-red-500" : "border-wacke-cyan/30 text-wacke-cyan hover:bg-white/5"}`}
+                className={`hidden md:flex px-2 py-1.5 rounded-xl border text-xs font-black items-center gap-1 transition-all ${grokChaos ? "bg-red-600 text-white border-red-500" : "border-wacke-cyan/30 text-wacke-cyan hover:bg-white/5"}`}
                 title="GROK xAI CHAOS MODE – We broke it"
               >
                 <Bot className="w-3 h-3" /> {grokChaos ? "STOP CHAOS" : "GROK CHAOS"}
@@ -264,7 +264,7 @@ export default function Header() {
                     document.body.classList.remove("grok-fire-mode", "grok-fuego");
                   }
                 }}
-                className={`px-2 py-1.5 rounded-xl border text-xs font-black flex items-center gap-1 transition-all ${grokFuego ? "bg-orange-600 text-white border-orange-500" : "border-red-500/30 text-orange-400 hover:bg-white/5"}`}
+                className={`hidden md:flex px-2 py-1.5 rounded-xl border text-xs font-black items-center gap-1 transition-all ${grokFuego ? "bg-orange-600 text-white border-orange-500" : "border-red-500/30 text-orange-400 hover:bg-white/5"}`}
                 title="GROKS ON FUEGO – Set the app ablaze"
               >
                 🔥 {grokFuego ? "EXTINGUISH" : "GROK FUEGO"}

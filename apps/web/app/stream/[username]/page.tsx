@@ -70,8 +70,8 @@ export default async function StreamPage({ params }: StreamPageProps) {
       : `🔴 Diffusion en direct de Twitch.tv`;
 
     return (
-      <div className="flex h-[calc(100vh-64px)] relative">
-        <main className="flex-1 overflow-y-auto p-6 space-y-6">
+      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-160px)] lg:h-[calc(100vh-64px)] relative">
+        <main className="flex-none lg:flex-1 w-full overflow-y-visible lg:overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6">
           <WackePlayer
             playbackId="mock_playback_id"
             title={fallbackTitle}
@@ -146,8 +146,8 @@ export default async function StreamPage({ params }: StreamPageProps) {
       : `🔴 Diffusion en direct de Kick.com`;
     
     return (
-      <div className="flex h-[calc(100vh-64px)] relative">
-        <main className="flex-1 overflow-y-auto p-6 space-y-6">
+      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-160px)] lg:h-[calc(100vh-64px)] relative">
+        <main className="flex-none lg:flex-1 w-full overflow-y-visible lg:overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6">
           <WackePlayer
             playbackId="mock_playback_id"
             title={fallbackTitle}
@@ -186,9 +186,9 @@ export default async function StreamPage({ params }: StreamPageProps) {
   const isOwner = viewer !== null && user !== null && viewer.id === user.id;
 
   return (
-    <div className="flex h-[calc(100vh-64px)] relative">
+    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-160px)] lg:h-[calc(100vh-64px)] relative">
       {/* ── Main Stream Area ─────────────────────────────────────────────── */}
-      <main className="flex-1 overflow-y-auto p-6 space-y-6">
+      <main className="flex-none lg:flex-1 w-full overflow-y-visible lg:overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6">
         {isKickUser || (stream.status === "live" && stream.muxPlaybackId) ? (
           <WackePlayer
             playbackId={stream.muxPlaybackId ?? "mock_playback_id"}
