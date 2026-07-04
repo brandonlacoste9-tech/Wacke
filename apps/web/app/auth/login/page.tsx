@@ -129,10 +129,17 @@ export default function LoginPage() {
       });
 
       if (error || !data.session) {
-        // This is the most common place the exact "Token has expired or is invalid" error appears
-        console.error("[VERIFY_OTP_FAIL]", { error, data });
-        const msg = error?.message || (language === "fr" ? "Code de validation invalide ou expiré." : "Invalid or expired verification code.");
-        setErrorMsg(msg);
+        // 403 Forbidden here means Supabase rejected the request (usually origin/redirect URL not whitelisted)
+        console.error("[VERIFY_OTP_FAIL]", { 
+          status: error?.status, 
+          message: error?.message, 
+          error 
+        });
+        let friendly = error?.message || (language === "fr" ? "Code de validation invalide ou expiré." : "Invalid or expired verification code.");
+        if (error?.status === 403 || error?.message?.includes("403") || error?.message?.toLowerCase().includes("forbidden")) {
+          friendly += " (Supabase blocked the request — make sure https://wacke.live is in your Supabase Redirect URLs)";
+        }
+        setErrorMsg(friendly);
         return;
       }
 
