@@ -66,11 +66,14 @@ export default function LoginPage() {
         setErrorMsg(t("loginErrorEmptyEmail"));
         return;
       }
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "unknown";
+      console.log("[SEND_OTP] Using Supabase project:", supabaseUrl);
       const res = await login(email.trim());
       if (res.success) {
         setSuccessMsg(language === "fr" ? "Code envoyé par email ! N'UTILISEZ PAS les liens dans l'email (ils peuvent être consommés automatiquement). Entrez UNIQUEMENT le code 6 chiffres ci-dessous." : "Code sent by email! DO NOT click any links in the email (they may be auto-consumed). Enter ONLY the 6-digit code below.");
         setCodeSent(true); // Show OTP code verification form
       } else {
+        console.error("[SEND_OTP_FAIL]", res.error);
         setErrorMsg(res.error || t("loginErrorMagicLink"));
       }
     }
@@ -83,6 +86,7 @@ export default function LoginPage() {
     setIsLoadingOtp(true);
     try {
       const supabase = getSupabaseClient();
+      console.log("[RESEND_OTP] Using Supabase project:", process.env.NEXT_PUBLIC_SUPABASE_URL);
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
         options: {
@@ -121,13 +125,16 @@ export default function LoginPage() {
       });
 
       if (error || !data.session) {
-        setErrorMsg(error?.message || (language === "fr" ? "Code de validation invalide ou expiré." : "Invalid or expired verification code."));
+        // This is the most common place the exact "Token has expired or is invalid" error appears
+        console.error("[VERIFY_OTP_FAIL]", { error, data });
+        const msg = error?.message || (language === "fr" ? "Code de validation invalide ou expiré." : "Invalid or expired verification code.");
+        setErrorMsg(msg);
         return;
       }
 
-      // Save token in cookie (access + refresh for long term)
       const { access_token, refresh_token } = data.session;
-      // IMPORTANT: use " Secure" (capital S + leading space) for production cookies
+
+      // Save token in cookie (access + refresh for long term) - fixed flags
       const secureFlag = process.env.NODE_ENV === "production" ? "; Secure" : "";
       document.cookie = `wacke_token=${access_token}; path=/; max-age=604800; SameSite=Lax${secureFlag}`;
       if (refresh_token) {
@@ -138,21 +145,49 @@ export default function LoginPage() {
       if (refresh_token) {
         await supabase.auth.setSession({ access_token, refresh_token });
       }
-      
-      // Sync user profile from auth token (this calls /api/auth/sync which validates via getUser)
+
+      // Explicitly validate via /api/auth/sync (this runs getSupabaseAdmin.getUser(token))
+      // This surfaces the real reason if Supabase later rejects the token (keys mismatch, project mismatch, etc.)
+      let syncOk = false;
+      try {
+        const syncRes = await fetch("/api/auth/sync", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${access_token}`,
+          },
+        });
+        if (syncRes.ok) {
+          syncOk = true;
+        } else {
+          const syncErr = await syncRes.json().catch(() => ({}));
+          console.error("[SYNC_AFTER_VERIFY_FAIL]", syncErr);
+          setErrorMsg(
+            (syncErr.details || syncErr.error || "Token rejected by server after verify.") +
+            " Check that your Netlify env vars exactly match the Supabase project and that you redeployed."
+          );
+          return;
+        }
+      } catch (e) {
+        console.error("[SYNC_FETCH_ERROR]", e);
+      }
+
+      // Now do the normal refreshUser (it will also call sync)
       await refreshUser();
 
-      // Double-check: if refresh didn't populate user (e.g. token rejected by sync), surface the details
-      // (The error from sync may be in console; for prod debugging check Netlify logs + Supabase Auth logs)
-      setTimeout(() => {
-        // If still no user after refresh, the token may have been rejected downstream
-        // Common: wrong Supabase keys in Netlify build, or OTP consumed by email preview
-      }, 200);
+      if (!syncOk) {
+        // Fallback
+        router.push("/");
+        return;
+      }
 
       router.push("/");
-    } catch (err) {
+    } catch (err: any) {
       console.error("[OTP_VERIFICATION_ERROR]", err);
-      setErrorMsg(language === "fr" ? "Erreur lors de la validation du code." : "Failed to verify code.");
+      setErrorMsg(
+        (err?.message || (language === "fr" ? "Erreur lors de la validation du code." : "Failed to verify code.")) +
+        " (See console for full details)"
+      );
     } finally {
       setIsLoadingOtp(false);
     }
@@ -202,6 +237,12 @@ export default function LoginPage() {
         <p className="text-center text-xs text-gray-500 mb-4">
           Real Supabase login requires correct <code>NEXT_PUBLIC_SUPABASE_*</code> keys in Netlify (and matching project). Demo bypasses it.
         </p>
+
+        {!isMock && (
+          <div className="mb-4 text-[10px] text-center text-wacke-cyan/70 font-mono break-all">
+            Using: {process.env.NEXT_PUBLIC_SUPABASE_URL || "no URL"}
+          </div>
+        )}
 
         {errorMsg && (
           <div className="mb-4 px-4 py-3 bg-red-900/30 border border-red-500/30 rounded-xl text-sm text-red-300 animate-fade-in break-words">

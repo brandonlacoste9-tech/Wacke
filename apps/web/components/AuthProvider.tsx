@@ -214,9 +214,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: true };
       }
 
-      // Real Supabase Auth: Send OTP or magic link (or standard login)
-      // For testing convenience, we'll request magic link login
+      // Real Supabase Auth: Send OTP 
       const supabase = getSupabaseClient();
+      console.log("[AUTH_PROVIDER_SEND_OTP] project:", process.env.NEXT_PUBLIC_SUPABASE_URL);
       const { error: authError } = await supabase.auth.signInWithOtp({
         email,
         options: {
@@ -230,7 +230,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setIsLoading(false);
-      return { success: true, message: "Lien de connexion envoyé par courriel!" };
+      return { success: true, message: "Code envoyé par courriel!" };
     } catch (err: any) {
       setIsLoading(false);
       return { success: false, error: err.message || "Erreur inconnue" };
