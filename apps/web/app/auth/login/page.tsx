@@ -82,7 +82,7 @@ export default function LoginPage() {
         console.error("[SEND_OTP_FAIL]", sendError);
         setErrorMsg(sendError.message);
       } else {
-        setSuccessMsg(language === "fr" ? "Code envoyé par email ! N'UTILISEZ PAS les liens dans l'email (ils peuvent être consommés automatiquement). Entrez UNIQUEMENT le code 6 chiffres ci-dessous." : "Code sent by email! DO NOT click any links in the email (they may be auto-consumed). Enter ONLY the 6-digit code below.");
+        setSuccessMsg(language === "fr" ? "Code envoyé par email ! IMPORTANT: N'OUVREZ PAS l'email normalement (préfetch consomme le code). Utilisez 'Afficher le message original' ou copiez le code 6 chiffres IMMÉDIATEMENT. Entrez UNIQUEMENT le code ci-dessous." : "Code sent by email! CRITICAL: DO NOT open the email normally (preview consumes the code). Use 'Show original' or copy the 6-digit code IMMEDIATELY. Enter ONLY the code below.");
         setCodeSent(true);
       }
     }
@@ -106,7 +106,7 @@ export default function LoginPage() {
       if (error) {
         setErrorMsg(error.message);
       } else {
-        setSuccessMsg(language === "fr" ? "Nouveau code envoyé ! N'UTILISEZ PAS les liens dans l'email. Entrez le code 6 chiffres." : "New code sent! DO NOT use links in the email. Enter the 6-digit code.");
+        setSuccessMsg(language === "fr" ? "Nouveau code envoyé ! IMPORTANT: N'OUVREZ PAS l'email (préfetch consomme). Copiez le code 6 chiffres tout de suite." : "New code sent! CRITICAL: DO NOT open the email (preview will consume it). Copy the 6-digit code right now.");
       }
     } catch (err) {
       setErrorMsg(language === "fr" ? "Erreur lors du renvoi du code." : "Error resending code.");
@@ -422,9 +422,9 @@ export default function LoginPage() {
                 />
               </div>
               <p className="text-[10px] text-gray-500 -mt-2 bg-yellow-900/30 p-2 rounded border border-yellow-600/40">
-                <strong>⏱️ Enter the 6-digit code IMMEDIATELY (within 60-90 seconds).</strong><br/>
-                <strong>DO NOT open the email in Gmail/Outlook etc. if possible</strong> — they auto-fetch links and consume the code.<br/>
-                Use "Show original" or a plain text viewer to copy the code only. If it fails, request a new one right away.
+                <strong>⏱️ Enter the 6-digit code IMMEDIATELY (within ~60s of receiving).</strong><br/>
+                <strong>DO NOT let email client render the HTML</strong> (prefetch consumes OTP).<br/>
+                Use "View message source" or "Show original" to copy ONLY the numbers. New code if delayed.
               </p>
 
               <button

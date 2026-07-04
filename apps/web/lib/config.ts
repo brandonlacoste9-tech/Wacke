@@ -5,7 +5,9 @@ export const isSupabaseMocked = (): boolean => {
     !url ||
     url.includes("your-project") ||
     !key ||
-    key.includes("your-anon-key")
+    key.includes("your-anon-key") ||
+    key.includes("PASTE_YOUR_REAL") ||
+    key.length < 20  // placeholder keys are short
   );
 };
 
