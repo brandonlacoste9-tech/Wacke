@@ -12,23 +12,42 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+// Helper to read cookies on client (consistent with AuthProvider)
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
+  return null;
+}
+
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("fr");
   const router = useRouter();
 
+  const [language, setLanguageState] = useState<Language>(() => {
+    if (typeof window === "undefined") return "fr";
+    const cookieLang = getCookie("wacke_lang") as Language;
+    const saved = cookieLang || localStorage.getItem("wacke_lang") as Language;
+    return (saved === "fr" || saved === "en") ? saved : "fr";
+  });
+
+  // Sync from cookie/local on mount (in case of direct load)
   useEffect(() => {
-    const saved = localStorage.getItem("wacke-lang") as Language;
-    if (saved && (saved === "fr" || saved === "en")) {
+    const cookieLang = getCookie("wacke_lang") as Language;
+    const saved = cookieLang || localStorage.getItem("wacke_lang") as Language;
+    if (saved && (saved === "fr" || saved === "en") && saved !== language) {
       setLanguageState(saved);
     }
   }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem("wacke-lang", lang);
+    localStorage.setItem("wacke_lang", lang);
     if (typeof document !== "undefined") {
-      const isSecure = window.location.protocol === 'https:';
-      document.cookie = `wacke_lang=${lang}; path=/; max-age=31536000; SameSite=Lax${isSecure ? '; Secure' : ''}`;
+      const date = new Date();
+      date.setTime(date.getTime() + 365 * 24 * 60 * 60 * 1000); // 1 year
+      const secureFlag = window.location.protocol === 'https:' ? "; Secure" : "";
+      document.cookie = `wacke_lang=${lang}; path=/; expires=${date.toUTCString()}; SameSite=Lax${secureFlag}`;
     }
     router.refresh();
   };

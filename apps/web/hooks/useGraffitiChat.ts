@@ -114,7 +114,7 @@ export function useGraffitiChat({
   useEffect(() => {
     if (!streamId) return;
     const timer = setTimeout(() => {
-      const isEn = typeof window !== "undefined" && localStorage.getItem("wacke-lang") === "en";
+      const isEn = typeof window !== "undefined" && localStorage.getItem("wacke_lang") === "en";
       const welcomeMsg: ChatMessage = {
         id: "wackebot-welcome-system",
         streamId,
@@ -159,7 +159,7 @@ export function useGraffitiChat({
     };
 
     const interval = setInterval(() => {
-      const isEn = typeof window !== "undefined" && localStorage.getItem("wacke-lang") === "en";
+      const isEn = typeof window !== "undefined" && localStorage.getItem("wacke_lang") === "en";
       const pool = isEn ? tips.en : tips.fr;
       const randomTip = pool[Math.floor(Math.random() * pool.length)];
 
