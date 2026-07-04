@@ -26,6 +26,6 @@ export async function GET() {
     serviceRolePreview: servicePreview,
     databaseUrlPreview: dbPreview,
     nodeEnv: process.env.NODE_ENV,
-    note: "If supabaseUrl is not exactly https://ezkctufrqexxhujiitag.supabase.co then the env var was not set correctly at build time.",
+    note: "If supabaseUrl is not exactly https://ulbfaxhsbbckotcbmslk.supabase.co then the env var was not set correctly at build time.",
   });
 }

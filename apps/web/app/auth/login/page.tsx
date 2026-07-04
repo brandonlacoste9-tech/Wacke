@@ -40,7 +40,7 @@ export default function LoginPage() {
       const params = new URLSearchParams(window.location.search);
       const error = params.get('error');
       if (error === 'callback_failed') {
-        setErrorMsg('Login failed: invalid or expired token. Please try again. Make sure your Supabase redirect URLs include the Netlify domain.');
+        setErrorMsg('Login failed: invalid or expired token. Make sure https://wacke.live and /auth/callback are in Supabase Redirect URLs, then try again with a fresh code.');
       }
     }
   }, []);

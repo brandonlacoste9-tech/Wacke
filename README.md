@@ -105,10 +105,10 @@ Uses Netlify + @netlify/plugin-nextjs.
 
 1. Connect the repo in Netlify.
 2. Set **Environment variables** (Site configuration → Environment variables). Add for Production + Deploy Previews:
-   - `NEXT_PUBLIC_SUPABASE_URL` = https://ezkctufrqexxhujiitag.supabase.co
+   - `NEXT_PUBLIC_SUPABASE_URL` = https://ulbfaxhsbbckotcbmslk.supabase.co
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = (from Supabase → Project Settings → API → anon key)
    - `SUPABASE_SERVICE_ROLE_KEY` = (service_role key - secret)
-   - `DATABASE_URL` = (Supabase pooled connection string)
+   - `DATABASE_URL` = (Supabase connection string, e.g. postgresql://postgres:[PASS]@db.ulbfaxhsbbckotcbmslk.supabase.co:5432/postgres)
    - `XAI_API_KEY` = your xAI key (for Grok features)
    - Other: KICK_*, TWITCH_*, STRIPE_*, MUX_* as needed
 
