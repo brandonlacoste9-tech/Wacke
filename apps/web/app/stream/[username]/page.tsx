@@ -189,7 +189,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
     <div className="flex flex-col lg:flex-row min-h-[calc(100vh-160px)] lg:h-[calc(100vh-64px)] relative">
       {/* ── Main Stream Area ─────────────────────────────────────────────── */}
       <main className="flex-none lg:flex-1 w-full overflow-y-visible lg:overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6">
-        {isKickUser || (stream.status === "live" && stream.muxPlaybackId) ? (
+        {isKickUser || stream.muxPlaybackId ? (
           <WackePlayer
             playbackId={stream.muxPlaybackId ?? "mock_playback_id"}
             title={stream.title}

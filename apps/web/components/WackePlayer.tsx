@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Maximize2, Minimize2, PictureInPicture2 } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
+import { getMuxHlsUrl } from "@/lib/mux";
 
 interface WackePlayerProps {
   playbackId: string;
@@ -37,7 +38,7 @@ export default function WackePlayer({
   const [hostname, setHostname] = useState<string>("");
   const { t } = useLanguage();
 
-  const hlsUrl = `https://stream.mux.com/${playbackId}.m3u8`;
+  const hlsUrl = getMuxHlsUrl(playbackId);
 
   useEffect(() => {
     if (typeof window !== "undefined") {

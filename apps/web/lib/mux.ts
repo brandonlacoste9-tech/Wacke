@@ -11,7 +11,7 @@ export function getMuxClient(): Mux {
   }
   if (!muxClient) {
     muxClient = new Mux({
-      tokenId: process.env.MUX_TOKEN_ID!,
+      tokenId: process.env.MUX_TOKEN_ID || process.env.MUX_ID_TOKEN!,
       tokenSecret: process.env.MUX_TOKEN_SECRET!,
     });
   }

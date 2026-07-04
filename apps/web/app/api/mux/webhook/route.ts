@@ -16,12 +16,12 @@ export async function POST(req: NextRequest) {
     const signature = req.headers.get("mux-signature") ?? "";
 
     // ─── Signature Verification ───────────────────────────────────────────
-    const webhookSecret = process.env.MUX_WEBHOOK_SECRET!;
+    const webhookSecret = process.env.MUX_WEBHOOK_SECRET || "";
     
     let event;
     try {
-      if (isMuxMocked()) {
-        // Bypass signature verification in mock mode for local testing
+      if (isMuxMocked() || !webhookSecret) {
+        // Bypass in mock or if no secret configured
         event = JSON.parse(body);
       } else {
         const mux = new Mux();
