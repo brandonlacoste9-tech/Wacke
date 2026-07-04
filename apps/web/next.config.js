@@ -9,12 +9,12 @@ const nextConfig = {
       "thumbnails.mux.com",
     ],
   },
-  // Mark Node.js-only packages as server externals so webpack never tries to bundle them
-  serverExternalPackages: [
-    "@mux/mux-node",
-    "@neondatabase/serverless",
-    "drizzle-orm",
-  ],
+  // serverExternalPackages is supported in Next 13+, keeping for server-only bundles
+  // serverExternalPackages: [
+  //   "@mux/mux-node",
+  //   "@neondatabase/serverless",
+  //   "drizzle-orm",
+  // ],
   experimental: {
     serverActions: {
       allowedOrigins: ["localhost:3000", "wacke.vercel.app"],

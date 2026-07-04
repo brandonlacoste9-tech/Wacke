@@ -268,7 +268,7 @@ export default function LoginPage() {
             <strong>Real login checklist (do this once):</strong><br/>
             1. Supabase (ulbfaxhsbbckotcbmslk) → Auth → URL Configuration: Site URL = https://wacke.live<br/>
             2. Add Redirects: https://wacke.live , https://wacke.live/* , https://wacke.live/auth/callback<br/>
-            3. (Optional but strong) Edit Email Templates → Magic Link: remove the clickable link, keep only the {{ .Token }} code.<br/>
+            3. (Optional but strong) Edit Email Templates → Magic Link: remove the clickable link, keep only the {'{{ .Token }}'} code.<br/>
             4. Redeploy Netlify after env/redirect changes.<br/>
             5. Fresh code + "Show original" only — paste 6 digits in &lt;60s.
           </div>
@@ -459,6 +459,8 @@ export default function LoginPage() {
             </form>
           )}
         </div>
+        {/* close glass card */}
+        </div>
 
         {!codeSent && (
           <div className="mt-8 text-center border-t border-wacke-purple/15 pt-6">
@@ -471,7 +473,6 @@ export default function LoginPage() {
           </div>
         )}
       </div>
-    </div>
     </div>
   );
 }
