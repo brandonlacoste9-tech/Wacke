@@ -214,14 +214,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: true };
       }
 
-      // Real Supabase Auth: Send OTP 
+      // Real Supabase Auth: Send OTP (pure code flow)
       const supabase = getSupabaseClient();
       console.log("[AUTH_PROVIDER_SEND_OTP] project:", process.env.NEXT_PUBLIC_SUPABASE_URL);
       const { error: authError } = await supabase.auth.signInWithOtp({
         email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
+        // No emailRedirectTo — avoids 403 on /verify when using pasted 6-digit code
       });
 
       if (authError) {

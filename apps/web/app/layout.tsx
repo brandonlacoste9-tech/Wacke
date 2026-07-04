@@ -20,6 +20,10 @@ export const metadata: Metadata = {
   description:
     "Wacké est la plateforme de streaming française pour la Gen Z québécoise. Culture de rue, Graffiti Chat, Mode Sacré. Kick meets dépanneur drama. Powered by Grok xAI.",
   keywords: ["streaming", "québec", "twitch", "kick", "montréal", "francophone", "live", "gaming", "wacke", "grok", "xai"],
+  icons: {
+    icon: "/logo_w.png",
+    shortcut: "/logo_w.png",
+  },
   openGraph: {
     title: "Wacké — Le streaming québécois | Powered by Grok xAI",
     description: "Streaming live. Culture de rue. 100% québécois. Powered by Grok xAI.",

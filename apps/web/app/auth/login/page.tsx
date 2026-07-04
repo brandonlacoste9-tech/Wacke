@@ -68,13 +68,19 @@ export default function LoginPage() {
       }
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "unknown";
       console.log("[SEND_OTP] Using Supabase project:", supabaseUrl);
-      const res = await login(email.trim());
-      if (res.success) {
-        setSuccessMsg(language === "fr" ? "Code envoyé par email ! N'UTILISEZ PAS les liens dans l'email (ils peuvent être consommés automatiquement). Entrez UNIQUEMENT le code 6 chiffres ci-dessous." : "Code sent by email! DO NOT click any links in the email (they may be auto-consumed). Enter ONLY the 6-digit code below.");
-        setCodeSent(true); // Show OTP code verification form
+      // Call signInWithOtp directly here for pure OTP code flow (no emailRedirectTo to avoid 403 on verify)
+      const supabase = getSupabaseClient();
+      const { error: sendError } = await supabase.auth.signInWithOtp({
+        email: email.trim(),
+        // Intentionally omit emailRedirectTo for code-only flow.
+        // The redirect is only needed if following magic links.
+      });
+      if (sendError) {
+        console.error("[SEND_OTP_FAIL]", sendError);
+        setErrorMsg(sendError.message);
       } else {
-        console.error("[SEND_OTP_FAIL]", res.error);
-        setErrorMsg(res.error || t("loginErrorMagicLink"));
+        setSuccessMsg(language === "fr" ? "Code envoyé par email ! N'UTILISEZ PAS les liens dans l'email (ils peuvent être consommés automatiquement). Entrez UNIQUEMENT le code 6 chiffres ci-dessous." : "Code sent by email! DO NOT click any links in the email (they may be auto-consumed). Enter ONLY the 6-digit code below.");
+        setCodeSent(true);
       }
     }
   };
@@ -87,11 +93,9 @@ export default function LoginPage() {
     try {
       const supabase = getSupabaseClient();
       console.log("[RESEND_OTP] Using Supabase project:", process.env.NEXT_PUBLIC_SUPABASE_URL);
+      // Pure code flow - omit emailRedirectTo to prevent 403 Forbidden on verify
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
       });
       if (error) {
         setErrorMsg(error.message);
