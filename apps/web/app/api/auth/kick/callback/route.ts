@@ -76,6 +76,7 @@ export async function GET(req: NextRequest) {
 
       const tokenData = await tokenRes.json();
       const accessToken = tokenData.access_token as string;
+      const _kickAccessToken = accessToken; // stored in cookie below
 
       // Query User Profile GET request
       const profileRes = await fetch("https://api.kick.com/public/v1/users", {
@@ -96,6 +97,9 @@ export async function GET(req: NextRequest) {
         username: profileData.username,
         displayName: profileData.display_name || profileData.username,
       };
+
+      // Save Kick access token for chat send capability
+      (kickUser as any)._kickAccessToken = _kickAccessToken;
     }
 
     // 2. Synchronize Kick profile to Wacké Drizzle Database
@@ -126,6 +130,25 @@ export async function GET(req: NextRequest) {
     response.cookies.set("wacke_token", sessionToken, {
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 days
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    // Save Kick access token for chat:write capability
+    const kickAccessToken = (kickUser as any)._kickAccessToken;
+    if (kickAccessToken) {
+      response.cookies.set("kick_access_token", kickAccessToken, {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+      });
+    }
+
+    // Save Kick username for client-side Pusher subscription
+    response.cookies.set("kick_username", kickUser.username, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
     });

@@ -164,6 +164,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
           streamId={`kick-mock-chat-${cleanUsername}`}
           initialMessages={[]}
           currentUserId={undefined}
+          kickUsername={cleanUsername}
         />
         <TokenBar
           initialBalance={500}
@@ -279,6 +280,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
         streamId={stream.id}
         initialMessages={initialMessages as any}
         currentUserId={viewer?.id}
+        kickUsername={isKickUser ? user.username : undefined}
       />
 
       {/* ── Floating Token Bar ────────────────────────────────────────────── */}

@@ -42,7 +42,7 @@ export default function GrokFire() {
       for (let i = 0; i < 50; i++) {
         setTimeout(() => {
           const el = document.createElement("div");
-          el.className = "fixed text-3xl pointer-events-none z-[9999] animate-coin-shower";
+          el.className = "fixed text-3xl emoji pointer-events-none z-[9999] animate-coin-shower";
           el.textContent = ["🔥", "💥", "🚀", "🧨", "👹", "💣"][Math.floor(Math.random() * 6)];
           el.style.left = `${Math.random() * 100}vw`;
           el.style.top = "-30px";

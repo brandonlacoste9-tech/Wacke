@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useGraffitiChat, type ChatMessage } from "@/hooks/useGraffitiChat";
+import { useKickChat, type KickChatMessage } from "@/hooks/useKickChat";
 import { Moon, Flame, Mic, Users, Sparkles, Volume2, Bot } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import EmojiPicker from "./EmojiPicker";
@@ -100,12 +101,14 @@ interface GraffitiChatProps {
   streamId: string;
   currentUserId?: string;
   initialMessages?: ChatMessage[];
+  kickUsername?: string;
 }
 
 export default function GraffitiChat({
   streamId,
   currentUserId: serverUserId,
   initialMessages = [],
+  kickUsername,
 }: GraffitiChatProps) {
   const { language, t } = useLanguage();
   const [sacreMode, setSacreMode] = useState(true);
@@ -173,6 +176,40 @@ export default function GraffitiChat({
     initialMessages,
     authToken: token || undefined,
   });
+
+  // ── Kick real-time chat integration ──────────────────────────────────────
+  const {
+    messages: kickMessages,
+    isConnected: isKickConnected,
+    hasKickAuth,
+    sendToKick,
+  } = useKickChat({ kickUsername, enabled: !!kickUsername });
+
+  // Merge Wacké messages + Kick messages + Grok messages, sorted by time
+  const allMessages = useMemo(() => {
+    const wackeNormalized = messages.map((m) => ({ ...m, _source: "wacke" as const }));
+    const kickNormalized = kickMessages.map((km: KickChatMessage) => ({
+      id: km.id,
+      streamId,
+      userId: km.sender.id,
+      content: km.content,
+      isSacre: false,
+      audioUrl: undefined,
+      createdAt: km.createdAt,
+      user: {
+        id: km.sender.id,
+        username: km.sender.username,
+        displayName: km.sender.displayName,
+        avatarUrl: null,
+      },
+      _source: "kick" as const,
+      _kickSender: km.sender,
+    }));
+    const grokNormalized = grokMessages.map((m) => ({ ...m, _source: "wacke" as const }));
+    return [...wackeNormalized, ...kickNormalized, ...grokNormalized]
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+      .slice(-200);
+  }, [messages, kickMessages, grokMessages, streamId]);
 
   // Grok xAI random events – makes the chat feel alive with Grok interjections
   useEffect(() => {
@@ -403,18 +440,27 @@ export default function GraffitiChat({
         user: { id: "grok-wit", username: "groke", displayName: "🤖 Groké", avatarUrl: null },
       };
       setInputValue("");
-      // Inject directly so it shows in the chat feed (wild demo mode)
       setGrokMessages(prev => [...prev, grokMsg]);
-      // As bonus, send the original prompt as a regular chat message too
       await sendMessage(`(demanda à Groké: ${prompt})`);
       return;
     }
 
+    // Send to Wacké chat
     const { error } = await sendMessage(val);
     if (error) {
       setErrorMsg(error);
       return;
     }
+
+    // Also send to Kick chat if user is Kick-authed and on a Kick stream
+    if (kickUsername && hasKickAuth) {
+      const kickResult = await sendToKick(val);
+      if (!kickResult.success) {
+        console.warn("[GraffitiChat] Kick send failed:", kickResult.error);
+        // Don't block — Wacké message already sent successfully
+      }
+    }
+
     setInputValue("");
   };
 
@@ -464,8 +510,22 @@ export default function GraffitiChat({
           {/* Chat user count */}
           <div className="flex items-center space-x-1 text-[10px] text-gray-500">
             <Users className="w-3 h-3" />
-            <span>{messages.length > 0 ? new Set(messages.map(m => m.userId)).size : 0}</span>
+            <span>{allMessages.length > 0 ? new Set(allMessages.map((m: any) => m.userId)).size : 0}</span>
           </div>
+          {/* Kick connection indicator */}
+          {kickUsername && (
+            <div
+              title={isKickConnected ? `Connected to ${kickUsername}'s Kick chat` : "Connecting to Kick chat..."}
+              className={`flex items-center space-x-1 text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                isKickConnected
+                  ? "bg-[#53fc18]/10 text-[#53fc18] border border-[#53fc18]/30"
+                  : "bg-white/5 text-gray-500 border border-white/10"
+              }`}
+            >
+              <span className={`w-1 h-1 rounded-full ${isKickConnected ? "bg-[#53fc18] animate-pulse" : "bg-gray-600"}`} />
+              <span>KICK</span>
+            </div>
+          )}
           {/* Mode Sacré toggle */}
           <button
             onClick={() => setSacreMode((prev) => !prev)}
@@ -488,7 +548,7 @@ export default function GraffitiChat({
 
       {/* ── Chat Messages ─────────────────────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-hide">
-        {messages.length === 0 && grokMessages.length === 0 && (
+        {allMessages.length === 0 && (
           <div className="text-center mt-12 space-y-3">
             <img src="/spray_can.png" alt="Spray" className="w-10 h-10 mx-auto opacity-30" />
             <p className="text-gray-600 text-xs font-medium">
@@ -496,13 +556,21 @@ export default function GraffitiChat({
             </p>
           </div>
         )}
-        {[...messages, ...grokMessages].sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map((msg) => (
+        {allMessages.map((msg: any) => (
           <div key={msg.id} className={`animate-spray-in group ${isGrokFuego ? 'fuego-msg' : ''}`}>
             <div className="flex items-baseline space-x-1.5">
               <span className="text-[10px] text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                 {formatTime(msg.createdAt)}
               </span>
-              <p className={`text-xs font-bold ${getUserColor(msg.userId)} shrink-0`}>
+              {/* Kick source badge */}
+              {msg._source === "kick" && (
+                <span className="text-[8px] font-extrabold bg-[#53fc18]/15 text-[#53fc18] border border-[#53fc18]/30 px-1 py-0.5 rounded shrink-0">
+                  KICK
+                </span>
+              )}
+              <p className={`text-xs font-bold ${msg._source === "kick" ? "text-[#53fc18]" : getUserColor(msg.userId)} shrink-0`}>
+                {msg._source === "kick" && msg._kickSender?.isBroadcaster && <span className="mr-1">👑</span>}
+                {msg._source === "kick" && msg._kickSender?.isModerator && <span className="mr-1">🔧</span>}
                 {msg.user?.displayName ?? msg.user?.username ?? "Anonyme"}
                 {msg.isSacre && (
                   <Flame className="w-3 h-3 inline ml-0.5 text-red-500 fill-current drop-shadow-[0_0_4px_rgba(255,0,0,0.6)]" />
@@ -512,7 +580,7 @@ export default function GraffitiChat({
                 )}
                 {isGrokFuego && <span className="ml-1">🔥</span>}
               </p>
-              <p className="text-xs text-gray-300 break-words min-w-0">{renderContent(msg.content)}</p>
+              <p className="text-sm text-gray-300 break-words min-w-0 emoji">{renderContent(msg.content)}</p>
             </div>
           </div>
         ))}
@@ -777,7 +845,7 @@ export default function GraffitiChat({
               setShowSoundboard(false);
               setShowSacres(false);
             }}
-            className={`px-2 py-2 rounded-lg text-sm transition-all shrink-0 ${
+            className={`px-2 py-2 rounded-lg text-xl emoji transition-all shrink-0 ${
               showEmojis ? "bg-wacke-purple/20 text-wacke-pink" : "text-gray-500 hover:text-white hover:bg-white/5"
             }`}
             title="Emojis"
@@ -793,7 +861,7 @@ export default function GraffitiChat({
               setShowSoundboard(false);
               setShowSacres(false);
             }}
-            className={`px-2 py-2 rounded-lg text-sm transition-all shrink-0 ${
+            className={`px-2 py-2 rounded-lg text-xl emoji transition-all shrink-0 ${
               showSprayPanel ? "bg-wacke-purple/20 text-wacke-cyan" : "text-gray-500 hover:text-white hover:bg-white/5"
             }`}
              title={t("stickerTooltip")}
@@ -809,10 +877,10 @@ export default function GraffitiChat({
               setShowSprayPanel(false);
               setShowSacres(false);
             }}
-            className={`px-2 py-2 rounded-lg text-sm transition-all shrink-0 ${
+            className={`px-2 py-2 rounded-lg text-xl emoji transition-all shrink-0 ${
               showSoundboard ? "bg-wacke-purple/20 text-yellow-400" : "text-gray-500 hover:text-white hover:bg-white/5"
             }`}
-             title={t("soundTooltip")}
+            title={t("soundTooltip")}
             type="button"
           >
             📢
@@ -825,10 +893,10 @@ export default function GraffitiChat({
               setShowSprayPanel(false);
               setShowSoundboard(false);
             }}
-            className={`px-2 py-2 rounded-lg text-sm transition-all shrink-0 ${
+            className={`px-2 py-2 rounded-lg text-xl emoji transition-all shrink-0 ${
               showSacres ? "bg-wacke-purple/20 text-red-400" : "text-gray-500 hover:text-white hover:bg-white/5"
             }`}
-             title={t("sacreTooltip")}
+            title={t("sacreTooltip")}
             type="button"
           >
             🤬
@@ -842,7 +910,7 @@ export default function GraffitiChat({
               setShowSoundboard(false);
               setShowSacres(false);
             }}
-            className={`px-2 py-2 rounded-lg text-sm transition-all shrink-0 ${
+            className={`px-2 py-2 rounded-lg text-xl emoji transition-all shrink-0 ${
               showGrokPanel ? "bg-wacke-cyan/20 text-wacke-cyan" : "text-gray-500 hover:text-white hover:bg-white/5"
             }`}
             title="Consult Groké (AI wit + Quebec chaos)"

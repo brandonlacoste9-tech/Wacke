@@ -30,8 +30,8 @@ export default function EmojiPicker({ onSelect }: EmojiPickerProps) {
         <button
           key={item.emoji}
           onClick={() => onSelect(item.emoji)}
-          className="text-base hover:scale-125 active:scale-95 transition-transform
-                     hover:bg-white/5 rounded-md px-1.5 py-0.5 shrink-0"
+          className="text-xl emoji hover:scale-125 active:scale-95 transition-all
+                     hover:bg-white/10 hover:shadow-sm rounded-lg px-1.5 py-0.5 shrink-0"
           title={item.label}
           type="button"
         >

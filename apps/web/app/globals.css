@@ -433,3 +433,60 @@ button:active:not(:disabled) {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* ─── Emoji Improvements ─────────────────────────────────────────────────── */
+
+.emoji {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", sans-serif;
+  font-size: 1.05em;
+  line-height: 1;
+  vertical-align: -0.1em;
+  display: inline-block;
+}
+
+/* Better emoji rendering in chat and small text */
+.text-xs .emoji,
+.text-\[10px\] .emoji,
+.text-xs p,
+.text-sm .emoji {
+  font-size: 1.35em;
+  vertical-align: -0.2em;
+}
+
+/* Dedicated emoji font stack for .emoji elements (keeps graffiti fonts elsewhere) */
+.emoji {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", sans-serif;
+}
+
+/* Emoji rain / shower (used in GrokFire and token effects) */
+@keyframes coinShower {
+  0% {
+    transform: translateY(-50px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(105vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.animate-coin-shower {
+  animation-name: coinShower;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+}
+
+/* Stronger emoji in fire mode or highlights */
+.grok-fire-mode .emoji,
+.fuego-msg .emoji {
+  filter: saturate(1.4) brightness(1.1);
+  text-shadow: 0 0 8px currentColor;
+}
