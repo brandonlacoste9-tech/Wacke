@@ -138,18 +138,15 @@ export default function LoginPage() {
         // 403 Forbidden here means Supabase rejected the request (usually origin/redirect URL not whitelisted)
         console.error("[VERIFY_OTP_FAIL]", { 
           status: error?.status, 
+          code: error?.code,
           message: error?.message, 
-          error 
+          fullError: error 
         });
         let friendly = error?.message || (language === "fr" ? "Code de validation invalide ou expiré." : "Invalid or expired verification code.");
-        const is403 = error?.status === 403 || (error?.message || '').includes('403') || (error?.message || '').toLowerCase().includes('forbidden');
-        if (is403) {
-          friendly += " — This usually means the code was already used (email preview clicked the link) or expired. Check Supabase Auth logs.";
-        }
-        // Always remind about redirects as it can also cause blocks
-        if (!friendly.includes('wacke.live')) {
-          friendly += " (Also ensure https://wacke.live and /auth/callback are in Supabase Redirect URLs)";
-        }
+        if (error?.status) friendly += ` (status ${error.status})`;
+        if (error?.code) friendly += ` [${error.code}]`;
+        friendly += " — This usually means the code was already used (email preview clicked the link) or expired. Check Supabase Auth logs.";
+        friendly += " (Ensure https://wacke.live and https://wacke.live/auth/callback are listed in Supabase > Auth > URL Configuration > Redirect URLs, then resend a fresh code.)";
         setErrorMsg(friendly);
         return;
       }
@@ -263,6 +260,16 @@ export default function LoginPage() {
         {!isMock && (
           <div className="mb-4 text-[10px] text-center text-wacke-cyan/70 font-mono break-all">
             Using: {process.env.NEXT_PUBLIC_SUPABASE_URL || "no URL"}
+          </div>
+        )}
+
+        {!isMock && (
+          <div className="mb-6 p-3 bg-blue-950/50 border border-blue-500/30 rounded text-[10px] text-blue-200">
+            <strong>Real login checklist (do this once):</strong><br/>
+            1. In Supabase dashboard → Auth → URL Configuration: set Site URL to <code>https://wacke.live</code><br/>
+            2. Add to Redirect URLs: <code>https://wacke.live</code>, <code>https://wacke.live/auth/callback</code>, <code>https://wacke.live/*</code><br/>
+            3. Redeploy on Netlify after changes.<br/>
+            4. Use fresh code, copy only the 6 digits without clicking links.
           </div>
         )}
 
