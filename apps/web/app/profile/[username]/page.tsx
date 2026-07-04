@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getUserByUsername, getStreamByUserId, getFollowerCount } from "@wacke/db";
+import GrokRoastButton from "@/components/GrokRoastButton";
 
 export const dynamic = "force-dynamic";
 
@@ -82,6 +83,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             {user.bio}
           </p>
         )}
+
+        <GrokRoastButton username={user.username} />
       </div>
 
       {/* ── Current/Last Stream ──────────────────────────────────────────── */}

@@ -6,6 +6,17 @@
 
 This is a **Turborepo monorepo** powering the Wacké live streaming platform — Québec's answer to Twitch and Kick.
 
+**POWERED BY GROK xAI** 🔥
+
+This version is fully Grok xAI powered:
+- 🤖 Groké — the official Grok xAI personality in chat ( /grok commands + dedicated panel )
+- Live Grok title generator, instant polls, random events, and profile roasts
+- Grok mini-games and challenges for tokens
+- Grok xAI branding throughout (header, OBS, streams, profiles)
+- Richer Québec + maximalist humor
+
+Go wild. Maximum truth. Maximum wacké.
+
 ### Workspace Structure
 
 ```

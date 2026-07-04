@@ -21,6 +21,7 @@ export default function ReactionButton({
 }: ReactionButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [grokComment, setGrokComment] = useState<string | null>(null);
   const router = useRouter();
   const { t, language } = useLanguage();
   const { token: authClientToken } = useAuth();
@@ -37,6 +38,7 @@ export default function ReactionButton({
 
     setIsLoading(true);
     setToastMsg(null);
+    setGrokComment(null);
 
     try {
       const res = await fetch("/api/tokens", {
@@ -61,7 +63,22 @@ export default function ReactionButton({
       }
 
       setToastMsg(language === "fr" ? "BOUM! Épique!" : "BOOM! Epic!");
-      setTimeout(() => setToastMsg(null), 2000);
+
+      // Grok on fire comment
+      try {
+        const grokRes = await fetch("/api/grok", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            prompt: language === "fr" 
+              ? `Réponds en une phrase drôle et wackée à un viewer qui vient de faire un BOUM! sur ${streamerId}. Utilise sacre si ça fit.`
+              : `Respond in one funny wacké sentence to a viewer who just Boum!'d on ${streamerId}. Use sacre if it fits.`,
+            maxTokens: 40,
+          }),
+        });
+        const grokData = await grokRes.json();
+        if (grokData.content) setGrokComment(grokData.content);
+      } catch {}
 
       // Trigger callback to update balance globally or trigger animation
       if (onReact) {
@@ -75,11 +92,20 @@ export default function ReactionButton({
       setTimeout(() => setToastMsg(null), 3000);
     } finally {
       setIsLoading(false);
+      setTimeout(() => {
+        setToastMsg(null);
+        setGrokComment(null);
+      }, 3500);
     }
   };
 
   return (
     <div className="relative">
+      {grokComment && (
+        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black/80 text-wacke-cyan text-[10px] px-2 py-0.5 rounded border border-wacke-cyan/30 whitespace-nowrap z-50">
+          {grokComment} 🔥
+        </div>
+      )}
       <button
         onClick={handleReact}
         disabled={isLoading}

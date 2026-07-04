@@ -13,6 +13,10 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 import type { Metadata } from "next";
 
 import ObsOverlayButton from "@/components/ObsOverlayButton";
+import GrokStreamTools from "@/components/GrokStreamTools";
+import GrokCoHost from "@/components/GrokCoHost";
+import GrokRoastBattle from "@/components/GrokRoastBattle";
+import GrokFire from "@/components/GrokFire";
 
 interface StreamPageProps {
   params: { username: string };
@@ -253,6 +257,20 @@ export default async function StreamPage({ params }: StreamPageProps) {
           {stream.description && (
             <p className="text-gray-300 mt-4 text-sm leading-relaxed">{stream.description}</p>
           )}
+
+          {/* Grok xAI Live Tools */}
+          <GrokStreamTools streamerName={user.displayName} />
+
+          {/* Grok xAI Co-Host - real Grok jumps into the stream */}
+          <GrokCoHost streamerName={user.displayName} streamId={stream.id} />
+
+          {/* Grok Roast Battle - pure chaos */}
+          <GrokRoastBattle streamerName={user.displayName} />
+
+          {/* LIGHT THE MATCH BOOM - GROK xAI FIRE IGNITED */}
+          <div className="mt-4">
+            <GrokFire />
+          </div>
         </div>
       </main>
 

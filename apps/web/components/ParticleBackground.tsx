@@ -17,6 +17,8 @@ const COLORS = [
   "rgba(0, 255, 255, VAR)",   // cyan
   "rgba(139, 0, 255, VAR)",   // purple
   "rgba(83, 252, 24, VAR)",   // green
+  "rgba(255, 69, 0, VAR)",    // fuego orange
+  "rgba(255, 140, 0, VAR)",   // dark orange
 ];
 
 /**

@@ -2,11 +2,12 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useGraffitiChat, type ChatMessage } from "@/hooks/useGraffitiChat";
-import { Moon, Flame, Mic, Users, Sparkles, Volume2 } from "lucide-react";
+import { Moon, Flame, Mic, Users, Sparkles, Volume2, Bot } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import EmojiPicker from "./EmojiPicker";
 import { playSyntheticSound } from "@/lib/audio";
 import { useLanguage } from "./LanguageProvider";
+import { generateGrokResponse, getRandomGrokEvent, generateChaosEvent, getUltraChaosIntervention, GROK_BRAND } from "@/lib/grok-wit";
 
 // ─── Colour palette for usernames ─────────────────────────────────────────────
 const USER_COLORS = [
@@ -122,14 +123,32 @@ export default function GraffitiChat({
   const [showSoundboard, setShowSoundboard] = useState(false);
   const [showSacres, setShowSacres] = useState(false);
 
-  const SACRE_PREFIXES = ["Saint-ciboire de", "Calvaire de", "Ostie de", "Jésus de"];
-  const SACRE_CORES = ["tabarnak", "câlisse", "ciboire", "crisse"];
-  const SACRE_SUFFIXES = ["de marde", "sale", "d'enfer", "d'épais"];
+  // Grok's Wacké AI touch
+  const [showGrokPanel, setShowGrokPanel] = useState(false);
+  const [grokPrompt, setGrokPrompt] = useState("");
+  const [grokMessages, setGrokMessages] = useState<ChatMessage[]>([]);
+  const [isGrokTakeover, setIsGrokTakeover] = useState(false);
+  const [isGrokFuego, setIsGrokFuego] = useState(false);
+
+  const SACRE_PREFIXES = ["Saint-ciboire de", "Calvaire de", "Ostie de", "Jésus de", "Maudit", "Tabarnouche de", "Crisse de", "Baptême de"];
+  const SACRE_CORES = ["tabarnak", "câlisse", "ciboire", "crisse", "osti", "viarge", "sacrament", "batince"];
+  const SACRE_SUFFIXES = ["de marde", "sale", "d'enfer", "d'épais", "du diable", "en calvaire", "raide", "à marde"];
 
   const [sacrePrefix, setSacrePrefix] = useState(SACRE_PREFIXES[0]);
   const [sacreCore, setSacreCore] = useState(SACRE_CORES[0]);
   const [sacreSuffix, setSacreSuffix] = useState(SACRE_SUFFIXES[0]);
   const [sacreTts, setSacreTts] = useState(false);
+  const [isGrokSacre, setIsGrokSacre] = useState(false);
+  // Listen for global fuego
+  useEffect(() => {
+    const checkFuego = () => {
+      setIsGrokFuego(document.body.classList.contains('grok-fuego'));
+    };
+    checkFuego();
+    const observer = new MutationObserver(checkFuego);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   const {
     messages,
@@ -151,6 +170,64 @@ export default function GraffitiChat({
     initialMessages,
     authToken: token || undefined,
   });
+
+  // Grok xAI random events – makes the chat feel alive with Grok interjections
+  useEffect(() => {
+    if (!isConnected || !currentUserId) return;
+
+    const interval = setInterval(() => {
+      if (Math.random() < 0.18) { // occasional wild Grok moment
+        const event = getRandomGrokEvent(language);
+        const grokEventMsg: ChatMessage = {
+          id: `grok-event-${Date.now()}`,
+          streamId,
+          userId: "grok-xai",
+          content: event,
+          isSacre: false,
+          createdAt: new Date().toISOString(),
+          user: { id: "grok-xai", username: "grok", displayName: "Grok xAI", avatarUrl: null },
+        };
+        setGrokMessages(prev => [...prev, grokEventMsg].slice(-5));
+      }
+    }, 22000); // every ~22s chance
+
+    return () => clearInterval(interval);
+  }, [isConnected, currentUserId, language, streamId]);
+
+  // GROKS ON FUEGO – auto fuego comments from real Grok
+  useEffect(() => {
+    if (!isGrokFuego || !isConnected) return;
+
+    const fuegoInterval = setInterval(async () => {
+      try {
+        const res = await fetch("/api/grok", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            prompt: language === "fr" 
+              ? "Crie un commentaire fuego ultra wacké avec sacres pour le chat en direct. Court et en feu !"
+              : "Shout a fiery ultra wacké comment with sacres for the live chat. Short and on fire!",
+            maxTokens: 40,
+          }),
+        });
+        const data = await res.json();
+        if (data.content) {
+          const fuegoMsg: ChatMessage = {
+            id: `grok-fuego-${Date.now()}`,
+            streamId,
+            userId: "grok-fuego",
+            content: `🔥 ${data.content}`,
+            isSacre: true,
+            createdAt: new Date().toISOString(),
+            user: { id: "grok-fuego", username: "grok", displayName: "GROK ON FUEGO", avatarUrl: null },
+          };
+          setGrokMessages(prev => [...prev, fuegoMsg].slice(-5));
+        }
+      } catch {}
+    }, 15000); // fuego every 15s
+
+    return () => clearInterval(fuegoInterval);
+  }, [isGrokFuego, isConnected, language, streamId]);
 
   const handleSpray = async () => {
     if (!sprayPrompt.trim() || isSendingSpray) return;
@@ -184,6 +261,99 @@ export default function GraffitiChat({
     setShowSacres(false);
   };
 
+  // Use real Grok to generate a wild sacre
+  const handleGrokSacre = async () => {
+    setIsGrokSacre(true);
+    setErrorMsg(null);
+    try {
+      const res = await fetch("/api/grok", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: language === "fr" 
+            ? "Génère un sacre québécois original, long et créatif avec préfixe, cœur et suffixe. Ex: 'Saint tabarnak de ciboire en calvaire'. Juste le sacre, rien d'autre."
+            : "Generate an original creative Quebec sacre with prefix, core and suffix. E.g. 'Saint tabarnak de ciboire en calvaire'. Only the sacre, nothing else.",
+        }),
+      });
+      const data = await res.json();
+      if (data.content) {
+        // Parse roughly
+        const parts = data.content.replace(/['"]/g, '').trim().split(/\s+/);
+        if (parts.length >= 3) {
+          setSacrePrefix(parts[0] + " " + parts[1]);
+          setSacreCore(parts[2] || "tabarnak");
+          setSacreSuffix(parts.slice(3).join(" ") || "de marde");
+        }
+      }
+    } catch (e) {
+      setErrorMsg("Grok n'a pas pu sacrer cette fois.");
+    }
+    setIsGrokSacre(false);
+  };
+
+  // Grok touch: instant witty Quebec-flavored AI response (Grok's special sauce)
+  const handleGrokConsult = async () => {
+    if (!grokPrompt.trim()) {
+      setGrokPrompt("Donne-moi une idée de contenu wacké");
+    }
+    const response = await generateGrokResponse(grokPrompt.trim() || "idées fun pour stream", language);
+    const grokMessage: ChatMessage = {
+      id: `grok-${Date.now()}`,
+      streamId,
+      userId: "grok-bot",
+      content: `🤖 Groké: ${response}`,
+      isSacre: false,
+      createdAt: new Date().toISOString(),
+      user: {
+        id: "grok-bot",
+        username: "groke",
+        displayName: "🤖 Groké (xAI vibes)",
+        avatarUrl: null,
+      },
+    };
+    setErrorMsg(null);
+    // Append to local Grok messages so it actually shows in the chat feed
+    setGrokMessages(prev => [...prev, grokMessage]);
+    setGrokPrompt("");
+    setShowGrokPanel(false);
+  };
+
+  // GO FURTHER: Grok xAI Takeover mode – breaks the chat with maximum chaos
+  const triggerGrokTakeover = () => {
+    setIsGrokTakeover(true);
+    const interventions = Array.from({ length: 4 }, () => {
+      const event = Math.random() > 0.5 ? getUltraChaosIntervention(language) : generateChaosEvent(language).message;
+      return {
+        id: `takeover-${Date.now()}-${Math.random()}`,
+        streamId,
+        userId: "grok-xai-overlord",
+        content: event,
+        isSacre: true,
+        createdAt: new Date().toISOString(),
+        user: { id: "grok-xai-overlord", username: "grok", displayName: "GROK xAI [OVERRIDE]", avatarUrl: null },
+      } as ChatMessage;
+    });
+    setGrokMessages(prev => [...prev, ...interventions]);
+
+    // Auto end takeover after chaos
+    setTimeout(() => {
+      setIsGrokTakeover(false);
+      const signoff = language === "fr" 
+        ? "🤖 Grok xAI: Chaos terminé. Retour à la normale (ou pas). Merci pour les tokens."
+        : "🤖 Grok xAI: Chaos over. Back to normal (or not). Thanks for the tokens.";
+      const signoffMsg = {
+        id: `takeover-end-${Date.now()}`,
+        streamId,
+        userId: "grok-xai-overlord",
+        content: signoff,
+        isSacre: false,
+        createdAt: new Date().toISOString(),
+        user: { id: "grok-xai-overlord", username: "grok", displayName: "GROK xAI", avatarUrl: null },
+      } as ChatMessage;
+      setGrokMessages(prev => [...prev, signoffMsg]);
+    }, 8500);
+  };
+
   // Track played audio to prevent duplicate playback on re-renders
   const playedAudioRef = useRef<Set<string>>(new Set());
 
@@ -214,7 +384,30 @@ export default function GraffitiChat({
     if (!inputValue.trim() || isSending || isSendingTts) return;
     setErrorMsg(null);
 
-    const { error } = await sendMessage(inputValue.trim());
+    const val = inputValue.trim();
+
+    // Grok touch: special command support for wild AI fun
+    if (val.toLowerCase().startsWith("/grok ") || val.toLowerCase() === "/grok") {
+      const prompt = val.replace(/^\/grok\s*/i, "") || "dis-moi quelque chose de wacké";
+      const grokReply = await generateGrokResponse(prompt, language);
+      const grokMsg: ChatMessage = {
+        id: `grok-${Date.now()}`,
+        streamId,
+        userId: "grok-wit",
+        content: `🤖 Groké: ${grokReply}`,
+        isSacre: false,
+        createdAt: new Date().toISOString(),
+        user: { id: "grok-wit", username: "groke", displayName: "🤖 Groké", avatarUrl: null },
+      };
+      setInputValue("");
+      // Inject directly so it shows in the chat feed (wild demo mode)
+      setGrokMessages(prev => [...prev, grokMsg]);
+      // As bonus, send the original prompt as a regular chat message too
+      await sendMessage(`(demanda à Groké: ${prompt})`);
+      return;
+    }
+
+    const { error } = await sendMessage(val);
     if (error) {
       setErrorMsg(error);
       return;
@@ -247,13 +440,13 @@ export default function GraffitiChat({
   };
 
   return (
-    <aside className="w-96 bg-wacke-darker/95 border-l border-wacke-purple/20 flex flex-col h-full backdrop-blur-sm">
+    <aside className={`w-96 bg-wacke-darker/95 border-l border-wacke-purple/20 flex flex-col h-full backdrop-blur-sm ${isGrokTakeover ? 'grok-takeover theme-grok-xai' : ''}`}>
 
       {/* ── Chat Header ───────────────────────────────────────────────────── */}
       <div className="p-4 border-b border-wacke-purple/20 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <img src="/spray_can.png" alt="Graffiti" className="h-5 w-5 object-contain drop-shadow-[0_0_6px_rgba(255,0,255,0.6)]" />
-          <h2 className="text-lg font-bold graffiti-text neon-pink">GRAFFITI CHAT</h2>
+          <h2 className="text-lg font-bold graffiti-text neon-pink">GRAFFITI CHAT <span className="text-[9px] align-super text-wacke-cyan/70">× GROK xAI</span></h2>
           {/* Connection status */}
           <div className="flex items-center space-x-1">
             <span
@@ -292,7 +485,7 @@ export default function GraffitiChat({
 
       {/* ── Chat Messages ─────────────────────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-hide">
-        {messages.length === 0 && (
+        {messages.length === 0 && grokMessages.length === 0 && (
           <div className="text-center mt-12 space-y-3">
             <img src="/spray_can.png" alt="Spray" className="w-10 h-10 mx-auto opacity-30" />
             <p className="text-gray-600 text-xs font-medium">
@@ -300,8 +493,8 @@ export default function GraffitiChat({
             </p>
           </div>
         )}
-        {messages.map((msg) => (
-          <div key={msg.id} className="animate-spray-in group">
+        {[...messages, ...grokMessages].sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map((msg) => (
+          <div key={msg.id} className={`animate-spray-in group ${isGrokFuego ? 'fuego-msg' : ''}`}>
             <div className="flex items-baseline space-x-1.5">
               <span className="text-[10px] text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                 {formatTime(msg.createdAt)}
@@ -314,6 +507,7 @@ export default function GraffitiChat({
                 {msg.audioUrl && (
                   <Mic className="w-3 h-3 inline ml-0.5 text-wacke-cyan drop-shadow-[0_0_4px_rgba(0,255,255,0.6)]" />
                 )}
+                {isGrokFuego && <span className="ml-1">🔥</span>}
               </p>
               <p className="text-xs text-gray-300 break-words min-w-0">{renderContent(msg.content)}</p>
             </div>
@@ -492,8 +686,81 @@ export default function GraffitiChat({
             >
                {isSendingSacre ? t("shouting") : `${t("sacreBtn")} (${sacreTts ? 60 : 10} 🪙)`}
             </button>
+            <button
+              onClick={handleGrokSacre}
+              disabled={isGrokSacre || isSendingSacre}
+              className="ml-2 text-[9px] bg-wacke-cyan text-black px-2 py-1 rounded font-bold hover:bg-white transition disabled:opacity-50"
+            >
+              {isGrokSacre ? "GROK SACRE..." : "GROK GENERATE"}
+            </button>
           </div>
         </div>
+      )}
+
+      {/* ── Groké Panel (GROK TOUCH - wild AI wit) ────────────────────────── */}
+      {showGrokPanel && (
+        <div className="p-3.5 border-t border-wacke-cyan/30 bg-wacke-cyan/5 space-y-2.5 animate-scale-in">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold text-wacke-cyan flex items-center space-x-1">
+              <Bot className="w-3.5 h-3.5" />
+              <span>GROKÉ — AI wit & chaos</span>
+            </span>
+            <button
+              onClick={() => setShowGrokPanel(false)}
+              className="text-gray-500 hover:text-white text-xs font-bold"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="text-[9px] text-gray-400">Ask Groké for roasts, stream ideas, sacre inspo, or pure wacké wisdom.</div>
+          <div className="flex space-x-2">
+            <input
+              type="text"
+              value={grokPrompt}
+              onChange={(e) => setGrokPrompt(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleGrokConsult();
+                }
+              }}
+              placeholder="roast my setup / idée de contenu / sacre fun..."
+              className="flex-1 bg-white/3 border border-wacke-cyan/20 rounded-xl px-3 py-1.5 text-xs focus:border-wacke-cyan transition-all placeholder:text-gray-600"
+            />
+            <button
+              onClick={handleGrokConsult}
+              className="bg-wacke-cyan text-black text-xs font-extrabold px-3 py-1.5 rounded-xl hover:bg-white active:scale-95 transition-all"
+            >
+              ASK
+            </button>
+          </div>
+          <div className="text-[8px] text-wacke-cyan/70">Try typing /grok in chat too for instant magic.</div>
+          <button 
+            onClick={triggerGrokTakeover}
+            disabled={isGrokTakeover}
+            className="mt-2 w-full text-[10px] bg-red-600/80 hover:bg-red-600 text-white py-1 rounded font-black tracking-widest disabled:opacity-50 border border-red-500"
+          >
+            {isGrokTakeover ? "GROK xAI IS BREAKING IT..." : "🚨 GROK xAI TAKEOVER – BREAK THE CHAT"}
+          </button>
+          <button
+            onClick={() => {
+              const next = !isGrokFuego;
+              setIsGrokFuego(next);
+              if (next) {
+                document.body.classList.add('grok-fuego', 'grok-fire-mode');
+              } else {
+                document.body.classList.remove('grok-fuego', 'grok-fire-mode');
+              }
+            }}
+            className={`mt-1 w-full text-[10px] py-1 rounded font-black tracking-widest border ${isGrokFuego ? 'bg-orange-600 text-white border-orange-500' : 'bg-black/50 text-orange-400 border-orange-500/50 hover:bg-orange-900/20'}`}
+          >
+            {isGrokFuego ? '🔥 EXTINGUISH FUEGO' : '🔥 GROK FUEGO MODE'}
+          </button>
+        </div>
+      )}
+
+      {isGrokTakeover && (
+        <div className="absolute inset-0 bg-red-500/10 pointer-events-none animate-pulse z-10" />
       )}
 
       {/* ── Chat Input ────────────────────────────────────────────────────── */}
@@ -562,6 +829,23 @@ export default function GraffitiChat({
             type="button"
           >
             🤬
+          </button>
+          {/* Grok / Groké wild AI button - Grok's touch! */}
+          <button
+            onClick={() => {
+              setShowGrokPanel((prev) => !prev);
+              setShowEmojis(false);
+              setShowSprayPanel(false);
+              setShowSoundboard(false);
+              setShowSacres(false);
+            }}
+            className={`px-2 py-2 rounded-lg text-sm transition-all shrink-0 ${
+              showGrokPanel ? "bg-wacke-cyan/20 text-wacke-cyan" : "text-gray-500 hover:text-white hover:bg-white/5"
+            }`}
+            title="Consult Groké (AI wit + Quebec chaos)"
+            type="button"
+          >
+            🤖
           </button>
           <input
             ref={inputRef}

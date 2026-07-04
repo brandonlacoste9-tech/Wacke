@@ -1,6 +1,6 @@
 "use client";
 
-import { Flame, Shield, Coins } from "lucide-react";
+import { Flame, Shield, Coins, Bot } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
 
 /**
@@ -37,6 +37,15 @@ export default function FeatureShowcase() {
       gradient: "from-yellow-500 to-amber-600",
       glow: "rgba(255, 215, 0, 0.3)",
       borderColor: "border-yellow-500/20",
+    },
+    {
+      icon: <Bot className="w-8 h-8" />,
+      title: "GROKÉ AI",
+      subtitle: "Maximum Wit. Maximum Chaos.",
+      description: "Ask Groké (powered by xAI energy) for roasts, stream ideas, wild sacre suggestions & unfiltered advice. The only AI that speaks fluent dépanneur.",
+      gradient: "from-cyan-400 to-purple-500",
+      glow: "rgba(0, 255, 255, 0.3)",
+      borderColor: "border-wacke-cyan/30",
     },
   ];
 

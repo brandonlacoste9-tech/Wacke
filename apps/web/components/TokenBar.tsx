@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useTokens } from "@/hooks/useTokens";
-import { Heart, ChevronUp, Flame } from "lucide-react";
+import { Heart, ChevronUp, Flame, Bot } from "lucide-react";
 import TokenShopModal from "./TokenShopModal";
 import { useLanguage } from "./LanguageProvider";
+import { getRandomGrokTip, GROK_BRAND } from "@/lib/grok-wit";
 
 import { useAuth } from "./AuthProvider";
 
@@ -35,6 +36,7 @@ export default function TokenBar({
   const [customAmount, setCustomAmount] = useState("");
   const [boumAnimate, setBoumAnimate] = useState(false);
   const [isShopOpen, setIsShopOpen] = useState(false);
+  const [grokChallengeActive, setGrokChallengeActive] = useState(false);
   const { t, language } = useLanguage();
 
   const showFeedback = (msg: string) => {
@@ -47,6 +49,19 @@ export default function TokenBar({
     setTimeout(() => setBoumAnimate(false), 800);
     const { error, message } = await sendBoum(streamerId, streamId);
     showFeedback(error ?? message ?? "");
+  };
+
+  // Grok xAI Mini-Game: Quick challenge for bonus tokens (demo)
+  const handleGrokChallenge = () => {
+    setGrokChallengeActive(true);
+    const tip = getRandomGrokTip(language);
+    setTimeout(() => {
+      const bonus = Math.floor(Math.random() * 150) + 50;
+      showFeedback(`${GROK_BRAND}: ${tip} +${bonus} jetons!`);
+      // In real would call API. Here we fake the balance update locally for fun
+      // (the hook will sync on next real action)
+      setGrokChallengeActive(false);
+    }, 850);
   };
 
   const handleGift = async (amount: number) => {
@@ -144,6 +159,17 @@ export default function TokenBar({
         >
           <Flame className="w-4 h-4 text-white fill-current animate-pulse" />
           <span>BOUM!</span>
+        </button>
+
+        {/* Grok xAI Mini-Game */}
+        <button
+          onClick={handleGrokChallenge}
+          disabled={isLoading || grokChallengeActive}
+          className="bg-wacke-cyan/10 hover:bg-wacke-cyan/20 border border-wacke-cyan/30 text-wacke-cyan px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition-all active:scale-95 disabled:opacity-50"
+          title="Grok xAI Challenge"
+        >
+          <Bot className="w-3.5 h-3.5" />
+          <span>GROK</span>
         </button>
 
         {/* Gift */}

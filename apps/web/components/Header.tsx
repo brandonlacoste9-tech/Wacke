@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useAuth } from "./AuthProvider";
 import { useRouter } from "next/navigation";
-import { Search, Palette } from "lucide-react";
+import { Search, Palette, Bot } from "lucide-react";
 import NotificationBell from "./NotificationBell";
 import UserDropdown from "./UserDropdown";
 import { useLanguage } from "./LanguageProvider";
@@ -16,6 +16,8 @@ import TokenShopModal from "./TokenShopModal";
  */
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [grokChaos, setGrokChaos] = useState(false);
+  const [grokFuego, setGrokFuego] = useState(false);
   const { user, claimDailyTokens, isLoading, refreshUser } = useAuth();
   const [claimFeedback, setClaimFeedback] = useState<string | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
@@ -114,6 +116,7 @@ export default function Header() {
           <span className="text-2xl font-bold graffiti-text neon-pink group-hover:opacity-80 transition-opacity hidden sm:block">
             WACKÉ
           </span>
+          <span className="hidden md:inline text-[10px] font-mono tracking-widest text-wacke-cyan/70 border border-wacke-cyan/30 px-1.5 py-0.5 rounded ml-1.5">POWERED BY GROK xAI</span>
         </Link>
 
         {/* ── Navigation ────────────────────────────────────────────────── */}
@@ -225,6 +228,46 @@ export default function Header() {
                 type="button"
               >
                 🌐 {language.toUpperCase()}
+              </button>
+
+              {/* GROK xAI CHAOS MODE – breaks the UI for fun */}
+              <button
+                onClick={() => {
+                  const next = !grokChaos;
+                  setGrokChaos(next);
+                  if (next) {
+                    document.body.classList.add("grok-takeover", "theme-grok-xai");
+                  } else {
+                    document.body.classList.remove("grok-takeover", "theme-grok-xai");
+                  }
+                }}
+                className={`px-2 py-1.5 rounded-xl border text-xs font-black flex items-center gap-1 transition-all ${grokChaos ? "bg-red-600 text-white border-red-500" : "border-wacke-cyan/30 text-wacke-cyan hover:bg-white/5"}`}
+                title="GROK xAI CHAOS MODE – We broke it"
+              >
+                <Bot className="w-3 h-3" /> {grokChaos ? "STOP CHAOS" : "GROK CHAOS"}
+              </button>
+
+              {/* GROKS ON FUEGO – light it up */}
+              <button
+                onClick={() => {
+                  const next = !grokFuego;
+                  setGrokFuego(next);
+                  if (next) {
+                    document.body.classList.add("grok-fire-mode", "grok-fuego");
+                    // trigger a mini boom
+                    const fire = document.createElement('div');
+                    fire.textContent = '🔥 GROK ON FUEGO 🔥';
+                    fire.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl font-black text-orange-500 z-[99999] pointer-events-none animate-pulse';
+                    document.body.appendChild(fire);
+                    setTimeout(() => fire.remove(), 2000);
+                  } else {
+                    document.body.classList.remove("grok-fire-mode", "grok-fuego");
+                  }
+                }}
+                className={`px-2 py-1.5 rounded-xl border text-xs font-black flex items-center gap-1 transition-all ${grokFuego ? "bg-orange-600 text-white border-orange-500" : "border-red-500/30 text-orange-400 hover:bg-white/5"}`}
+                title="GROKS ON FUEGO – Set the app ablaze"
+              >
+                🔥 {grokFuego ? "EXTINGUISH" : "GROK FUEGO"}
               </button>
 
               {/* User Dropdown */}

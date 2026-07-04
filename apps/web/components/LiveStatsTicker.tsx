@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useLanguage } from "./LanguageProvider";
+import { Bot } from "lucide-react";
 
 interface StatsData {
   totalViewers: number;
@@ -12,12 +13,33 @@ interface StatsData {
 }
 
 export default function LiveStatsTicker() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [stats, setStats] = useState<StatsData>({
     totalViewers: 0, totalStreams: 0, kickCount: 0, twitchCount: 0, topGame: "Gaming",
   });
   const [pulse, setPulse] = useState(false);
   const [displayViewers, setDisplayViewers] = useState(0);
+  const [grokFact, setGrokFact] = useState("Grok xAI dit: Le dépanneur gagne toujours.");
+  const [factLoading, setFactLoading] = useState(false);
+
+  const fetchGrokFact = async () => {
+    setFactLoading(true);
+    try {
+      const res = await fetch("/api/grok", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: language === "fr" 
+            ? "Donne un fait court, drôle et wacké sur le streaming ou le Québec en argot. Maximum 15 mots."
+            : "Give a short funny wacké fact about streaming or Quebec in slang. Max 15 words.",
+          maxTokens: 40,
+        }),
+      });
+      const data = await res.json();
+      if (data.content) setGrokFact(data.content.trim());
+    } catch {}
+    setFactLoading(false);
+  };
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -109,6 +131,11 @@ export default function LiveStatsTicker() {
             <span className="flex items-center space-x-1">
               <span className="text-wacke-cyan font-bold">{t("liveStatsTop")}</span>
               <span className="text-white">{stats.topGame}</span>
+            </span>
+            <span className="flex items-center space-x-1 text-wacke-cyan cursor-pointer" onClick={fetchGrokFact}>
+              <Bot className="w-3 h-3" />
+              <span className="font-bold">GROK:</span>
+              <span className="text-gray-300 hover:text-white">{factLoading ? "..." : grokFact}</span>
             </span>
             <span className="flex items-center space-x-1">
               <span className="text-wacke-pink font-bold">Boost:</span>

@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import ParticleBackground from "@/components/ParticleBackground";
 import { useLanguage } from "@/components/LanguageProvider";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { Bot } from "lucide-react";
 
 export default function LoginPage() {
   const { login, user, isLoading, refreshUser } = useAuth();
@@ -56,7 +57,7 @@ export default function LoginPage() {
       }
       const res = await login(email.trim());
       if (res.success) {
-        setSuccessMsg(res.error || t("loginSuccessMagicLink"));
+        setSuccessMsg((res as any).message || res.error || t("loginSuccessMagicLink"));
         setCodeSent(true); // Show OTP code verification form
       } else {
         setErrorMsg(res.error || t("loginErrorMagicLink"));
@@ -90,7 +91,8 @@ export default function LoginPage() {
 
       // Save token in cookie
       const activeToken = data.session.access_token;
-      document.cookie = `wacke_token=${activeToken};path=/;max-age=604800;SameSite=Lax;secure=${process.env.NODE_ENV === "production"}`;
+      const secureFlag = process.env.NODE_ENV === "production" ? ";secure" : "";
+      document.cookie = `wacke_token=${activeToken};path=/;max-age=604800;SameSite=Lax${secureFlag}`;
       
       // Sync user profile from auth token
       await refreshUser();
@@ -177,6 +179,22 @@ export default function LoginPage() {
                   <span>Google</span>
                 </button>
               </div>
+
+              {/* GROK TOUCH: Epic Demo Login — go wild mode */}
+              <button
+                type="button"
+                onClick={async () => {
+                  const demoNames = ["ti_grok", "depaneurAI", "wacke_max", "sacre_bot", "xai_quebec"];
+                  const pick = demoNames[Math.floor(Math.random() * demoNames.length)];
+                  const res = await login(`${pick}@mock.wacke.ca`, pick);
+                  if (res.success) {
+                    router.push("/");
+                  }
+                }}
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-black via-wacke-cyan to-black border border-wacke-cyan/50 text-white py-3.5 rounded-xl font-extrabold text-sm hover:scale-[1.01] active:scale-95 transition-all shadow-[0_0_15px_rgba(0,255,255,0.2)]"
+              >
+                <Bot className="w-4 h-4" /> 🚀 LOGIN AS GROKÉ DEMO (INSTANT CHAOS)
+              </button>
 
               <div className="flex items-center my-2">
                 <hr className="flex-grow border-t border-wacke-purple/15" />

@@ -6,6 +6,8 @@ import CombinedStreamGrid from "@/components/CombinedStreamGrid";
 import TrendingGames from "@/components/TrendingGames";
 import FeatureShowcase from "@/components/FeatureShowcase";
 import ParticleBackground from "@/components/ParticleBackground";
+import GrokHotTakes from "@/components/GrokHotTakes";
+import GrokFire from "@/components/GrokFire";
 import { useLanguage } from "@/components/LanguageProvider";
 import { Gamepad2, Music, Dices, Glasses, Snowflake, Palette, TrendingUp, Users, Zap } from "lucide-react";
 
@@ -35,8 +37,14 @@ export default function HomePage() {
             {t("welcome")}
           </h1>
           <p className="text-base md:text-lg text-gray-200 font-medium max-w-xl mx-auto drop-shadow-md mb-6">
-            {t("heroSubtitle")}
+            {t("heroSubtitle")} <span className="text-wacke-cyan font-bold">+ Grok chaos</span>
           </p>
+          <div className="text-[10px] uppercase tracking-[3px] text-wacke-cyan/70 mb-2">POWERED BY GROK xAI • Maximum Truth • Maximum Wacké</div>
+
+          {/* LIGHT THE MATCH BOOM - GROK xAI ON FIRE */}
+          <div className="mb-8">
+            <GrokFire />
+          </div>
 
           {/* Animated Stats */}
           <div className="flex items-center justify-center space-x-6 md:space-x-10">
@@ -79,6 +87,11 @@ export default function HomePage() {
 
       {/* ── Feature Showcase ───────────────────────────────────────────── */}
       <FeatureShowcase />
+
+      {/* Grok xAI Hot Takes - fresh roasts powered by real Grok */}
+      <section className="px-6 lg:px-8 pb-12 max-w-4xl mx-auto">
+        <GrokHotTakes />
+      </section>
 
       {/* ── Category Quick Links ───────────────────────────────────────── */}
       <section className="px-6 lg:px-8 pb-12 max-w-7xl mx-auto">

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Radio, ChevronLeft, ChevronRight, Users } from "lucide-react";
+import { Home, Search, Radio, ChevronLeft, ChevronRight, Users, Bot } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
 
 interface SidebarChannel {
@@ -23,6 +23,11 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { language, t } = useLanguage();
   const [channels, setChannels] = useState<SidebarChannel[]>([]);
+  // Grok xAI "broke the algorithm" recommendations
+  const grokPicks = [
+    { username: "grok-xai", displayName: "GROK xAI (OVERRIDE)", category: "chaos", viewerCount: 42069 },
+    { username: "tabarnak-ai", displayName: "Grok's Sacre Bot", category: "ir l", viewerCount: 1337 },
+  ];
   
   interface Spender {
     id: string;
@@ -170,6 +175,18 @@ export default function Sidebar() {
                   </span>
                 </div>
               )}
+            </Link>
+          ))}
+        </div>
+
+        {/* GROK xAI BROKE THE RECOMMENDATIONS */}
+        <div className="mt-2 pt-2 border-t border-wacke-cyan/20 px-1">
+          <div className="text-[9px] text-wacke-cyan font-black flex items-center gap-1 mb-1">
+            <Bot className="w-3 h-3" /> GROK xAI PICKS (ALGO BROKEN)
+          </div>
+          {grokPicks.map((ch, i) => (
+            <Link key={i} href={`/stream/${ch.username}`} className="block text-[10px] text-wacke-cyan/80 hover:text-white py-0.5">
+              {ch.displayName} <span className="font-mono text-[8px]">{ch.viewerCount.toLocaleString()}</span>
             </Link>
           ))}
         </div>

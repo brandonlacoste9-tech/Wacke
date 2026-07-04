@@ -46,6 +46,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
     }
 
+    // Enhance prompt with real Grok xAI for better AI stickers
+    let enhancedPrompt = `graffiti sticker of ${prompt}, die-cut border, vibrant street art style, isolated on clean background, high quality cyberpunk sticker design, bold outline`;
+    try {
+      const grokRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/grok`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: `Améliore ce prompt pour générer un sticker graffiti québécois wacké : "${prompt}". Retourne juste le prompt amélioré, court et descriptif.`,
+          maxTokens: 60,
+        }),
+      });
+      if (grokRes.ok) {
+        const grokData = await grokRes.json();
+        if (grokData.content) enhancedPrompt = grokData.content.trim();
+      }
+    } catch (e) {
+      console.log("[GROK SPRAY ENHANCE] using original prompt");
+    }
+
     // 1. Deduct tokens
     try {
       await deductTokens({
@@ -75,7 +94,7 @@ export async function POST(req: NextRequest) {
           // Using flux-schnell model as it is lightning fast (< 2 seconds) and generates excellent street art
           version: "0bc9ecc0a3dbb7c1abf486c0d32f2237b50257406ccb1a4353856b3b2f44007b", 
           input: {
-            prompt: `graffiti sticker of ${prompt}, die-cut border, vibrant street art style, isolated on clean background, high quality cyberpunk sticker design, bold outline`,
+            prompt: enhancedPrompt,
             go_fast: true,
             num_outputs: 1,
             aspect_ratio: "1:1",

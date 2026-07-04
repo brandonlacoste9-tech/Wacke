@@ -27,6 +27,7 @@ export const translations = {
     join: "Rejoindre",
     expand: "Agrandir",
     collapse: "Réduire",
+    poweredBy: "Powered by Grok xAI",
 
     // ── Home Page ─────────────────────────────────────────────────────
     welcome: "Bienvenue sur Wacké",
@@ -92,6 +93,7 @@ export const translations = {
     stickerTooltip: "Générateur de stickers AI (100 jetons)",
     soundTooltip: "Soundboard interactive (20-50 jetons)",
     sacreTooltip: "Générateur de sacres (10 jetons)",
+    grokTooltip: "Consult Groké — l'IA wackée avec du gros bon sens (et du chaos)",
 
     // ── Token Shop ────────────────────────────────────────────────────
     shopTitle: "BOUTIQUE DE JETONS 🪙",
@@ -268,6 +270,7 @@ export const translations = {
     join: "Join Now",
     expand: "Expand",
     collapse: "Collapse",
+    poweredBy: "Powered by Grok xAI",
 
     // ── Home Page ─────────────────────────────────────────────────────
     welcome: "Welcome to Wacké",
@@ -333,6 +336,7 @@ export const translations = {
     stickerTooltip: "AI sticker generator (100 tokens)",
     soundTooltip: "Interactive soundboard (20-50 tokens)",
     sacreTooltip: "Swear generator (10 tokens)",
+    grokTooltip: "Ask Groké — wacké AI with maximum truth & maximum fun",
 
     // ── Token Shop ────────────────────────────────────────────────────
     shopTitle: "TOKEN SHOP 🪙",
