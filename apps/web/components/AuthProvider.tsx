@@ -217,7 +217,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Real Supabase Auth: Send OTP (pure code flow)
       const supabase = getSupabaseClient();
       console.log("[AUTH_PROVIDER_SEND_OTP] project:", process.env.NEXT_PUBLIC_SUPABASE_URL);
-      const redirectTo = "https://wacke.live/auth/callback";
+      const redirectTo = typeof window !== "undefined" && window.location.hostname === "localhost"
+        ? "http://localhost:3000/auth/callback"
+        : "https://wacke.live/auth/callback";
       const { error: authError } = await supabase.auth.signInWithOtp({
         email,
         options: {

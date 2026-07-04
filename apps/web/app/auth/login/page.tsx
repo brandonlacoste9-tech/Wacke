@@ -71,7 +71,9 @@ export default function LoginPage() {
       const supabase = getSupabaseClient();
       // Hardcode production redirect to ensure it exactly matches Supabase dashboard allowed list
       // (window.location may vary on previews/Netlify subdomains)
-      const redirectTo = "https://wacke.live/auth/callback";
+      const redirectTo = typeof window !== "undefined" && window.location.hostname === "localhost"
+        ? "http://localhost:3000/auth/callback"
+        : "https://wacke.live/auth/callback";
       const { error: sendError } = await supabase.auth.signInWithOtp({
         email: email.trim(),
         options: {
@@ -96,7 +98,9 @@ export default function LoginPage() {
     try {
       const supabase = getSupabaseClient();
       console.log("[RESEND_OTP] Using Supabase project:", process.env.NEXT_PUBLIC_SUPABASE_URL);
-      const redirectTo = "https://wacke.live/auth/callback";
+      const redirectTo = typeof window !== "undefined" && window.location.hostname === "localhost"
+        ? "http://localhost:3000/auth/callback"
+        : "https://wacke.live/auth/callback";
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
         options: {
