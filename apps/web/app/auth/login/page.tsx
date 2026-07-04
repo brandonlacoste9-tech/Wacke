@@ -266,10 +266,11 @@ export default function LoginPage() {
         {!isMock && (
           <div className="mb-6 p-3 bg-blue-950/50 border border-blue-500/30 rounded text-[10px] text-blue-200">
             <strong>Real login checklist (do this once):</strong><br/>
-            1. In Supabase dashboard (project ulbfaxhsbbckotcbmslk) → Auth → URL Configuration: set Site URL to <code>https://wacke.live</code><br/>
-            2. Add to Redirect URLs: <code>https://wacke.live</code>, <code>https://wacke.live/auth/callback</code>, <code>https://wacke.live/*</code><br/>
-            3. Redeploy on Netlify after changes.<br/>
-            4. Use fresh code, copy only the 6 digits without clicking links.
+            1. Supabase (ulbfaxhsbbckotcbmslk) → Auth → URL Configuration: Site URL = https://wacke.live<br/>
+            2. Add Redirects: https://wacke.live , https://wacke.live/* , https://wacke.live/auth/callback<br/>
+            3. (Optional but strong) Edit Email Templates → Magic Link: remove the clickable link, keep only the {{ .Token }} code.<br/>
+            4. Redeploy Netlify after env/redirect changes.<br/>
+            5. Fresh code + "Show original" only — paste 6 digits in &lt;60s.
           </div>
         )}
 
