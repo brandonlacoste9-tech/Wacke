@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { translations, type Language, type TranslationKey } from "@/lib/translations";
 
 interface LanguageContextType {
@@ -13,6 +14,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>("fr");
+  const router = useRouter();
 
   useEffect(() => {
     const saved = localStorage.getItem("wacke-lang") as Language;
@@ -25,8 +27,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     setLanguageState(lang);
     localStorage.setItem("wacke-lang", lang);
     if (typeof document !== "undefined") {
-      document.cookie = `wacke_lang=${lang}; path=/; max-age=31536000; SameSite=Lax`;
+      const isSecure = window.location.protocol === 'https:';
+      document.cookie = `wacke_lang=${lang}; path=/; max-age=31536000; SameSite=Lax${isSecure ? '; Secure' : ''}`;
     }
+    router.refresh();
   };
 
   const t = (key: TranslationKey): string => {
