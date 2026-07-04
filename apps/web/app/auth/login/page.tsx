@@ -57,11 +57,36 @@ export default function LoginPage() {
       }
       const res = await login(email.trim());
       if (res.success) {
-        setSuccessMsg((res as any).message || res.error || t("loginSuccessMagicLink"));
+        setSuccessMsg(language === "fr" ? "Code de validation envoyé par email ! Vérifie ta boîte (et les spams)." : "Verification code sent by email! Check your inbox (and spam).");
         setCodeSent(true); // Show OTP code verification form
       } else {
         setErrorMsg(res.error || t("loginErrorMagicLink"));
       }
+    }
+  };
+
+  const handleResend = async () => {
+    if (!email.trim()) return;
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    setIsLoadingOtp(true);
+    try {
+      const supabase = getSupabaseClient();
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim(),
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) {
+        setErrorMsg(error.message);
+      } else {
+        setSuccessMsg(language === "fr" ? "Nouveau code envoyé ! Vérifie tes emails (y compris les spams)." : "New code sent! Check your emails (including spam).");
+      }
+    } catch (err) {
+      setErrorMsg(language === "fr" ? "Erreur lors du renvoi du code." : "Error resending code.");
+    } finally {
+      setIsLoadingOtp(false);
     }
   };
 
@@ -89,10 +114,19 @@ export default function LoginPage() {
         return;
       }
 
-      // Save token in cookie
-      const activeToken = data.session.access_token;
+      // Save token in cookie (access + refresh for long term)
+      const { access_token, refresh_token } = data.session;
       const secureFlag = process.env.NODE_ENV === "production" ? ";secure" : "";
-      document.cookie = `wacke_token=${activeToken};path=/;max-age=604800;SameSite=Lax${secureFlag}`;
+      document.cookie = `wacke_token=${access_token};path=/;max-age=604800;SameSite=Lax${secureFlag}`;
+      if (refresh_token) {
+        document.cookie = `wacke_refresh_token=${refresh_token};path=/;max-age=604800;SameSite=Lax${secureFlag}`;
+      }
+      
+      // Keep Supabase client session in sync
+      const supabase = getSupabaseClient();
+      if (refresh_token) {
+        await supabase.auth.setSession({ access_token, refresh_token });
+      }
       
       // Sync user profile from auth token
       await refreshUser();
@@ -238,7 +272,7 @@ export default function LoginPage() {
                       required
                     />
                     <p className="text-[10px] text-gray-600 mt-2">
-                      {t("magicLinkNotice")}
+                      {language === "fr" ? "On t'enverra un code de validation à 6 chiffres par email (vérifie les spams)." : "We'll send a 6-digit verification code by email (check spam)."}
                     </p>
                   </div>
                 )}
@@ -287,6 +321,15 @@ export default function LoginPage() {
                            shadow-lg shadow-wacke-pink/20"
               >
                 {isLoadingOtp ? t("btnLoading") : t("loginVerifyBtn")}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={isLoadingOtp}
+                className="w-full text-center text-xs font-bold text-wacke-cyan hover:text-wacke-pink transition-colors py-2"
+              >
+                {language === "fr" ? "Renvoyer le code" : "Resend code"}
               </button>
 
               <button

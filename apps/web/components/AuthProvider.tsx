@@ -45,11 +45,16 @@ function getCookie(name: string): string | null {
   return null;
 }
 
+function getRefreshCookie(): string | null {
+  return getCookie("wacke_refresh_token");
+}
+
 function setCookie(name: string, val: string, days = 7) {
   if (typeof document === "undefined") return;
   const date = new Date();
   date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${name}=${val};path=/;expires=${date.toUTCString()};SameSite=Lax`;
+  const secureFlag = process.env.NODE_ENV === "production" ? ";secure" : "";
+  document.cookie = `${name}=${val};path=/;expires=${date.toUTCString()};SameSite=Lax${secureFlag}`;
 }
 
 function deleteCookie(name: string) {
@@ -66,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // ─── Refresh User Data ───────────────────────────────────────────────────
   const refreshUser = useCallback(async () => {
-    const activeToken = token || getCookie("wacke_token");
+    let activeToken = token || getCookie("wacke_token");
     if (!activeToken) {
       setUser(null);
       setIsLoading(false);
@@ -74,13 +79,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      const res = await fetch("/api/auth/sync", {
+      let res = await fetch("/api/auth/sync", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${activeToken}`,
         },
       });
+
+      if (!res.ok) {
+        // Try to refresh the token using Supabase client if we have refresh token
+        const refreshTok = getRefreshCookie();
+        if (refreshTok) {
+          const supabase = getSupabaseClient();
+          const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession({
+            refresh_token: refreshTok,
+          });
+
+          if (!refreshError && refreshData.session) {
+            const newAccess = refreshData.session.access_token;
+            const newRefresh = refreshData.session.refresh_token;
+
+            // Update cookies
+            const secureFlag = process.env.NODE_ENV === "production" ? ";secure" : "";
+            document.cookie = `wacke_token=${newAccess};path=/;max-age=604800;SameSite=Lax${secureFlag}`;
+            if (newRefresh) {
+              document.cookie = `wacke_refresh_token=${newRefresh};path=/;max-age=604800;SameSite=Lax${secureFlag}`;
+            }
+
+            activeToken = newAccess;
+            setToken(activeToken);
+
+            // Retry sync with new token
+            res = await fetch("/api/auth/sync", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${activeToken}`,
+              },
+            });
+          }
+        }
+      }
 
       if (res.ok) {
         const data = await res.json();
@@ -90,6 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         // Token might be expired, clear it
         deleteCookie("wacke_token");
+        deleteCookie("wacke_refresh_token");
         setUser(null);
         setToken(null);
       }
@@ -243,7 +284,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (authData.session) {
-        const sessionToken = authData.session.access_token;
+        const { access_token, refresh_token } = authData.session;
+        const sessionToken = access_token;
         // Sync
         const syncRes = await fetch("/api/auth/sync", {
           method: "POST",
@@ -258,6 +300,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const data = await syncRes.json();
           setToken(sessionToken);
           setCookie("wacke_token", sessionToken);
+          if (refresh_token) {
+            const secureFlag = process.env.NODE_ENV === "production" ? ";secure" : "";
+            document.cookie = `wacke_refresh_token=${refresh_token};path=/;max-age=604800;SameSite=Lax${secureFlag}`;
+          }
           setUser(data.user);
         }
       }

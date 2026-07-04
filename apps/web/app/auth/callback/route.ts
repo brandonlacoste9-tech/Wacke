@@ -29,6 +29,14 @@ export async function GET(req: NextRequest) {
           sameSite: "lax",
           secure: process.env.NODE_ENV === "production",
         });
+        if (data.session.refresh_token) {
+          response.cookies.set("wacke_refresh_token", data.session.refresh_token, {
+            path: "/",
+            maxAge: 60 * 60 * 24 * 7,
+            sameSite: "lax",
+            secure: process.env.NODE_ENV === "production",
+          });
+        }
         
         return response;
       }
