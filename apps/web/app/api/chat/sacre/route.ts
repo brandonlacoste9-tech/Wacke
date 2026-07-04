@@ -7,6 +7,7 @@ import {
 } from "@wacke/db";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const SACRE_COST = 10;
 

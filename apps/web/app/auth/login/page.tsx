@@ -112,12 +112,12 @@ export default function LoginPage() {
               href="/api/auth/kick/login"
               className="w-full bg-[#53fc18] text-black hover:scale-[1.02] active:scale-[0.98] transition-all py-4 rounded-xl
                          font-bold text-lg flex items-center justify-center space-x-2
-                         shadow-[0_0_20px_rgba(83,252,24,0.3)] hover:shadow-[0_0_30px_rgba(83,252,24,0.5)]"
+                         shadow-[0_0_20px_rgba(83,252,24,0.3)] hover:shadow-[0_0_30px_rgba(83,252,24,0.5)] kick-element"
             >
-              <span>🟢</span>
+              <span className="emoji text-2xl">🟢</span>
               <span>{t("loginWithKick")}</span>
-              <span className="bg-black text-[#53fc18] text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-md ml-2 border border-[#53fc18]/30 animate-pulse">
-                {t("recommendedLabel")}
+              <span className="bg-black text-[#53fc18] text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-md ml-2 border border-[#53fc18]/30 animate-pulse emoji">
+                RECOMMENDED 🔥
               </span>
             </a>
           </div>
@@ -147,8 +147,8 @@ export default function LoginPage() {
             </button>
           </div>
         </div>
+        </div>
       </div>
-    </div>
     </div>
   );
 }

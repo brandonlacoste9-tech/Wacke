@@ -146,12 +146,8 @@ export default function KickFeaturedCarousel() {
               <p className="font-bold text-white text-base truncate drop-shadow-md">{displayName}</p>
               <p className="text-xs text-wacke-cyan font-medium drop-shadow-md">{category}</p>
             </div>
-            <div className="ml-auto flex items-center space-x-1 bg-black/50 border border-white/10 text-white text-xs font-bold px-2.5 py-1 rounded-xl backdrop-blur-sm">
-              <svg className="w-3.5 h-3.5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
-              </svg>
-              <span>{formatViewers(current.viewer_count)}</span>
+            <div className="ml-auto flex items-center space-x-1 bg-black/50 border border-white/10 text-white text-xs font-bold px-2.5 py-1 rounded-xl backdrop-blur-sm emoji">
+              👀 <span>{formatViewers(current.viewer_count)}</span>
             </div>
           </div>
 

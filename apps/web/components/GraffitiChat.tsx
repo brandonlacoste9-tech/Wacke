@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useGraffitiChat, type ChatMessage } from "@/hooks/useGraffitiChat";
 import { useKickChat, type KickChatMessage } from "@/hooks/useKickChat";
+import { useTwitchChat, type TwitchChatMessage } from "@/hooks/useTwitchChat";
 import { Moon, Flame, Mic, Users, Sparkles, Volume2, Bot } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import EmojiPicker from "./EmojiPicker";
@@ -47,10 +48,16 @@ function StickerLabel() {
 
 function SoundDisplay({ soundType, soundLabels }: { soundType: string; soundLabels: Record<string, string> }) {
   const { t } = useLanguage();
+  const label = soundLabels[soundType] || soundType;
+  // Convert any emojis in label to Twemoji
+  const renderedLabel = label.replace(/[\p{Emoji_Presentation}\p{Emoji}\uFE0F]/gu, (emoji) => {
+    const url = `https://twemoji.maxcdn.com/v/14.0.2/svg/${Array.from(emoji).map(c => c.codePointAt(0)!.toString(16)).join('-')}.svg`;
+    return `<img src="${url}" alt="${emoji}" class="emoji inline w-3 h-3 align-[-0.1em]" style="image-rendering:crisp-edges" />`;
+  });
   return (
     <span className="text-yellow-400 font-bold italic tracking-wide text-[10px] bg-yellow-500/10 px-2 py-0.5 rounded-lg border border-yellow-500/25 inline-flex items-center space-x-1">
       <span>{t("playedSound")}</span>
-      <span className="underline">{soundLabels[soundType] || soundType}</span>
+      <span className="underline" dangerouslySetInnerHTML={{ __html: renderedLabel }} />
     </span>
   );
 }
@@ -162,6 +169,7 @@ interface GraffitiChatProps {
   currentUserId?: string;
   initialMessages?: ChatMessage[];
   kickUsername?: string;
+  twitchUsername?: string;
 }
 
 export default function GraffitiChat({
@@ -169,6 +177,7 @@ export default function GraffitiChat({
   currentUserId: serverUserId,
   initialMessages = [],
   kickUsername,
+  twitchUsername,
 }: GraffitiChatProps) {
   const { language, t } = useLanguage();
   const [sacreMode, setSacreMode] = useState(true);
@@ -245,7 +254,13 @@ export default function GraffitiChat({
     sendToKick,
   } = useKickChat({ kickUsername, enabled: !!kickUsername });
 
-  // Merge Wacké messages + Kick messages + Grok messages, sorted by time
+  // ── Twitch real-time chat integration ────────────────────────────────────
+  const {
+    messages: twitchMessages,
+    isConnected: isTwitchConnected,
+  } = useTwitchChat({ twitchUsername, enabled: !!twitchUsername });
+
+  // Merge Wacké messages + Kick messages + Twitch messages + Grok messages, sorted by time
   const allMessages = useMemo(() => {
     const wackeNormalized = messages.map((m) => ({ ...m, _source: "wacke" as const }));
     const kickNormalized = kickMessages.map((km: KickChatMessage) => ({
@@ -265,11 +280,28 @@ export default function GraffitiChat({
       _source: "kick" as const,
       _kickSender: km.sender,
     }));
+    const twitchNormalized = twitchMessages.map((tm: TwitchChatMessage) => ({
+      id: tm.id,
+      streamId,
+      userId: tm.sender.id,
+      content: tm.content,
+      isSacre: false,
+      audioUrl: undefined,
+      createdAt: tm.createdAt,
+      user: {
+        id: tm.sender.id,
+        username: tm.sender.username,
+        displayName: tm.sender.displayName,
+        avatarUrl: null,
+      },
+      _source: "twitch" as const,
+      _twitchSender: tm.sender,
+    }));
     const grokNormalized = grokMessages.map((m) => ({ ...m, _source: "wacke" as const }));
-    return [...wackeNormalized, ...kickNormalized, ...grokNormalized]
+    return [...wackeNormalized, ...kickNormalized, ...twitchNormalized, ...grokNormalized]
       .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
       .slice(-200);
-  }, [messages, kickMessages, grokMessages, streamId]);
+  }, [messages, kickMessages, twitchMessages, grokMessages, streamId]);
 
   // Grok xAI random events – makes the chat feel alive with Grok interjections
   useEffect(() => {
@@ -583,7 +615,21 @@ export default function GraffitiChat({
               }`}
             >
               <span className={`w-1 h-1 rounded-full ${isKickConnected ? "bg-[#53fc18] animate-pulse" : "bg-gray-600"}`} />
-              <span>KICK</span>
+              <span className="emoji kick-element">🟢 KICK</span>
+            </div>
+          )}
+          {/* Twitch connection indicator */}
+          {twitchUsername && (
+            <div
+              title={isTwitchConnected ? `Connected to ${twitchUsername}'s Twitch chat` : "Connecting to Twitch chat..."}
+              className={`flex items-center space-x-1 text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                isTwitchConnected
+                  ? "bg-[#9146FF]/10 text-[#9146FF] border border-[#9146FF]/30"
+                  : "bg-white/5 text-gray-500 border border-white/10"
+              }`}
+            >
+              <span className={`w-1 h-1 rounded-full ${isTwitchConnected ? "bg-[#9146FF] animate-pulse" : "bg-gray-600"}`} />
+              <span>TWITCH</span>
             </div>
           )}
           {/* Mode Sacré toggle */}
@@ -622,15 +668,23 @@ export default function GraffitiChat({
               <span className="text-[10px] text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                 {formatTime(msg.createdAt)}
               </span>
-              {/* Kick source badge */}
+              {/* Kick source badge - love kicks! */}
               {msg._source === "kick" && (
-                <span className="text-[8px] font-extrabold bg-[#53fc18]/15 text-[#53fc18] border border-[#53fc18]/30 px-1 py-0.5 rounded shrink-0">
-                  KICK
+                <span className="text-[8px] font-extrabold bg-[#53fc18]/15 text-[#53fc18] border border-[#53fc18]/30 px-1 py-0.5 rounded shrink-0 emoji">
+                  🟢 KICK
                 </span>
               )}
-              <p className={`text-xs font-bold ${msg._source === "kick" ? "text-[#53fc18]" : getUserColor(msg.userId)} shrink-0`}>
-                {msg._source === "kick" && msg._kickSender?.isBroadcaster && <span className="mr-1">👑</span>}
-                {msg._source === "kick" && msg._kickSender?.isModerator && <span className="mr-1">🔧</span>}
+              {/* Twitch source badge */}
+              {msg._source === "twitch" && (
+                <span className="text-[8px] font-extrabold bg-[#9146FF]/15 text-[#9146FF] border border-[#9146FF]/30 px-1 py-0.5 rounded shrink-0 emoji">
+                  🟣 TWITCH
+                </span>
+              )}
+              <p className={`text-xs font-bold ${msg._source === "kick" ? "text-[#53fc18]" : msg._source === "twitch" ? "text-[#9146FF]" : getUserColor(msg.userId)} shrink-0`}>
+                {msg._source === "kick" && msg._kickSender?.isBroadcaster && <span className="mr-1 emoji">👑</span>}
+                {msg._source === "kick" && msg._kickSender?.isModerator && <span className="mr-1 emoji">🔧</span>}
+                {msg._source === "twitch" && msg._twitchSender?.isBroadcaster && <span className="mr-1 emoji">👑</span>}
+                {msg._source === "twitch" && msg._twitchSender?.isModerator && <span className="mr-1 emoji">🗡️</span>}
                 {msg.user?.displayName ?? msg.user?.username ?? "Anonyme"}
                 {msg.isSacre && (
                   <Flame className="w-3 h-3 inline ml-0.5 text-red-500 fill-current drop-shadow-[0_0_4px_rgba(255,0,0,0.6)]" />

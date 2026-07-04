@@ -104,19 +104,15 @@ function StreamCard({ stream }: { stream: KickStream }) {
           </div>
         )}
 
-        {/* LIVE badge */}
-        <div className="absolute top-2 left-2 flex items-center space-x-1 bg-red-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded shadow-md">
-          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+        {/* LIVE badge - Kick love */}
+        <div className="absolute top-2 left-2 flex items-center space-x-1 bg-red-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded shadow-md emoji">
+          <span>🔴</span>
           <span>LIVE</span>
         </div>
 
-        {/* Viewer count */}
-        <div className="absolute top-2 right-2 flex items-center space-x-1 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded">
-          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-            <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
-          </svg>
-          <span>{formatViewers(stream.viewer_count)}</span>
+        {/* Viewer count - Kick love */}
+        <div className="absolute top-2 right-2 flex items-center space-x-1 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded emoji">
+          👀 <span>{formatViewers(stream.viewer_count)}</span>
         </div>
       </div>
 

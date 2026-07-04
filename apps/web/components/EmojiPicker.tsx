@@ -17,6 +17,26 @@ const WACKE_EMOJIS = [
   { emoji: "🐺", label: "Loup" },
   { emoji: "🚀", label: "Fusée" },
   { emoji: "😤", label: "Rage" },
+  { emoji: "🦄", label: "Licorne" },
+  { emoji: "🌈", label: "Arc-en-ciel" },
+  { emoji: "👹", label: "Ogre" },
+  { emoji: "💥", label: "Explosion" },
+  { emoji: "🧨", label: "Pétard" },
+  { emoji: "🎃", label: "Citrouille" },
+  { emoji: "🦇", label: "Chauve-souris" },
+  { emoji: "🍁", label: "Érable" },
+  { emoji: "🥃", label: "Whisky" },
+  { emoji: "🍺", label: "Bière" },
+  { emoji: "🔫", label: "Pistolet" },
+  { emoji: "💉", label: "Seringue" },
+  // Kick love additions
+  { emoji: "🟢", label: "Kick Green" },
+  { emoji: "📺", label: "Kick Stream" },
+  { emoji: "💚", label: "Kick Heart" },
+  { emoji: "🚀", label: "Kick Launch" },
+  { emoji: "🔥", label: "Kick Fire" },
+  { emoji: "👀", label: "Live Eyes" },
+  { emoji: "🎮", label: "Game On" },
 ];
 
 const getTwemojiUrl = (emoji: string) => {
@@ -29,6 +49,7 @@ const getTwemojiUrl = (emoji: string) => {
 /**
  * EmojiPicker — Quick emoji row for Graffiti Chat.
  * Uses Twemoji SVGs for crisp, consistent look across all devices.
+ * Kick love included! 🟢
  * Still inserts the original emoji char for compatibility.
  */
 export default function EmojiPicker({ onSelect }: EmojiPickerProps) {

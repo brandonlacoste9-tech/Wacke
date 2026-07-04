@@ -89,6 +89,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
           streamId={`twitch-mock-chat-${twitchUsername}`}
           initialMessages={[]}
           currentUserId={undefined}
+          twitchUsername={twitchUsername}
         />
         <TokenBar
           initialBalance={500}

@@ -11,6 +11,7 @@ import { promisify } from "util";
 const execAsync = promisify(exec);
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const TTS_COST = 50;
 

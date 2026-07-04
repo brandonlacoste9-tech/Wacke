@@ -463,10 +463,43 @@ button:active:not(:disabled) {
 img.emoji {
   width: 1em;
   height: 1em;
-  vertical-align: -0.125em;
+  vertical-align: -0.15em;
   display: inline-block;
   image-rendering: crisp-edges;
-  filter: none;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  transition: transform 0.1s ease;
+}
+
+.emoji img:hover,
+img.emoji:hover {
+  transform: scale(1.1);
+}
+
+/* Extra pop in fire/grok modes */
+.grok-fire-mode .emoji img,
+.grok-fire-mode img.emoji,
+.fuego-msg .emoji img,
+.fuego-msg img.emoji {
+  filter: drop-shadow(0 0 6px #ff4500) saturate(1.3) brightness(1.1);
+}
+
+/* Kick love styles */
+.kick-badge, .kick-element {
+  color: #53fc18;
+}
+.kick-element .emoji img {
+  filter: drop-shadow(0 0 3px #53fc18);
+}
+
+/* Tweak sizes per context */
+.chat-message .emoji img,
+.chat-message img.emoji {
+  width: 1.15em;
+  height: 1.15em;
+}
+
+.rain-particle .emoji img {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
 }
 
 /* Emoji rain / shower (used in GrokFire and token effects) */

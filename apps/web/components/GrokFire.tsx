@@ -37,25 +37,104 @@ export default function GrokFire() {
 
       // Trigger global fire effects
       document.body.classList.add("grok-fire-mode");
-      
-      // Simulate massive emoji rain using Twemoji SVGs for crisp, consistent look
-      const fireEmojis = ["🔥", "💥", "🚀", "🧨", "👹", "💣"];
-      for (let i = 0; i < 50; i++) {
-        setTimeout(() => {
-          const emoji = fireEmojis[Math.floor(Math.random() * fireEmojis.length)];
-          const codePoints = Array.from(emoji).map(c => c.codePointAt(0)!.toString(16)).join('-');
-          const el = document.createElement("img");
-          el.className = "fixed w-8 h-8 emoji pointer-events-none z-[9999] animate-coin-shower";
-          el.src = `https://twemoji.maxcdn.com/v/14.0.2/svg/${codePoints}.svg`;
-          el.alt = emoji;
-          el.style.left = `${Math.random() * 100}vw`;
-          el.style.top = "-30px";
-          el.style.animationDelay = `${Math.random() * 1.5}s`;
-          document.body.appendChild(el);
-          
-          setTimeout(() => el.remove(), 4500);
-        }, i * 8);
+
+      // Canvas-based emoji rain for smoother, better looking effects (Twemoji style + physics)
+      const canvas = document.createElement("canvas");
+      canvas.className = "fixed inset-0 pointer-events-none z-[9999]";
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      document.body.appendChild(canvas);
+      const ctx = canvas.getContext("2d", { alpha: true })!;
+
+      const fireEmojis = ["🔥", "💥", "🚀", "🧨", "👹", "💣", "🌋", "💀"];
+      interface Particle {
+        x: number;
+        y: number;
+        vx: number;
+        vy: number;
+        emoji: string;
+        size: number;
+        rot: number;
+        rotSpeed: number;
+        opacity: number;
+        twemojiUrl?: string;
       }
+
+      const particles: Particle[] = [];
+      const getTwemojiUrl = (emoji: string) => {
+        const codePoints = Array.from(emoji).map(c => c.codePointAt(0)!.toString(16)).join("-");
+        return `https://twemoji.maxcdn.com/v/14.0.2/svg/${codePoints}.svg`;
+      };
+
+      // Preload a few Twemoji images for better look
+      const twemojiImages: { [key: string]: HTMLImageElement } = {};
+      fireEmojis.forEach(emoji => {
+        const img = new Image();
+        img.src = getTwemojiUrl(emoji);
+        twemojiImages[emoji] = img;
+      });
+
+      for (let i = 0; i < 80; i++) {
+        const emoji = fireEmojis[Math.floor(Math.random() * fireEmojis.length)];
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * -canvas.height * 0.5,
+          vx: (Math.random() - 0.5) * 1.5,
+          vy: Math.random() * 3 + 2,
+          emoji,
+          size: Math.random() * 24 + 18,
+          rot: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 8,
+          opacity: Math.random() * 0.6 + 0.6,
+        });
+      }
+
+      let frame = 0;
+      const animateRain = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        particles.forEach((p, index) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.05; // gravity
+          p.rot += p.rotSpeed;
+          p.opacity -= 0.0015;
+
+          if (p.y > canvas.height + 50 || p.opacity <= 0) {
+            // respawn
+            p.x = Math.random() * canvas.width;
+            p.y = Math.random() * -100;
+            p.vy = Math.random() * 3 + 2;
+            p.opacity = Math.random() * 0.6 + 0.6;
+          }
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rot * Math.PI) / 180);
+          ctx.globalAlpha = Math.max(p.opacity, 0);
+
+          const img = twemojiImages[p.emoji];
+          if (img && img.complete && img.naturalWidth > 0) {
+            // Use Twemoji SVG for crisp look
+            ctx.drawImage(img, -p.size / 2, -p.size / 2, p.size, p.size);
+          } else {
+            // Fallback to native emoji
+            ctx.font = `${p.size}px sans-serif`;
+            ctx.fillText(p.emoji, 0, 0);
+          }
+          ctx.restore();
+        });
+
+        frame++;
+        if (frame < 280) { // ~4.5s at 60fps
+          requestAnimationFrame(animateRain);
+        } else {
+          canvas.remove();
+        }
+      };
+      requestAnimationFrame(animateRain);
 
       // Extra: flood chat if on stream (fun hack)
       if (window.location.pathname.includes("/stream/")) {
