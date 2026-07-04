@@ -68,12 +68,14 @@ export default function LoginPage() {
       }
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "unknown";
       console.log("[SEND_OTP] Using Supabase project:", supabaseUrl);
-      // Call signInWithOtp directly here for pure OTP code flow (no emailRedirectTo to avoid 403 on verify)
       const supabase = getSupabaseClient();
+      // Always pass the production redirect for safety — must match Supabase dashboard config
+      const redirectTo = `${window.location.origin}/auth/callback`;
       const { error: sendError } = await supabase.auth.signInWithOtp({
         email: email.trim(),
-        // Intentionally omit emailRedirectTo for code-only flow.
-        // The redirect is only needed if following magic links.
+        options: {
+          emailRedirectTo: redirectTo,
+        },
       });
       if (sendError) {
         console.error("[SEND_OTP_FAIL]", sendError);
@@ -93,9 +95,12 @@ export default function LoginPage() {
     try {
       const supabase = getSupabaseClient();
       console.log("[RESEND_OTP] Using Supabase project:", process.env.NEXT_PUBLIC_SUPABASE_URL);
-      // Pure code flow - omit emailRedirectTo to prevent 403 Forbidden on verify
+      const redirectTo = `${window.location.origin}/auth/callback`;
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
+        options: {
+          emailRedirectTo: redirectTo,
+        },
       });
       if (error) {
         setErrorMsg(error.message);
@@ -136,8 +141,13 @@ export default function LoginPage() {
           error 
         });
         let friendly = error?.message || (language === "fr" ? "Code de validation invalide ou expiré." : "Invalid or expired verification code.");
-        if (error?.status === 403 || error?.message?.includes("403") || error?.message?.toLowerCase().includes("forbidden")) {
-          friendly += " (Supabase blocked the request — make sure https://wacke.live is in your Supabase Redirect URLs)";
+        const is403 = error?.status === 403 || (error?.message || '').includes('403') || (error?.message || '').toLowerCase().includes('forbidden');
+        if (is403) {
+          friendly += " — This usually means the code was already used (email preview clicked the link) or expired. Check Supabase Auth logs.";
+        }
+        // Always remind about redirects as it can also cause blocks
+        if (!friendly.includes('wacke.live')) {
+          friendly += " (Also ensure https://wacke.live and /auth/callback are in Supabase Redirect URLs)";
         }
         setErrorMsg(friendly);
         return;
