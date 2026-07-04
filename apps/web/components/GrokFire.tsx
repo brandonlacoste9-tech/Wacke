@@ -38,12 +38,16 @@ export default function GrokFire() {
       // Trigger global fire effects
       document.body.classList.add("grok-fire-mode");
       
-      // Simulate massive token rain / particles via DOM (fun chaos) - BOOM edition
+      // Simulate massive emoji rain using Twemoji SVGs for crisp, consistent look
+      const fireEmojis = ["🔥", "💥", "🚀", "🧨", "👹", "💣"];
       for (let i = 0; i < 50; i++) {
         setTimeout(() => {
-          const el = document.createElement("div");
-          el.className = "fixed text-3xl emoji pointer-events-none z-[9999] animate-coin-shower";
-          el.textContent = ["🔥", "💥", "🚀", "🧨", "👹", "💣"][Math.floor(Math.random() * 6)];
+          const emoji = fireEmojis[Math.floor(Math.random() * fireEmojis.length)];
+          const codePoints = Array.from(emoji).map(c => c.codePointAt(0)!.toString(16)).join('-');
+          const el = document.createElement("img");
+          el.className = "fixed w-8 h-8 emoji pointer-events-none z-[9999] animate-coin-shower";
+          el.src = `https://twemoji.maxcdn.com/v/14.0.2/svg/${codePoints}.svg`;
+          el.alt = emoji;
           el.style.left = `${Math.random() * 100}vw`;
           el.style.top = "-30px";
           el.style.animationDelay = `${Math.random() * 1.5}s`;

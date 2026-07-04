@@ -458,6 +458,17 @@ button:active:not(:disabled) {
   font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", sans-serif;
 }
 
+/* Twemoji images (used in chat, rain, etc.) for crisp cross-platform look */
+.emoji img,
+img.emoji {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  display: inline-block;
+  image-rendering: crisp-edges;
+  filter: none;
+}
+
 /* Emoji rain / shower (used in GrokFire and token effects) */
 @keyframes coinShower {
   0% {

@@ -55,7 +55,18 @@ function SoundDisplay({ soundType, soundLabels }: { soundType: string; soundLabe
   );
 }
 
-// Highlight @mentions in message content
+// Twemoji helper for consistent, crisp emojis across platforms
+const getTwemojiUrl = (emoji: string) => {
+  const codePoints = Array.from(emoji)
+    .map((c) => c.codePointAt(0)!.toString(16))
+    .join('-');
+  return `https://twemoji.maxcdn.com/v/14.0.2/svg/${codePoints}.svg`;
+};
+
+// Simple emoji regex (covers most)
+const emojiRegex = /\p{Emoji_Presentation}|\p{Emoji}\uFE0F|\p{Emoji_Modifier_Base}\p{Emoji_Modifier}?/gu;
+
+// Highlight @mentions + convert emojis to Twemoji SVGs for better consistency
 function renderContent(content: string): React.ReactNode {
   if (content.startsWith("[spray]:")) {
     const url = content.substring(8);
@@ -84,18 +95,67 @@ function renderContent(content: string): React.ReactNode {
       <SoundDisplay soundType={soundType} soundLabels={soundLabels} />
     );
   }
-  const parts = content.split(/(@\w+)/g);
-  return parts.map((part, i) => {
-    if (part.startsWith("@")) {
-      return (
-        <span key={i} className="text-wacke-cyan font-bold">
-          {part}
+
+  // Split by @mentions and emojis
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+
+  // First handle mentions
+  const mentionRegex = /(@\w+)/g;
+  let match;
+  const mentionParts: Array<{ type: 'text' | 'mention' | 'emoji'; value: string; index: number }> = [];
+
+  while ((match = mentionRegex.exec(content)) !== null) {
+    if (match.index > lastIndex) {
+      mentionParts.push({ type: 'text', value: content.slice(lastIndex, match.index), index: lastIndex });
+    }
+    mentionParts.push({ type: 'mention', value: match[0], index: match.index });
+    lastIndex = mentionRegex.lastIndex;
+  }
+  if (lastIndex < content.length) {
+    mentionParts.push({ type: 'text', value: content.slice(lastIndex), index: lastIndex });
+  }
+
+  // Now process text parts for emojis
+  mentionParts.forEach((part, i) => {
+    if (part.type === 'mention') {
+      parts.push(
+        <span key={`m-${i}`} className="text-wacke-cyan font-bold">
+          {part.value}
         </span>
       );
+    } else {
+      // Split text for emojis
+      const text = part.value;
+      let emojiLast = 0;
+      let emojiMatch;
+      emojiRegex.lastIndex = 0;
+      while ((emojiMatch = emojiRegex.exec(text)) !== null) {
+        if (emojiMatch.index > emojiLast) {
+          parts.push(text.slice(emojiLast, emojiMatch.index));
+        }
+        const emoji = emojiMatch[0];
+        parts.push(
+          <img
+            key={`e-${i}-${emojiLast}`}
+            src={getTwemojiUrl(emoji)}
+            alt={emoji}
+            className="emoji inline-block align-[-0.125em] w-[1.1em] h-[1.1em]"
+            style={{ imageRendering: 'crisp-edges' }}
+          />
+        );
+        emojiLast = emojiRegex.lastIndex;
+      }
+      if (emojiLast < text.length) {
+        parts.push(text.slice(emojiLast));
+      }
     }
-    return part;
   });
+
+  return parts.length > 0 ? parts : content;
 }
+
+
 
 interface GraffitiChatProps {
   streamId: string;

@@ -19,9 +19,17 @@ const WACKE_EMOJIS = [
   { emoji: "😤", label: "Rage" },
 ];
 
+const getTwemojiUrl = (emoji: string) => {
+  const codePoints = Array.from(emoji)
+    .map((c) => c.codePointAt(0)!.toString(16))
+    .join('-');
+  return `https://twemoji.maxcdn.com/v/14.0.2/svg/${codePoints}.svg`;
+};
+
 /**
  * EmojiPicker — Quick emoji row for Graffiti Chat.
- * Wacké-branded emojis that insert directly into the chat input.
+ * Uses Twemoji SVGs for crisp, consistent look across all devices.
+ * Still inserts the original emoji char for compatibility.
  */
 export default function EmojiPicker({ onSelect }: EmojiPickerProps) {
   return (
@@ -30,12 +38,16 @@ export default function EmojiPicker({ onSelect }: EmojiPickerProps) {
         <button
           key={item.emoji}
           onClick={() => onSelect(item.emoji)}
-          className="text-xl emoji hover:scale-125 active:scale-95 transition-all
-                     hover:bg-white/10 hover:shadow-sm rounded-lg px-1.5 py-0.5 shrink-0"
+          className="hover:scale-125 active:scale-95 transition-all hover:bg-white/10 hover:shadow-sm rounded-lg p-0.5 shrink-0"
           title={item.label}
           type="button"
         >
-          {item.emoji}
+          <img
+            src={getTwemojiUrl(item.emoji)}
+            alt={item.emoji}
+            className="emoji w-5 h-5"
+            style={{ imageRendering: 'crisp-edges' }}
+          />
         </button>
       ))}
     </div>
