@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "./AuthProvider";
 import Link from "next/link";
-import { User, Settings, Radio, LogOut, ChevronDown } from "lucide-react";
+import { User, Settings, Radio, LogOut, ChevronDown, Globe } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
 
 /**
@@ -100,6 +100,21 @@ export default function UserDropdown() {
               <Settings className="w-4 h-4" />
               <span className="text-sm">{t("settings")}</span>
             </Link>
+            
+            {/* Language Toggle (Mobile Only) */}
+            <button
+              onClick={() => {
+                setLanguage(language === "fr" ? "en" : "fr");
+                setIsOpen(false);
+              }}
+              className="sm:hidden flex items-center justify-between px-4 py-2.5 hover:bg-white/3 transition-colors text-gray-300 hover:text-white w-full"
+            >
+              <div className="flex items-center space-x-3">
+                <Globe className="w-4 h-4" />
+                <span className="text-sm">Langue / Language</span>
+              </div>
+              <span className="text-xs font-bold text-wacke-cyan uppercase">{language}</span>
+            </button>
           </div>
 
           {/* Logout */}
