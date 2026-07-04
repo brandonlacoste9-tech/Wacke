@@ -9,6 +9,9 @@ import {
   reactions,
 } from "./schema";
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const isValidUuid = (val: any): boolean => typeof val === "string" && UUID_REGEX.test(val);
+
 // ─── Top Kick Streamers fallbacks list ──────────────────────────────────────
 export const TOP_KICK_STREAMERS = [
   "odablock",
@@ -242,6 +245,10 @@ export async function getUserBySupabaseId(supabaseId: string) {
     return user || null;
   }
 
+  if (!isValidUuid(supabaseId)) {
+    return null;
+  }
+
   return db.query.users.findFirst({
     where: eq(users.supabaseId, supabaseId),
   });
@@ -324,6 +331,11 @@ export async function getStreamById(streamId: string) {
     const state = getMockDbState();
     return state.streams.find((s) => s.id === streamId) || null;
   }
+
+  if (!isValidUuid(streamId)) {
+    return null;
+  }
+
   return db.query.streams.findFirst({
     where: eq(streams.id, streamId),
   });
@@ -435,6 +447,27 @@ export async function getStreamByUserId(userId: string) {
     if (!stream) return null;
     const streamer = state.users.find((u) => u.id === userId);
     return { ...stream, user: streamer || null };
+  }
+
+  if (!isValidUuid(userId)) {
+    // Database fallback: if stream does not exist in DB but belongs to a famous Kick channel
+    if (userId.startsWith("kick-mock-streamer-")) {
+      const username = userId.replace("kick-mock-streamer-", "");
+      return {
+        id: "kick-mock-stream-" + username,
+        userId,
+        title: getStreamerTitle(username),
+        description: `Watch ${username} stream live via direct Kick.com integration on Wacké.`,
+        category: getStreamerCategory(username) as any,
+        status: "live",
+        muxPlaybackId: "mock_playback_id",
+        viewerCount: 9400,
+        sacreModeEnabled: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as any;
+    }
+    return null;
   }
 
   let dbStream = await db.query.streams.findFirst({
@@ -670,6 +703,10 @@ export async function getRecentMessages(streamId: string, limit = 50) {
       .slice(0, limit);
   }
 
+  if (!isValidUuid(streamId)) {
+    return [];
+  }
+
   return db.query.messages.findMany({
     where: and(messages.streamId ? eq(messages.streamId, streamId) : sql`true`, eq(messages.isDeleted, false)),
     orderBy: [desc(messages.createdAt)],
@@ -725,6 +762,19 @@ export async function createChatMessage({
     return newMessage;
   }
 
+  if (!isValidUuid(streamId) || !isValidUuid(userId)) {
+    return {
+      id: "mock-msg-id-" + Math.random().toString(36).substring(5),
+      streamId,
+      userId,
+      content,
+      isSacre,
+      audioUrl: audioUrl || null,
+      isDeleted: false,
+      createdAt: new Date(),
+    };
+  }
+
   const [inserted] = await db
     .insert(messages)
     .values({
@@ -746,6 +796,10 @@ export async function getUserTokenBalance(userId: string) {
     const state = getMockDbState();
     const user = state.users.find((u) => u.id === userId);
     return user?.tokenBalance ?? 0;
+  }
+
+  if (!isValidUuid(userId)) {
+    return 0;
   }
 
   const result = await db
@@ -793,6 +847,13 @@ export async function transferTokens({
     throw new Error("Solde insuffisante ou utilisateurs introuvables");
   }
 
+  if (!isValidUuid(fromUserId)) {
+    throw new Error("ID de l'expéditeur invalide");
+  }
+
+  const isReceiverReal = toUserId && isValidUuid(toUserId);
+  const isStreamReal = streamId && isValidUuid(streamId);
+
   return db.transaction(async (tx) => {
     // Deduct from sender
     await tx
@@ -800,17 +861,19 @@ export async function transferTokens({
       .set({ tokenBalance: sql`${users.tokenBalance} - ${amount}` })
       .where(and(eq(users.id, fromUserId), sql`${users.tokenBalance} >= ${amount}`));
 
-    // Credit receiver
-    await tx
-      .update(users)
-      .set({ tokenBalance: sql`${users.tokenBalance} + ${amount}` })
-      .where(eq(users.id, toUserId));
+    if (isReceiverReal) {
+      // Credit receiver
+      await tx
+        .update(users)
+        .set({ tokenBalance: sql`${users.tokenBalance} + ${amount}` })
+        .where(eq(users.id, toUserId));
+    }
 
     // Log transaction
     await tx.insert(tokenTransactions).values({
       fromUserId,
-      toUserId,
-      streamId,
+      toUserId: isReceiverReal ? toUserId : null,
+      streamId: isStreamReal ? streamId : null,
       type: "gift",
       amount,
       reason,
