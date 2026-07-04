@@ -413,8 +413,10 @@ export default function LoginPage() {
                   required
                 />
               </div>
-              <p className="text-[10px] text-gray-500 -mt-2">
-                <strong>Enter ONLY the 6-digit code from your email. DO NOT click any links/buttons in the email</strong> — email clients often prefetch links and consume the OTP before you can use it.
+              <p className="text-[10px] text-gray-500 -mt-2 bg-yellow-900/30 p-2 rounded border border-yellow-600/40">
+                <strong>⏱️ Enter the 6-digit code IMMEDIATELY (within 60-90 seconds).</strong><br/>
+                <strong>DO NOT open the email in Gmail/Outlook etc. if possible</strong> — they auto-fetch links and consume the code.<br/>
+                Use "Show original" or a plain text viewer to copy the code only. If it fails, request a new one right away.
               </p>
 
               <button
