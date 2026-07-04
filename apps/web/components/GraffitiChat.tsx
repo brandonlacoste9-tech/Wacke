@@ -104,7 +104,7 @@ interface GraffitiChatProps {
 
 export default function GraffitiChat({
   streamId,
-  currentUserId,
+  currentUserId: serverUserId,
   initialMessages = [],
 }: GraffitiChatProps) {
   const { language, t } = useLanguage();
@@ -115,7 +115,10 @@ export default function GraffitiChat({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { token } = useAuth();
+  const { token, user: authUser } = useAuth();
+  // Prefer server-resolved userId; fall back to client auth user as safety net
+  // so logged-in users are never shown "log in to chat" due to a cookie miss.
+  const currentUserId = serverUserId ?? authUser?.id;
 
   const [showSprayPanel, setShowSprayPanel] = useState(false);
   const [sprayPrompt, setSprayPrompt] = useState("");
