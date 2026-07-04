@@ -23,6 +23,7 @@ export default function LoginPage() {
   const [codeSent, setCodeSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [isLoadingOtp, setIsLoadingOtp] = useState(false);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
   
   const router = useRouter();
 
@@ -66,26 +67,34 @@ export default function LoginPage() {
         setErrorMsg(t("loginErrorEmptyEmail"));
         return;
       }
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "unknown";
-      console.log("[SEND_OTP] Using Supabase project:", supabaseUrl);
-      const supabase = getSupabaseClient();
-      // Hardcode production redirect to ensure it exactly matches Supabase dashboard allowed list
-      // (window.location may vary on previews/Netlify subdomains)
-      const redirectTo = typeof window !== "undefined" && window.location.hostname === "localhost"
-        ? "http://localhost:3000/auth/callback"
-        : "https://wacke.live/auth/callback";
-      const { error: sendError } = await supabase.auth.signInWithOtp({
-        email: email.trim(),
-        options: {
-          emailRedirectTo: redirectTo,
-        },
-      });
-      if (sendError) {
-        console.error("[SEND_OTP_FAIL]", sendError);
-        setErrorMsg(sendError.message);
-      } else {
-        setSuccessMsg(language === "fr" ? "Code envoyé par email ! IMPORTANT: N'OUVREZ PAS l'email normalement (préfetch consomme le code). Utilisez 'Afficher le message original' ou copiez le code 6 chiffres IMMÉDIATEMENT. Entrez UNIQUEMENT le code ci-dessous." : "Code sent by email! CRITICAL: DO NOT open the email normally (preview consumes the code). Use 'Show original' or copy the 6-digit code IMMEDIATELY. Enter ONLY the code below.");
-        setCodeSent(true);
+      setIsSendingOtp(true);
+      try {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "unknown";
+        console.log("[SEND_OTP] Using Supabase project:", supabaseUrl);
+        const supabase = getSupabaseClient();
+        // Hardcode production redirect to ensure it exactly matches Supabase dashboard allowed list
+        // (window.location may vary on previews/Netlify subdomains)
+        const redirectTo = typeof window !== "undefined" && window.location.hostname === "localhost"
+          ? "http://localhost:3000/auth/callback"
+          : "https://wacke.live/auth/callback";
+        const { error: sendError } = await supabase.auth.signInWithOtp({
+          email: email.trim(),
+          options: {
+            emailRedirectTo: redirectTo,
+          },
+        });
+        if (sendError) {
+          console.error("[SEND_OTP_FAIL]", sendError);
+          setErrorMsg(sendError.message);
+        } else {
+          setSuccessMsg(language === "fr" ? "Code envoyé par email ! IMPORTANT: N'OUVREZ PAS l'email normalement (préfetch consomme le code). Utilisez 'Afficher le message original' ou copiez le code 6 chiffres IMMÉDIATEMENT. Entrez UNIQUEMENT le code ci-dessous." : "Code sent by email! CRITICAL: DO NOT open the email normally (preview consumes the code). Use 'Show original' or copy the 6-digit code IMMEDIATELY. Enter ONLY the code below.");
+          setCodeSent(true);
+        }
+      } catch (err: any) {
+        console.error("[SEND_OTP_ERROR]", err);
+        setErrorMsg(err.message || "Failed to send verification code.");
+      } finally {
+        setIsSendingOtp(false);
       }
     }
   };
@@ -383,7 +392,7 @@ export default function LoginPage() {
                       placeholder="chum@wacke.ca"
                       className="w-full bg-white/3 border border-wacke-purple/20 rounded-xl px-4 py-3
                                  text-sm focus:border-wacke-cyan/40 transition-all"
-                      disabled={isLoading}
+                      disabled={isLoading || isSendingOtp}
                       required
                     />
                     <p className="text-[10px] text-gray-600 mt-2">
@@ -394,13 +403,13 @@ export default function LoginPage() {
 
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || isSendingOtp}
                   className="w-full bg-gradient-to-r from-wacke-pink to-wacke-purple py-4 rounded-xl
                              font-bold text-lg hover:opacity-90 transition-all
                              disabled:opacity-50 disabled:cursor-not-allowed
                              shadow-lg shadow-wacke-pink/20"
                 >
-                  {isLoading ? t("btnLoading") : isMock ? t("btnInstantConnect") : t("btnSendMagicLink")}
+                  {(isLoading || isSendingOtp) ? t("btnLoading") : isMock ? t("btnInstantConnect") : t("btnSendMagicLink")}
                 </button>
               </form>
             </>
