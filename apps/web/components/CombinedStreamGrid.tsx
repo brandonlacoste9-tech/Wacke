@@ -42,11 +42,14 @@ function SkeletonCard() {
 }
 
 function StreamCard({ stream, index }: { stream: UnifiedStream; index: number }) {
+  const { language } = useLanguage();
   const src = SOURCE_STYLES[stream.source];
   const initials = stream.displayName.substring(0, 2).toUpperCase();
   const href = stream.source === "twitch"
     ? `/stream/twitch-${stream.username}`
     : `/stream/${stream.username}`;
+
+  const isMock = stream.id.includes("fallback") || stream.id.includes("mock-stream");
 
   return (
     <Link
@@ -68,10 +71,17 @@ function StreamCard({ stream, index }: { stream: UnifiedStream; index: number })
           </div>
         )}
 
-        <div className="absolute top-2 left-2 flex items-center space-x-1 bg-red-600/90 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-md shadow-md backdrop-blur-sm">
-          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-          <span>LIVE</span>
-        </div>
+        {isMock ? (
+          <div className="absolute top-2 left-2 flex items-center space-x-1 bg-purple-600/90 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-md shadow-md backdrop-blur-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
+            <span>{language === "fr" ? "REDIF" : "PAST SHOW"}</span>
+          </div>
+        ) : (
+          <div className="absolute top-2 left-2 flex items-center space-x-1 bg-red-600/90 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-md shadow-md backdrop-blur-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+            <span>LIVE</span>
+          </div>
+        )}
 
         <div className="absolute top-2 right-2 flex items-center space-x-1 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded-md backdrop-blur-sm">
           <Users className="w-3 h-3 text-gray-300" />
