@@ -69,7 +69,7 @@ export default function GrokStreamTools({ streamerName }: { streamerName: string
           onClick={handleNewTitle}
           className="w-full flex items-center justify-center gap-2 bg-wacke-cyan/10 hover:bg-wacke-cyan/20 border border-wacke-cyan/30 py-2 rounded-xl text-sm font-bold transition-all"
         >
-          <Sparkles className="w-4 h-4" /> GROK: GÉNÉRER UN TITRE LIVE
+          <Sparkles className="w-4 h-4" /> {language === "fr" ? "GROK: GÉNÉRER UN TITRE LIVE" : "GROK: GENERATE LIVE TITLE"}
         </button>
         {currentTitle && (
           <div className="mt-2 p-3 bg-black/40 border border-wacke-cyan/20 rounded-xl text-sm font-medium text-wacke-cyan">
@@ -84,7 +84,7 @@ export default function GrokStreamTools({ streamerName }: { streamerName: string
           onClick={handleNewPoll}
           className="w-full flex items-center justify-center gap-2 bg-wacke-purple/10 hover:bg-wacke-purple/20 border border-wacke-purple/30 py-2 rounded-xl text-sm font-bold transition-all"
         >
-          <BarChart3 className="w-4 h-4" /> GROK: CRÉER UN SONDAGE INSTANTANÉ
+          <BarChart3 className="w-4 h-4" /> {language === "fr" ? "GROK: CRÉER UN SONDAGE INSTANTANÉ" : "GROK: INSTANT POLL"}
         </button>
         {poll && (
           <div className="mt-2 p-3 bg-black/40 border border-wacke-purple/20 rounded-xl text-xs space-y-1.5">
@@ -119,11 +119,12 @@ export default function GrokStreamTools({ streamerName }: { streamerName: string
           onClick={handleGrokPrediction}
           className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-wacke-cyan to-purple-500 text-black py-2 rounded-xl text-sm font-black tracking-wider hover:brightness-110 active:scale-[0.98] transition-all"
         >
-          <TrendingUp className="w-4 h-4" /> GROK xAI PREDICTION + BET (BREAK THE ECONOMY)
+          <TrendingUp className="w-4 h-4" /> {language === "fr" ? "GROK: ÉVÉNEMENT CHAOS (DÉMO)" : "GROK: CHAOS EVENT (DEMO)"} + BET
         </button>
         {prediction && (
           <div className="mt-2 p-3 bg-black/60 border-2 border-wacke-cyan rounded-xl text-xs space-y-2">
-            <div className="font-bold text-wacke-cyan">{prediction.prediction}</div>
+            <div className="font-bold text-wacke-cyan mb-1">{language === "fr" ? "PRÉDICTION:" : "PREDICTION:"}</div>
+            <div>{prediction.prediction}</div>
             <div className="flex justify-between text-[10px]">
               <span>ODDS: <span className="font-mono text-white">{prediction.odds}</span></span>
               <span>CONFIDENCE: {prediction.confidence}%</span>
@@ -131,14 +132,19 @@ export default function GrokStreamTools({ streamerName }: { streamerName: string
             <div className="flex gap-2 items-center">
               <input type="range" min="10" max="500" step="10" value={betAmount} onChange={e => setBetAmount(parseInt(e.target.value))} className="flex-1" />
               <span className="font-mono text-wacke-cyan w-12 text-right">{betAmount}🪙</span>
-              <button onClick={placeGrokBet} className="bg-white text-black px-3 py-0.5 text-[10px] font-black rounded">BET</button>
             </div>
-            <div className="text-[8px] text-red-400">Warning: Grok bets are maximally truthful but the house (xAI) always wins in the end.</div>
+            <button
+                onClick={placeGrokBet}
+                className="w-full bg-wacke-cyan text-black py-1.5 rounded-lg text-xs font-bold hover:bg-white transition-colors"
+              >
+                {language === "fr" ? "PARIER SUR CETTE PRÉDICTION (50 🪙)" : "BET ON PREDICTION (50 🪙)"}
+            </button>
+            <div className="text-[8px] text-red-400">{language === "fr" ? "Attention: Les paris Grok sont véridiques, mais la maison (xAI) gagne toujours à la fin." : "Warning: Grok bets are maximally truthful but the house (xAI) always wins in the end."}</div>
           </div>
         )}
       </div>
 
-      <div className="text-[9px] text-center text-gray-500 pt-1">Everything above is powered by Grok xAI (demo mode – we broke the app on purpose)</div>
+      <div className="text-[9px] text-center text-gray-500 pt-1">{language === "fr" ? "Tout est propulsé par Grok xAI (mode démo – nous avons cassé l'app volontairement)" : "Everything above is powered by Grok xAI (demo mode – we broke the app on purpose)"}</div>
     </div>
   );
 }

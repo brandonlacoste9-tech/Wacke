@@ -167,7 +167,7 @@ export default function GrokFire() {
         className="w-full md:w-auto flex items-center justify-center gap-3 bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 hover:from-red-700 text-white font-black text-xl py-4 px-8 rounded-2xl shadow-[0_0_40px_rgba(255,0,0,0.6)] transition-all active:scale-95 disabled:opacity-70 border-2 border-yellow-400"
       >
         <Flame className="w-8 h-8" />
-        LIGHT THE MATCH
+        {language === "fr" ? "ALLUMER LE MATCH" : "LIGHT THE MATCH"}
         <Zap className="w-8 h-8" />
         <span className="text-sm tracking-[4px] font-mono">BOOM</span>
       </button>

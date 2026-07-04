@@ -70,14 +70,14 @@ export default function GrokRoastBattle({ streamerName }: GrokRoastBattleProps) 
     <div className="glass p-4 rounded-xl border border-red-500/30">
       <div className="flex items-center gap-2 mb-3">
         <Sword className="text-red-500" />
-        <h3 className="font-bold text-sm">GROK ROAST BATTLE</h3>
+        <h3 className="font-bold text-sm">{language === "fr" ? "GROK ROAST BATTLE" : "GROK ROAST BATTLE"}</h3>
       </div>
       <button
         onClick={startBattle}
         disabled={loading}
         className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded font-bold flex items-center justify-center gap-2 disabled:opacity-50"
       >
-        <Flame /> {loading ? "GROK IS JUDGING..." : "START ROAST BATTLE"}
+        <Flame /> {loading ? (language === "fr" ? "GROK JUGE..." : "GROK IS JUDGING...") : (language === "fr" ? "DÉMARRER LE ROAST BATTLE" : "START ROAST BATTLE")}
       </button>
       
       {battle && (
@@ -91,7 +91,9 @@ export default function GrokRoastBattle({ streamerName }: GrokRoastBattleProps) 
           <div className="p-2 bg-wacke-cyan/10 rounded text-wacke-cyan font-bold">
             WINNER: {battle.winner}
           </div>
-          <div className="text-[10px] text-center text-gray-500">Judged by Grok xAI • Maximum wacké</div>
+          <div className="text-[10px] text-center text-gray-500">
+            {language === "fr" ? "Jugé par Grok xAI • Maximum wacké" : "Judged by Grok xAI • Maximum wacké"}
+          </div>
         </div>
       )}
     </div>
