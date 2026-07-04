@@ -99,10 +99,29 @@ A platform token system for viewer engagement. Viewers earn tokens through daily
 
 See `.env.example` for the full list of required environment variables.
 
-## Deployment
+## Deployment (Netlify)
 
-Deploy to Vercel with zero configuration. The monorepo is pre-configured for Vercel's Turborepo integration. Set all environment variables in the Vercel project dashboard.
+Uses Netlify + @netlify/plugin-nextjs. 
+
+1. Connect the repo in Netlify.
+2. Set **Environment variables** (Site configuration → Environment variables). Add for Production + Deploy Previews:
+   - `NEXT_PUBLIC_SUPABASE_URL` = https://ezkctufrqexxhujiitag.supabase.co
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = (from Supabase → Project Settings → API → anon key)
+   - `SUPABASE_SERVICE_ROLE_KEY` = (service_role key - secret)
+   - `DATABASE_URL` = (Supabase pooled connection string)
+   - `XAI_API_KEY` = your xAI key (for Grok features)
+   - Other: KICK_*, TWITCH_*, STRIPE_*, MUX_* as needed
+
+3. **Critical for login to work**:
+   - In Supabase Dashboard → Authentication → URL Configuration:
+     - Site URL: `https://wacke.live`
+     - Add Redirect URLs: `https://wacke.live`, `https://wacke.live/**`, `https://wacke.live/auth/callback`
+   - Redeploy after changing envs (Netlify builds bake NEXT_PUBLIC_* at build time).
+
+Build command in netlify.toml: `pnpm install --no-frozen-lockfile && pnpm turbo run build --filter=@wacke/web`
 
 ```bash
-vercel deploy
+# Local equivalent
+cp .env.example apps/web/.env.local
+# fill real keys, then pnpm dev
 ```

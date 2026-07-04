@@ -25,7 +25,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     setLanguageState(lang);
     localStorage.setItem("wacke-lang", lang);
     if (typeof document !== "undefined") {
-      document.cookie = `wacke_lang=${lang};path=/;max-age=31536000;SameSite=Lax`;
+      document.cookie = `wacke_lang=${lang}; path=/; max-age=31536000; SameSite=Lax`;
     }
   };
 

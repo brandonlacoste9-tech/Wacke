@@ -53,13 +53,14 @@ function setCookie(name: string, val: string, days = 7) {
   if (typeof document === "undefined") return;
   const date = new Date();
   date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-  const secureFlag = process.env.NODE_ENV === "production" ? ";secure" : "";
-  document.cookie = `${name}=${val};path=/;expires=${date.toUTCString()};SameSite=Lax${secureFlag}`;
+  // Correct cookie flags: space separated, " Secure" (capital) when in prod
+  const secureFlag = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  document.cookie = `${name}=${val}; path=/; expires=${date.toUTCString()}; SameSite=Lax${secureFlag}`;
 }
 
 function deleteCookie(name: string) {
   if (typeof document === "undefined") return;
-  document.cookie = `${name}=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT;SameSite=Lax`;
+  document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax`;
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -78,6 +79,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    if (isSupabaseMocked()) {
+      // Mock mode: just re-sync the token
+      try {
+        const res = await fetch("/api/auth/sync", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${activeToken}`,
+          },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
+          setToken(activeToken);
+        } else {
+          deleteCookie("wacke_token");
+          deleteCookie("wacke_refresh_token");
+          setUser(null);
+          setToken(null);
+        }
+      } catch (err) {
+        console.error("Mock refresh error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+
+    // Real mode
     try {
       let res = await fetch("/api/auth/sync", {
         method: "POST",
@@ -88,7 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!res.ok) {
-        // Try to refresh the token using Supabase client if we have refresh token
+        // Try to refresh the token
         const refreshTok = getRefreshCookie();
         if (refreshTok) {
           const supabase = getSupabaseClient();
@@ -100,17 +129,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const newAccess = refreshData.session.access_token;
             const newRefresh = refreshData.session.refresh_token;
 
-            // Update cookies
-            const secureFlag = process.env.NODE_ENV === "production" ? ";secure" : "";
-            document.cookie = `wacke_token=${newAccess};path=/;max-age=604800;SameSite=Lax${secureFlag}`;
+            const secureFlag = process.env.NODE_ENV === "production" ? "; Secure" : "";
+            document.cookie = `wacke_token=${newAccess}; path=/; max-age=604800; SameSite=Lax${secureFlag}`;
             if (newRefresh) {
-              document.cookie = `wacke_refresh_token=${newRefresh};path=/;max-age=604800;SameSite=Lax${secureFlag}`;
+              document.cookie = `wacke_refresh_token=${newRefresh}; path=/; max-age=604800; SameSite=Lax${secureFlag}`;
             }
 
             activeToken = newAccess;
             setToken(activeToken);
 
-            // Retry sync with new token
             res = await fetch("/api/auth/sync", {
               method: "POST",
               headers: {
@@ -122,13 +149,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      if (res.ok) {
+      if (res.ok && activeToken) {
         const data = await res.json();
         setUser(data.user);
         setToken(activeToken);
-        setCookie("wacke_token", activeToken); // Refresh expiry
+        setCookie("wacke_token", activeToken);
       } else {
-        // Token might be expired, clear it
         deleteCookie("wacke_token");
         deleteCookie("wacke_refresh_token");
         setUser(null);
@@ -146,6 +172,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refreshUser();
   }, [refreshUser]);
 
+  // Expose a simple demo login for easy testing
+  const demoLogin = async () => {
+    return login("demo_user@mock.wacke.ca", "demo_user");
+  };
+
   // ─── Login ──────────────────────────────────────────────────────────────
   const login = async (email: string, username?: string) => {
     setError(null);
@@ -153,31 +184,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       if (isSupabaseMocked()) {
-        // Mock Login: generate token based on username or email prefix
-        const finalUsername = username || email.split("@")[0] || "visiteur";
-        // Generate a persistent mock UUID for the user
-        let mockUuid = "00000000-0000-0000-0000-" + Array.from(finalUsername)
-          .map((c) => c.charCodeAt(0).toString(16))
-          .join("")
-          .padEnd(12, "0")
-          .substring(0, 12);
-        
-        // Ensure UUID is valid format (sometimes padded hex string)
-        if (mockUuid.length < 36) {
-          mockUuid = "mock-uuid-user-" + finalUsername;
-          // Wait, Drizzle schema.ts defines supabaseId as uuid.
-          // In Postgres, a UUID column must receive a valid 36-char UUID.
-          // Let's generate a valid UUID format (8-4-4-4-12 hex chars).
-        }
-        
-        // Safe mock UUID helper
-        const validMockUuid = "12345678-1234-1234-1234-" + Array.from(finalUsername.slice(0, 6))
-          .map((c) => c.charCodeAt(0).toString(16))
-          .join("")
-          .substring(0, 12)
-          .padEnd(12, "0");
-
-        const mockToken = `mock-session:${finalUsername}:${validMockUuid}`;
+        // Mock Login: always works for demo
+        const finalUsername = (username || email.split("@")[0] || "visiteur").toLowerCase().replace(/[^a-z0-9_]/g, "");
+        const mockSupabaseId = `mock-${finalUsername}-${Date.now()}`;
+        const mockToken = `mock-session:${finalUsername}:${mockSupabaseId}`;
         
         // Sync profile
         const syncRes = await fetch("/api/auth/sync", {
@@ -301,8 +311,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setToken(sessionToken);
           setCookie("wacke_token", sessionToken);
           if (refresh_token) {
-            const secureFlag = process.env.NODE_ENV === "production" ? ";secure" : "";
-            document.cookie = `wacke_refresh_token=${refresh_token};path=/;max-age=604800;SameSite=Lax${secureFlag}`;
+            const secureFlag = process.env.NODE_ENV === "production" ? "; Secure" : "";
+            document.cookie = `wacke_refresh_token=${refresh_token}; path=/; max-age=604800; SameSite=Lax${secureFlag}`;
           }
           setUser(data.user);
         }

@@ -1,0 +1,10 @@
+[build]
+  command = "pnpm install --no-frozen-lockfile && pnpm turbo run build --filter=@wacke/web"
+  publish = "apps/web/.next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Note: All sensitive env vars (Supabase keys, Stripe, XAI, etc.) should be set
+# in the Netlify UI (Site settings > Environment variables) for security.
+# Do not commit them here.

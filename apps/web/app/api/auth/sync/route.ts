@@ -21,7 +21,11 @@ export async function POST(req: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
-      return NextResponse.json({ error: "Token invalide" }, { status: 401 });
+      console.error("[AUTH_SYNC_GETUSER_FAIL]", authError?.message || authError);
+      return NextResponse.json({ 
+        error: "Token invalide ou expiré", 
+        details: authError?.message || "Supabase rejected the token (wrong project keys, expired, or used OTP code)" 
+      }, { status: 401 });
     }
 
     // Try parsing optional payload

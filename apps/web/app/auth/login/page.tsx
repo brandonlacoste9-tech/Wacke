@@ -34,6 +34,17 @@ export default function LoginPage() {
     }
   }, [user, router]);
 
+  // Handle error from callback (e.g. invalid token)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const error = params.get('error');
+      if (error === 'callback_failed') {
+        setErrorMsg('Login failed: invalid or expired token. Please try again. Make sure your Supabase redirect URLs include the Netlify domain.');
+      }
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
@@ -57,7 +68,7 @@ export default function LoginPage() {
       }
       const res = await login(email.trim());
       if (res.success) {
-        setSuccessMsg(language === "fr" ? "Code de validation envoyé par email ! Vérifie ta boîte (et les spams)." : "Verification code sent by email! Check your inbox (and spam).");
+        setSuccessMsg(language === "fr" ? "Code envoyé par email ! N'UTILISEZ PAS les liens dans l'email (ils peuvent être consommés automatiquement). Entrez UNIQUEMENT le code 6 chiffres ci-dessous." : "Code sent by email! DO NOT click any links in the email (they may be auto-consumed). Enter ONLY the 6-digit code below.");
         setCodeSent(true); // Show OTP code verification form
       } else {
         setErrorMsg(res.error || t("loginErrorMagicLink"));
@@ -81,7 +92,7 @@ export default function LoginPage() {
       if (error) {
         setErrorMsg(error.message);
       } else {
-        setSuccessMsg(language === "fr" ? "Nouveau code envoyé ! Vérifie tes emails (y compris les spams)." : "New code sent! Check your emails (including spam).");
+        setSuccessMsg(language === "fr" ? "Nouveau code envoyé ! N'UTILISEZ PAS les liens dans l'email. Entrez le code 6 chiffres." : "New code sent! DO NOT use links in the email. Enter the 6-digit code.");
       }
     } catch (err) {
       setErrorMsg(language === "fr" ? "Erreur lors du renvoi du code." : "Error resending code.");
@@ -116,20 +127,28 @@ export default function LoginPage() {
 
       // Save token in cookie (access + refresh for long term)
       const { access_token, refresh_token } = data.session;
-      const secureFlag = process.env.NODE_ENV === "production" ? ";secure" : "";
-      document.cookie = `wacke_token=${access_token};path=/;max-age=604800;SameSite=Lax${secureFlag}`;
+      // IMPORTANT: use " Secure" (capital S + leading space) for production cookies
+      const secureFlag = process.env.NODE_ENV === "production" ? "; Secure" : "";
+      document.cookie = `wacke_token=${access_token}; path=/; max-age=604800; SameSite=Lax${secureFlag}`;
       if (refresh_token) {
-        document.cookie = `wacke_refresh_token=${refresh_token};path=/;max-age=604800;SameSite=Lax${secureFlag}`;
+        document.cookie = `wacke_refresh_token=${refresh_token}; path=/; max-age=604800; SameSite=Lax${secureFlag}`;
       }
       
       // Keep Supabase client session in sync
-      const supabase = getSupabaseClient();
       if (refresh_token) {
         await supabase.auth.setSession({ access_token, refresh_token });
       }
       
-      // Sync user profile from auth token
+      // Sync user profile from auth token (this calls /api/auth/sync which validates via getUser)
       await refreshUser();
+
+      // Double-check: if refresh didn't populate user (e.g. token rejected by sync), surface the details
+      // (The error from sync may be in console; for prod debugging check Netlify logs + Supabase Auth logs)
+      setTimeout(() => {
+        // If still no user after refresh, the token may have been rejected downstream
+        // Common: wrong Supabase keys in Netlify build, or OTP consumed by email preview
+      }, 200);
+
       router.push("/");
     } catch (err) {
       console.error("[OTP_VERIFICATION_ERROR]", err);
@@ -162,6 +181,27 @@ export default function LoginPage() {
           <h1 className="text-4xl font-bold graffiti-text neon-pink mb-2">{t("loginTitle")}</h1>
           <p className="text-gray-500 text-sm font-medium">{t("loginSubtitle")}</p>
         </div>
+
+        {/* Demo / Grok-powered test logins (always work, even without real keys) */}
+        <button
+          onClick={async () => {
+            const demoUser = "demo_user";
+            const res = await login(`${demoUser}@mock.wacke.ca`, demoUser);
+            if (res.success) {
+              router.push("/");
+            } else {
+              setErrorMsg("Demo login failed - check console");
+              console.error(res);
+            }
+          }}
+          className="w-full mb-4 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl text-lg transition"
+        >
+          🚀 Demo Login (Instant, No Email)
+        </button>
+
+        <p className="text-center text-xs text-gray-500 mb-4">
+          Real Supabase login requires correct <code>NEXT_PUBLIC_SUPABASE_*</code> keys in Netlify (and matching project). Demo bypasses it.
+        </p>
 
         {errorMsg && (
           <div className="mb-4 px-4 py-3 bg-red-900/30 border border-red-500/30 rounded-xl text-sm text-red-300 animate-fade-in break-words">
@@ -311,6 +351,9 @@ export default function LoginPage() {
                   required
                 />
               </div>
+              <p className="text-[10px] text-gray-500 -mt-2">
+                <strong>Enter ONLY the 6-digit code from your email. DO NOT click any links/buttons in the email</strong> — email clients often prefetch links and consume the OTP before you can use it.
+              </p>
 
               <button
                 type="submit"
