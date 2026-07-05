@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { translations, type Language, type TranslationKey } from "@/lib/translations";
 
 interface LanguageContextType {
@@ -22,7 +21,6 @@ function getCookie(name: string): string | null {
 }
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
 
   const [language, setLanguageState] = useState<Language>(() => {
     if (typeof window === "undefined") return "fr";
@@ -53,7 +51,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       const secureFlag = window.location.protocol === 'https:' ? "; Secure" : "";
       document.cookie = `wacke_lang=${lang}; path=/; expires=${date.toUTCString()}; SameSite=Lax${secureFlag}`;
     }
-    router.refresh(); // Update server-rendered parts that read the cookie
+    // NOTE: no router.refresh() — all translations are client-side via context.
+    // router.refresh() was causing LanguageProvider to re-initialize from stale cookie,
+    // reverting the language back to English immediately after switching.
   };
 
   const t = (key: TranslationKey): string => {
