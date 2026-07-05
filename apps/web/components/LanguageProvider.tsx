@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { translations, type Language, type TranslationKey } from "@/lib/translations";
 
 interface LanguageContextType {
@@ -21,6 +22,8 @@ function getCookie(name: string): string | null {
 }
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+
   const [language, setLanguageState] = useState<Language>(() => {
     if (typeof window === "undefined") return "fr";
     const cookieLang = getCookie("wacke_lang") as Language;
@@ -28,7 +31,18 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     return (saved === "fr" || saved === "en") ? saved : "fr";
   });
 
-
+  // On client, ensure cookie matches our language (sync if only localStorage was used, and on first load)
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const currentCookie = getCookie("wacke_lang");
+      if (currentCookie !== language) {
+        const date = new Date();
+        date.setTime(date.getTime() + 365 * 24 * 60 * 60 * 1000);
+        const secureFlag = window.location.protocol === 'https:' ? "; Secure" : "";
+        document.cookie = `wacke_lang=${language}; path=/; expires=${date.toUTCString()}; SameSite=Lax${secureFlag}`;
+      }
+    }
+  }, [language]);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
@@ -39,10 +53,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       const secureFlag = window.location.protocol === 'https:' ? "; Secure" : "";
       document.cookie = `wacke_lang=${lang}; path=/; expires=${date.toUTCString()}; SameSite=Lax${secureFlag}`;
     }
-    // Reload shortly after to ensure the new cookie is sent with the next request.
-    // This makes server-rendered language strings (from cookie in pages like stream view) update reliably on prod/Netlify.
-    // Client-side UI (t() calls) switch instantly.
-    setTimeout(() => window.location.reload(), 50);
+    router.refresh(); // Update server-rendered parts that read the cookie
   };
 
   const t = (key: TranslationKey): string => {
