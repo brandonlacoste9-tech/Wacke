@@ -7,7 +7,7 @@ import { useAuth } from "@/components/AuthProvider";
 
 export default function BroadcastStudio() {
   const router = useRouter();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, token } = useAuth();
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -83,7 +83,7 @@ export default function BroadcastStudio() {
       const res = await fetch("/api/stream/cloudflare", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${localStorage.getItem("wacke_token") || ""}`,
+          "Authorization": `Bearer ${token || ""}`,
         }
       });
       
@@ -132,7 +132,7 @@ export default function BroadcastStudio() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("wacke_token") || ""}`,
+          "Authorization": `Bearer ${token || ""}`,
         },
         body: JSON.stringify({ status: "live" })
       });
@@ -158,7 +158,7 @@ export default function BroadcastStudio() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("wacke_token") || ""}`,
+          "Authorization": `Bearer ${token || ""}`,
         },
         body: JSON.stringify({ status: "offline" })
       });
