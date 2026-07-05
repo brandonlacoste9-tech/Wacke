@@ -12,6 +12,7 @@ export default function BroadcastStudio() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [broadcastTime, setBroadcastTime] = useState(0);
   const [error, setError] = useState<string | null>(null);
   
   const [videoEnabled, setVideoEnabled] = useState(true);
@@ -26,6 +27,29 @@ export default function BroadcastStudio() {
       router.push("/auth/login");
     }
   }, [user, isLoading, router]);
+
+  // Broadcast timer
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isBroadcasting) {
+      interval = setInterval(() => {
+        setBroadcastTime(prev => prev + 1);
+      }, 1000);
+    } else {
+      setBroadcastTime(0);
+    }
+    return () => clearInterval(interval);
+  }, [isBroadcasting]);
+
+  const formatTime = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    if (hrs > 0) {
+      return `${hrs}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    }
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
 
   // Request camera permissions on mount
   useEffect(() => {
@@ -238,9 +262,14 @@ export default function BroadcastStudio() {
         </div>
         
         {isBroadcasting && (
-          <div className="flex items-center space-x-2 bg-red-500/20 text-red-500 px-4 py-2 rounded-xl font-bold border border-red-500/50">
-            <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
-            <span>EN DIRECT</span>
+          <div className="flex items-center space-x-3 bg-red-500/20 text-red-500 px-4 py-2 rounded-xl font-bold border border-red-500/50">
+            <div className="flex items-center space-x-2">
+              <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
+              <span>EN DIRECT</span>
+            </div>
+            <span className="text-white font-mono bg-black/50 px-2 py-0.5 rounded text-sm border border-white/10 shadow-inner">
+              {formatTime(broadcastTime)}
+            </span>
           </div>
         )}
       </div>
