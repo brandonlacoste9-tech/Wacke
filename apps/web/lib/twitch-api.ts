@@ -95,6 +95,19 @@ export interface TwitchGame {
   box_art_url: string;
 }
 
+export interface TwitchChannel {
+  broadcaster_id: string;
+  broadcaster_login: string;
+  broadcaster_name: string;
+  game_id: string;
+  game_name: string;
+  title: string;
+  delay: number;
+  tags: string[];
+  content_classification_labels: string[];
+  is_branded_content: boolean;
+}
+
 // ─── Internal fetch helper ───────────────────────────────────────────────────
 
 async function twitchFetch<T>(path: string): Promise<T | null> {
@@ -173,6 +186,39 @@ export async function getTwitchTopGames(limit = 10): Promise<TwitchGame[]> {
     `/games/top?first=${limit}`
   );
   return res?.data ?? [];
+}
+
+/**
+ * Get the live stream info for a single Twitch channel by login name.
+ * Returns null if the channel is offline or not found.
+ */
+export async function getTwitchStreamByLogin(
+  login: string
+): Promise<TwitchStream | null> {
+  const res = await twitchFetch<{ data: TwitchStream[] }>(
+    `/streams?user_login=${encodeURIComponent(login)}&first=1`
+  );
+  const stream = res?.data?.[0] ?? null;
+  // type === "" means offline
+  return stream?.type === "live" ? stream : null;
+}
+
+/**
+ * Get channel metadata (title, game, tags, etc.) for a single channel.
+ * Works even when the channel is offline.
+ */
+export async function getTwitchChannelInfo(
+  login: string
+): Promise<TwitchChannel | null> {
+  // First resolve user id from login
+  const users = await getTwitchUsers([login]);
+  const user = users[0];
+  if (!user) return null;
+
+  const res = await twitchFetch<{ data: TwitchChannel[] }>(
+    `/channels?broadcaster_id=${encodeURIComponent(user.id)}`
+  );
+  return res?.data?.[0] ?? null;
 }
 
 /**

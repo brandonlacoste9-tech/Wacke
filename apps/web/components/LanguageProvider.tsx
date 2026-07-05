@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { translations, type Language, type TranslationKey } from "@/lib/translations";
 
 interface LanguageContextType {
@@ -22,8 +21,6 @@ function getCookie(name: string): string | null {
 }
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-
   const [language, setLanguageState] = useState<Language>(() => {
     if (typeof window === "undefined") return "fr";
     const cookieLang = getCookie("wacke_lang") as Language;
@@ -31,14 +28,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     return (saved === "fr" || saved === "en") ? saved : "fr";
   });
 
-  // Sync from cookie/local on mount (in case of direct load)
-  useEffect(() => {
-    const cookieLang = getCookie("wacke_lang") as Language;
-    const saved = cookieLang || localStorage.getItem("wacke_lang") as Language;
-    if (saved && (saved === "fr" || saved === "en") && saved !== language) {
-      setLanguageState(saved);
-    }
-  }, []);
+
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
@@ -49,7 +39,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       const secureFlag = window.location.protocol === 'https:' ? "; Secure" : "";
       document.cookie = `wacke_lang=${lang}; path=/; expires=${date.toUTCString()}; SameSite=Lax${secureFlag}`;
     }
-    router.refresh();
+    // Reload shortly after to ensure the new cookie is sent with the next request.
+    // This makes server-rendered language strings (from cookie in pages like stream view) update reliably on prod/Netlify.
+    // Client-side UI (t() calls) switch instantly.
+    setTimeout(() => window.location.reload(), 50);
   };
 
   const t = (key: TranslationKey): string => {

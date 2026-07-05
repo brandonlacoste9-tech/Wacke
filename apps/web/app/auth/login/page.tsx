@@ -122,7 +122,22 @@ export default function LoginPage() {
             </a>
           </div>
 
-          {/* Social Login Placeholders */}
+          {/* Twitch Login Button */}
+          <div>
+            <a
+              href="/api/auth/twitch/login"
+              className="w-full bg-[#9146FF] text-white hover:bg-[#7c3ae8] hover:scale-[1.02] active:scale-[0.98] transition-all py-4 rounded-xl
+                         font-bold text-lg flex items-center justify-center space-x-2
+                         shadow-[0_0_20px_rgba(145,70,255,0.3)] hover:shadow-[0_0_30px_rgba(145,70,255,0.5)]"
+            >
+              {/* Twitch glitch logo */}
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/>
+              </svg>
+              <span>Connexion avec Twitch</span>
+            </a>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <button
               disabled
