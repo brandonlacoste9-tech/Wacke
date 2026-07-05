@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Mic, MicOff, Video, VideoOff, Play, Square, SwitchCamera } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
+import GraffitiChat from "@/components/GraffitiChat";
 
 export default function BroadcastStudio() {
   const router = useRouter();
@@ -380,6 +381,13 @@ export default function BroadcastStudio() {
           </div>
         </div>
       </div>
+
+      {/* Live Chat Panel (only visible when broadcasting) */}
+      {isBroadcasting && (
+        <div className="mt-6 h-[500px] lg:h-[600px] w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black/50">
+          <GraffitiChat streamId={user.id} />
+        </div>
+      )}
     </div>
   );
 }
