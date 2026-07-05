@@ -28,8 +28,20 @@ export default function LoginPage() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const error = params.get('error');
-      if (error === 'callback_failed') {
-        setErrorMsg('Login failed: invalid or expired token. Make sure https://wacke.live and /auth/callback are in Supabase Redirect URLs, then try again with a fresh code.');
+      const detail = params.get('detail');
+
+      const errorMessages: Record<string, string> = {
+        callback_failed: 'Login failed: invalid or expired token. Make sure https://wacke.live and /auth/callback are in Supabase Redirect URLs, then try again.',
+        csrf_failed: 'Login failed: security state mismatch. Please try again.',
+        missing_code: 'Login failed: no authorization code received.',
+        kick_callback_failed: 'Kick login failed.',
+        twitch_callback_failed: 'Twitch login failed.',
+        server_config: 'Server configuration error — contact support.',
+      };
+
+      if (error) {
+        const base = errorMessages[error] ?? `Login error: ${error}`;
+        setErrorMsg(detail ? `${base}\n\nDétail: ${detail}` : base);
       }
     }
   }, []);

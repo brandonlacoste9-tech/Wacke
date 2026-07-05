@@ -20,8 +20,15 @@ export async function GET(req: NextRequest) {
 
   // 1. State CSRF Validation
   if (!state || state !== stateCookie) {
+    console.error("[KICK_CALLBACK] CSRF mismatch", {
+      statePresent: !!state,
+      cookiePresent: !!stateCookie,
+      statePrefix: state?.slice(0, 8),
+      cookiePrefix: stateCookie?.slice(0, 8),
+    });
     const errorUrl = new URL("/auth/login", origin);
     errorUrl.searchParams.set("error", "csrf_failed");
+    errorUrl.searchParams.set("detail", stateCookie ? "State param does not match cookie — try again" : "State cookie missing — cookies may be blocked");
     return NextResponse.redirect(errorUrl);
   }
 
@@ -86,19 +93,29 @@ export async function GET(req: NextRequest) {
       });
 
       if (!profileRes.ok) {
-        throw new Error("Échec de la récupération du profil Kick");
+        const errText = await profileRes.text();
+        console.error("[KICK_PROFILE_ERROR]", profileRes.status, errText);
+        throw new Error(`Kick profile fetch failed: ${profileRes.status}`);
       }
 
       const profileData = await profileRes.json();
-      // Adjust keys according to the official Kick Developer API specifications
+      console.log("[KICK_PROFILE_RAW]", JSON.stringify(profileData).slice(0, 300));
+
+      // Kick API returns { data: [ { ... } ] } or just { ... }
+      const kickProfile = profileData?.data?.[0] ?? profileData?.data ?? profileData;
+
       kickUser = {
-        id: profileData.id || profileData.user_id,
-        email: profileData.email,
-        username: profileData.username,
-        displayName: profileData.display_name || profileData.username,
+        id: String(kickProfile.user_id ?? kickProfile.id ?? ""),
+        email: kickProfile.email ?? `${kickProfile.username ?? "user"}@kick.wacke.ca`,
+        username: kickProfile.username ?? kickProfile.name ?? "",
+        displayName: kickProfile.display_name ?? kickProfile.username ?? kickProfile.name ?? "Kickeur",
       };
 
-      // Save Kick access token for chat send capability
+      if (!kickUser.username) {
+        throw new Error(`No username in Kick profile: ${JSON.stringify(kickProfile).slice(0, 200)}`);
+      }
+
+      // Save Kick access token for chat:write capability
       (kickUser as any)._kickAccessToken = _kickAccessToken;
     }
 
@@ -159,9 +176,11 @@ export async function GET(req: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error("[KICK_CALLBACK_ERROR]", error);
+    const detail = error instanceof Error ? error.message : String(error);
+    console.error("[KICK_CALLBACK_ERROR]", detail);
     const errorUrl = new URL("/auth/login", origin);
     errorUrl.searchParams.set("error", "kick_callback_failed");
+    errorUrl.searchParams.set("detail", detail.slice(0, 200));
     return NextResponse.redirect(errorUrl);
   }
 }

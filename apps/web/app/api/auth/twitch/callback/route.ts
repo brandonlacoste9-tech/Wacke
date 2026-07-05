@@ -19,14 +19,18 @@ export async function GET(req: NextRequest) {
 
   // 1. CSRF state validation
   if (!state || state !== stateCookie) {
+    console.error("[TWITCH_CALLBACK] CSRF mismatch", { state, stateCookie: stateCookie?.slice(0, 8) });
     const errorUrl = new URL("/auth/login", origin);
     errorUrl.searchParams.set("error", "csrf_failed");
+    errorUrl.searchParams.set("detail", "State mismatch — try clicking the Twitch button again");
     return NextResponse.redirect(errorUrl);
   }
 
   if (!code || !verifierCookie) {
+    console.error("[TWITCH_CALLBACK] Missing code or verifier", { code: !!code, verifier: !!verifierCookie });
     const errorUrl = new URL("/auth/login", origin);
     errorUrl.searchParams.set("error", "missing_code");
+    errorUrl.searchParams.set("detail", !code ? "No auth code received from Twitch" : "PKCE verifier cookie missing");
     return NextResponse.redirect(errorUrl);
   }
 
@@ -81,6 +85,7 @@ export async function GET(req: NextRequest) {
     }
 
     const profileData = await profileRes.json();
+    console.log("[TWITCH_PROFILE_RAW]", JSON.stringify(profileData).slice(0, 300));
     const twitchUser = profileData.data?.[0];
 
     if (!twitchUser) {
@@ -138,9 +143,11 @@ export async function GET(req: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error("[TWITCH_CALLBACK_ERROR]", error);
+    const detail = error instanceof Error ? error.message : String(error);
+    console.error("[TWITCH_CALLBACK_ERROR]", detail);
     const errorUrl = new URL("/auth/login", origin);
     errorUrl.searchParams.set("error", "twitch_callback_failed");
+    errorUrl.searchParams.set("detail", detail.slice(0, 200));
     return NextResponse.redirect(errorUrl);
   }
 }
