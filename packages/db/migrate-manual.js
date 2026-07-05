@@ -1,6 +1,6 @@
 const postgres = require('postgres');
 
-const connectionString = "postgresql://postgres.ulbfaxhsbbckotcbmslk:SB6y6LVc9ZfGvaPm@aws-1-us-east-2.pooler.supabase.com:6543/postgres?sslmode=require";
+const connectionString = process.env.DATABASE_URL || "";
 const sql = postgres(connectionString);
 
 async function run() {
