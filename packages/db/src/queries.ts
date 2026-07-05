@@ -61,9 +61,8 @@ export function getMockDbState() {
         bio: "Broadcaster Wacké de test.",
         tokenBalance: 1200,
         isStreamer: true,
-        cloudflareStreamId: "mock-stream-key-gabriel",
-        cloudflarePlaybackId: "mock_playback_id",
         cloudflareStreamId: "mock-live-stream-id-gabriel",
+        cloudflarePlaybackId: "mock_playback_id",
         twitchUsername: null,
         kickUsername: null,
         isBanned: false,
@@ -80,9 +79,8 @@ export function getMockDbState() {
         bio: "NHL 26 streamer.",
         tokenBalance: 450,
         isStreamer: true,
-        cloudflareStreamId: "mock-stream-key-sophie",
-        cloudflarePlaybackId: "mock_playback_id",
         cloudflareStreamId: "mock-live-stream-id-sophie",
+        cloudflarePlaybackId: "mock_playback_id",
         twitchUsername: null,
         kickUsername: null,
         isBanned: false,
@@ -229,8 +227,7 @@ export async function getUserByUsername(username: string) {
       tokenBalance: 0,
       isStreamer: true,
       cloudflareStreamId: null,
-      cloudflarePlaybackId: null,
-      cloudflareStreamId: null,
+        cloudflarePlaybackId: null,
       twitchUsername: null,
       kickUsername: cleanUsername,
       isBanned: false,
@@ -709,7 +706,6 @@ export async function endStream(userId: string) {
     const user = state.users.find((u) => u.id === userId);
     if (user) {
       user.cloudflareStreamId = null;
-      user.cloudflareStreamId = null;
       user.updatedAt = new Date();
     }
     return;
@@ -723,7 +719,6 @@ export async function endStream(userId: string) {
   await db
     .update(users)
     .set({
-      cloudflareStreamId: null,
       cloudflareStreamId: null,
       updatedAt: new Date(),
     })
