@@ -35,7 +35,24 @@ function persistLang(lang: Language) {
 
   const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
   const secure = window.location.protocol === "https:" ? "; Secure" : "";
-  document.cookie = `wacke_lang=${lang}; path=/; expires=${expires}; SameSite=Lax${secure}`;
+  
+  // Extract root domain for cookies to share across subdomains (e.g., www.wacke.live -> .wacke.live)
+  let domainStr = "";
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    // Basic root domain extraction (wacke.live, wacke.ca) - skip for localhost/IPs
+    if (hostname.includes(".")) {
+      const parts = hostname.split(".");
+      if (parts.length > 2) {
+        // e.g. www.wacke.live -> .wacke.live
+        domainStr = `; domain=.${parts.slice(-2).join(".")}`;
+      } else {
+        domainStr = `; domain=.${hostname}`;
+      }
+    }
+  }
+
+  document.cookie = `wacke_lang=${lang}${domainStr}; path=/; expires=${expires}; SameSite=Lax${secure}`;
 }
 
 // ─── Provider ─────────────────────────────────────────────────────────────────

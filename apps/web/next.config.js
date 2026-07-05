@@ -17,7 +17,14 @@ const nextConfig = {
   // ],
   experimental: {
     serverActions: {
-      allowedOrigins: ["localhost:3000", "wacke.vercel.app"],
+      allowedOrigins: [
+        "localhost:3000",
+        "wacke.vercel.app",
+        "wacke.live",
+        "www.wacke.live",
+        "wacke.ca",
+        "www.wacke.ca"
+      ],
     },
   },
 };
