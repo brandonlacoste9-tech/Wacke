@@ -26,13 +26,13 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-wacke-dark">
       {/* ── Hero Banner ──────────────────────────────────────────────────────── */}
-      <section className="relative w-full h-[35vh] min-h-[340px] mb-4 overflow-hidden flex items-center justify-center border-b border-wacke-purple/20">
+      <section className="relative w-full h-auto min-h-[420px] md:h-[40vh] py-12 mb-4 overflow-hidden flex items-center justify-center border-b border-wacke-purple/20">
         <img src="/hero_banner.jpg" alt="Cyberpunk City" className="absolute inset-0 w-full h-full object-cover z-0 opacity-50" />
         <div className="absolute inset-0 bg-gradient-to-t from-wacke-dark via-wacke-dark/50 to-transparent z-10" />
         <div className="absolute inset-0 bg-gradient-to-r from-wacke-dark/30 via-transparent to-wacke-dark/30 z-10" />
         <ParticleBackground count={25} />
 
-        <div className="relative z-20 text-center px-4">
+        <div className="relative z-20 text-center px-4 mt-6">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black graffiti-text neon-pink mb-4 tracking-wider uppercase drop-shadow-[0_0_20px_rgba(255,0,255,0.7)]">
             {t("welcome")}
           </h1>
