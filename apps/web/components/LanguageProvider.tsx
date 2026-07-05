@@ -11,54 +11,66 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-// Helper to read cookies on client (consistent with AuthProvider)
-function getCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function readSavedLang(): Language | null {
+  try {
+    // Check cookie first, then localStorage
+    const cookieMatch = document.cookie.match(/(?:^|;\s*)wacke_lang=([^;]*)/);
+    const fromCookie = cookieMatch?.[1] as Language | undefined;
+    if (fromCookie === "fr" || fromCookie === "en") return fromCookie;
+
+    const fromStorage = localStorage.getItem("wacke_lang") as Language | null;
+    if (fromStorage === "fr" || fromStorage === "en") return fromStorage;
+  } catch {
+    // localStorage blocked (private browsing etc.)
+  }
   return null;
 }
 
+function persistLang(lang: Language) {
+  try {
+    localStorage.setItem("wacke_lang", lang);
+  } catch { /* ignore */ }
+
+  const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `wacke_lang=${lang}; path=/; expires=${expires}; SameSite=Lax${secure}`;
+}
+
+// ─── Provider ─────────────────────────────────────────────────────────────────
+
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  /**
+   * Always initialize to "fr".
+   *
+   * This is critical for Next.js SSR/hydration correctness:
+   *  - Server renders with "fr" (window is undefined → we can't read localStorage)
+   *  - Client hydrates with the same "fr" initial value → no mismatch
+   *  - After hydration, the useEffect below reads the real saved preference
+   *
+   * Previous bug: we used a lazy initializer that read localStorage during
+   * hydration. This caused a server/client mismatch, and React's reconciliation
+   * would flash "fr" → "en" → then the click would show "fr" for one frame
+   * before the hydration correction snapped it back to "en".
+   */
+  const [language, setLanguageState] = useState<Language>("fr");
 
-  const [language, setLanguageState] = useState<Language>(() => {
-    if (typeof window === "undefined") return "fr";
-    const cookieLang = getCookie("wacke_lang") as Language;
-    const saved = cookieLang || localStorage.getItem("wacke_lang") as Language;
-    return (saved === "fr" || saved === "en") ? saved : "fr";
-  });
-
-  // On client, ensure cookie matches our language (sync if only localStorage was used, and on first load)
+  // Read saved preference exactly once, after the component mounts on the client.
   useEffect(() => {
-    if (typeof document !== "undefined") {
-      const currentCookie = getCookie("wacke_lang");
-      if (currentCookie !== language) {
-        const date = new Date();
-        date.setTime(date.getTime() + 365 * 24 * 60 * 60 * 1000);
-        const secureFlag = window.location.protocol === 'https:' ? "; Secure" : "";
-        document.cookie = `wacke_lang=${language}; path=/; expires=${date.toUTCString()}; SameSite=Lax${secureFlag}`;
-      }
+    const saved = readSavedLang();
+    if (saved && saved !== "fr") {
+      setLanguageState(saved);
     }
-  }, [language]);
+  }, []); // empty deps → runs once on mount, never again
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem("wacke_lang", lang);
-    if (typeof document !== "undefined") {
-      const date = new Date();
-      date.setTime(date.getTime() + 365 * 24 * 60 * 60 * 1000); // 1 year
-      const secureFlag = window.location.protocol === 'https:' ? "; Secure" : "";
-      document.cookie = `wacke_lang=${lang}; path=/; expires=${date.toUTCString()}; SameSite=Lax${secureFlag}`;
-    }
-    // NOTE: no router.refresh() — all translations are client-side via context.
-    // router.refresh() was causing LanguageProvider to re-initialize from stale cookie,
-    // reverting the language back to English immediately after switching.
+    persistLang(lang);
   };
 
-  const t = (key: TranslationKey): string => {
-    return translations[language][key] ?? translations["fr"][key] ?? key;
-  };
+  const t = (key: TranslationKey): string =>
+    translations[language][key] ?? translations["fr"][key] ?? key;
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
@@ -66,6 +78,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     </LanguageContext.Provider>
   );
 }
+
+// ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useLanguage() {
   const context = useContext(LanguageContext);
