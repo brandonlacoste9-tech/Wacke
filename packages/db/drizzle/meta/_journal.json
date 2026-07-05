@@ -15,6 +15,13 @@
       "when": 1782787575064,
       "tag": "0001_rare_preak",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783256821914,
+      "tag": "0002_confused_zombie",
+      "breakpoints": true
     }
   ]
 }

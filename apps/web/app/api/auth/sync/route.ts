@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { syncUser } from "@wacke/db";
+import { syncUser, updateUserProfile, getUserBySupabaseId } from "@wacke/db";
 
 export const runtime = "nodejs";
 export const dynamic = 'force-dynamic';
@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 /**
  * POST /api/auth/sync
  * Synchronizes the logged-in user profile from Supabase Auth into our database.
+ * Also accepts optional profile fields (displayName, bio, avatarUrl, twitchUsername, kickUsername).
  */
 export async function POST(req: NextRequest) {
   try {
@@ -31,10 +32,19 @@ export async function POST(req: NextRequest) {
     // Try parsing optional payload
     let username = "";
     let displayName = "";
+    let bio: string | undefined;
+    let avatarUrl: string | undefined;
+    let twitchUsername: string | undefined;
+    let kickUsername: string | undefined;
+
     try {
       const body = await req.json();
       username = body.username || "";
       displayName = body.displayName || "";
+      bio = body.bio;
+      avatarUrl = body.avatarUrl;
+      twitchUsername = body.twitchUsername;
+      kickUsername = body.kickUsername;
     } catch {
       // Body is optional
     }
@@ -42,13 +52,30 @@ export async function POST(req: NextRequest) {
     const cleanUsername = (username || user.email?.split("@")[0] || "user").toLowerCase().replace(/[^a-z0-9_]/g, "");
     const cleanDisplayName = displayName || cleanUsername;
 
-    // Use our database query sync helper
-    const dbUser = await syncUser({
+    // Sync / create user in database
+    let dbUser = await syncUser({
       supabaseId: user.id,
       email: user.email!,
       username: cleanUsername,
       displayName: cleanDisplayName,
     });
+
+    // If profile fields were provided, update them on the existing user record
+    const hasProfileUpdate = bio !== undefined || avatarUrl !== undefined || 
+                             twitchUsername !== undefined || kickUsername !== undefined ||
+                             (displayName && displayName !== cleanUsername);
+
+    if (hasProfileUpdate && dbUser) {
+      const updated = await updateUserProfile({
+        userId: dbUser.id,
+        displayName: displayName || undefined,
+        bio,
+        avatarUrl,
+        twitchUsername,
+        kickUsername,
+      });
+      dbUser = updated ?? dbUser;
+    }
 
     return NextResponse.json({ user: dbUser }, { status: 200 });
   } catch (error) {

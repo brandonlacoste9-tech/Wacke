@@ -282,6 +282,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
         initialMessages={initialMessages as any}
         currentUserId={viewer?.id}
         kickUsername={isKickUser ? user.username : undefined}
+        twitchUsername={(user as any).twitchUsername || undefined}
       />
 
       {/* ── Floating Token Bar ────────────────────────────────────────────── */}

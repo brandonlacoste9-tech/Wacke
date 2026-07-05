@@ -18,6 +18,8 @@ export default function SettingsPage() {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [defaultCategory, setDefaultCategory] = useState("gaming");
   const [defaultSacreMode, setDefaultSacreMode] = useState(true);
+  const [twitchUsername, setTwitchUsername] = useState("");
+  const [kickUsername, setKickUsername] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -29,6 +31,10 @@ export default function SettingsPage() {
       setDisplayName(user.displayName || "");
       setBio(user.bio || "");
       setAvatarUrl(user.avatarUrl || "");
+      // Need to tell TS user has these fields (even though AuthUser doesn't natively expose them on client yet, 
+      // they will be synced from the database. We will ensure the sync route returns them).
+      setTwitchUsername((user as any).twitchUsername || "");
+      setKickUsername((user as any).kickUsername || "");
     }
   }, [user, isLoading, router]);
 
@@ -43,7 +49,7 @@ export default function SettingsPage() {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ displayName, bio, avatarUrl }),
+        body: JSON.stringify({ displayName, bio, avatarUrl, twitchUsername, kickUsername }),
       });
 
       if (res.ok) {
@@ -142,6 +148,47 @@ export default function SettingsPage() {
               className="w-full bg-white/3 border border-wacke-purple/20 rounded-xl px-4 py-3
                          text-sm focus:border-wacke-cyan/40 transition-all"
               placeholder="https://..."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── External Accounts ────────────────────────────────────────────── */}
+      <section className="glass-card rounded-2xl p-6 mb-6">
+        <h2 className="text-lg font-bold text-white mb-5 flex items-center space-x-2">
+          <span>🔗</span>
+          <span>Comptes Externes</span>
+        </h2>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">
+              Nom d'utilisateur Twitch
+            </label>
+            <input
+              type="text"
+              value={twitchUsername}
+              onChange={(e) => setTwitchUsername(e.target.value)}
+              className="w-full bg-white/3 border border-purple-500/30 rounded-xl px-4 py-3
+                         text-sm focus:border-purple-500 transition-all"
+              placeholder="ex: xqc"
+            />
+            <p className="text-[10px] text-gray-500 mt-1.5">
+              Saisis ton pseudo Twitch pour fusionner le chat Twitch avec Wacké quand tu streames ici.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">
+              Nom d'utilisateur Kick
+            </label>
+            <input
+              type="text"
+              value={kickUsername}
+              onChange={(e) => setKickUsername(e.target.value)}
+              className="w-full bg-white/3 border border-green-500/30 rounded-xl px-4 py-3
+                         text-sm focus:border-green-500 transition-all"
+              placeholder="ex: odablock"
             />
           </div>
         </div>

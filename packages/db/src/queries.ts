@@ -657,6 +657,50 @@ export async function updateUserMuxCredentials({
     .where(eq(users.id, userId));
 }
 
+export async function updateUserProfile({
+  userId,
+  displayName,
+  bio,
+  avatarUrl,
+  twitchUsername,
+  kickUsername,
+}: {
+  userId: string;
+  displayName?: string;
+  bio?: string;
+  avatarUrl?: string;
+  twitchUsername?: string;
+  kickUsername?: string;
+}) {
+  if (isDbMocked()) {
+    const state = getMockDbState();
+    const user = state.users.find((u: any) => u.id === userId);
+    if (user) {
+      if (displayName !== undefined) user.displayName = displayName;
+      if (bio !== undefined) user.bio = bio;
+      if (avatarUrl !== undefined) user.avatarUrl = avatarUrl;
+      if (twitchUsername !== undefined) user.twitchUsername = twitchUsername;
+      if (kickUsername !== undefined) user.kickUsername = kickUsername;
+      user.updatedAt = new Date();
+    }
+    return user;
+  }
+
+  const updates: Record<string, any> = { updatedAt: new Date() };
+  if (displayName !== undefined) updates.displayName = displayName;
+  if (bio !== undefined) updates.bio = bio;
+  if (avatarUrl !== undefined) updates.avatarUrl = avatarUrl;
+  if (twitchUsername !== undefined) updates.twitchUsername = twitchUsername || null;
+  if (kickUsername !== undefined) updates.kickUsername = kickUsername || null;
+
+  const [updated] = await db
+    .update(users)
+    .set(updates)
+    .where(eq(users.id, userId))
+    .returning();
+  return updated;
+}
+
 export async function endStream(userId: string) {
   if (isDbMocked()) {
     const state = getMockDbState();

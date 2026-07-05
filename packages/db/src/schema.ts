@@ -57,6 +57,9 @@ export const users = pgTable(
     muxStreamKey: text("mux_stream_key"),
     muxPlaybackId: text("mux_playback_id"),
     muxLiveStreamId: text("mux_live_stream_id"),
+    // Linked accounts
+    twitchUsername: text("twitch_username"),
+    kickUsername: text("kick_username"),
     // Moderation
     isBanned: boolean("is_banned").notNull().default(false),
     isModerator: boolean("is_moderator").notNull().default(false),
