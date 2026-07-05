@@ -104,26 +104,43 @@ export default function BroadcastStudio() {
     if (isSwitching) return;
     setIsSwitching(true);
     const newMode = facingMode === "user" ? "environment" : "user";
-    
     try {
-      const newStream = await navigator.mediaDevices.getUserMedia({
-        video: { 
-          width: { ideal: 1280 }, 
-          height: { ideal: 720 }, 
-          frameRate: { ideal: 30 },
-          facingMode: newMode 
-        },
-        audio: true,
-      });
+      // Stop old tracks FIRST to release the hardware lock on mobile devices
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      
+      // Wait a tiny bit for iOS to fully release the camera
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      let newStream;
+      try {
+        // Try strict facingMode for mobile
+        newStream = await navigator.mediaDevices.getUserMedia({
+          video: { 
+            width: { ideal: 1280 }, 
+            height: { ideal: 720 }, 
+            frameRate: { ideal: 30 },
+            facingMode: { exact: newMode }
+          },
+          audio: true,
+        });
+      } catch (err) {
+        // Fallback for desktop/generic webcams
+        newStream = await navigator.mediaDevices.getUserMedia({
+          video: { 
+            width: { ideal: 1280 }, 
+            height: { ideal: 720 }, 
+            frameRate: { ideal: 30 },
+            facingMode: newMode 
+          },
+          audio: true,
+        });
+      }
 
       // Maintain current mute states
       newStream.getVideoTracks().forEach(track => track.enabled = videoEnabled);
       newStream.getAudioTracks().forEach(track => track.enabled = audioEnabled);
-
-      // Stop old tracks
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
 
       setStream(newStream);
       setFacingMode(newMode);
