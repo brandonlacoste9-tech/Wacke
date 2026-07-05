@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mic, MicOff, Video, VideoOff, Play, Square } from "lucide-react";
+import { Mic, MicOff, Video, VideoOff, Play, Square, SwitchCamera } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 
 export default function BroadcastStudio() {
@@ -17,6 +17,9 @@ export default function BroadcastStudio() {
   const [videoEnabled, setVideoEnabled] = useState(true);
   const [audioEnabled, setAudioEnabled] = useState(true);
 
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+  const [isSwitching, setIsSwitching] = useState(false);
+
   // Redirect if not logged in
   useEffect(() => {
     if (!isLoading && !user) {
@@ -29,7 +32,7 @@ export default function BroadcastStudio() {
     async function setupCamera() {
       try {
         const mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } },
+          video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 }, facingMode: "user" },
           audio: true,
         });
         
@@ -72,6 +75,61 @@ export default function BroadcastStudio() {
   };
 
   const [peerConnection, setPeerConnection] = useState<RTCPeerConnection | null>(null);
+
+  const switchCamera = async () => {
+    if (isSwitching) return;
+    setIsSwitching(true);
+    const newMode = facingMode === "user" ? "environment" : "user";
+    
+    try {
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        video: { 
+          width: { ideal: 1280 }, 
+          height: { ideal: 720 }, 
+          frameRate: { ideal: 30 },
+          facingMode: newMode 
+        },
+        audio: true,
+      });
+
+      // Maintain current mute states
+      newStream.getVideoTracks().forEach(track => track.enabled = videoEnabled);
+      newStream.getAudioTracks().forEach(track => track.enabled = audioEnabled);
+
+      // Stop old tracks
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+
+      setStream(newStream);
+      setFacingMode(newMode);
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = newStream;
+      }
+
+      // Replace tracks in active WebRTC peer connection
+      if (peerConnection && isBroadcasting) {
+        const senders = peerConnection.getSenders();
+        
+        const videoSender = senders.find(s => s.track?.kind === "video");
+        const newVideoTrack = newStream.getVideoTracks()[0];
+        if (videoSender && newVideoTrack) {
+          await videoSender.replaceTrack(newVideoTrack);
+        }
+
+        const audioSender = senders.find(s => s.track?.kind === "audio");
+        const newAudioTrack = newStream.getAudioTracks()[0];
+        if (audioSender && newAudioTrack) {
+          await audioSender.replaceTrack(newAudioTrack);
+        }
+      }
+    } catch (err) {
+      console.error("Camera switch failed", err);
+    } finally {
+      setIsSwitching(false);
+    }
+  };
 
   const startBroadcast = async () => {
     if (!stream) return;
@@ -203,11 +261,19 @@ export default function BroadcastStudio() {
               playsInline
               muted // Always mute local preview to avoid feedback loop
               className="w-full h-full object-cover mirror-mode"
-              style={{ transform: "scaleX(-1)" }}
+              style={{ transform: facingMode === "user" ? "scaleX(-1)" : "none" }}
             />
             
             {/* Camera Controls Overlay */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity">
+              <button 
+                onClick={switchCamera}
+                disabled={isSwitching}
+                className="p-3 rounded-xl transition-colors bg-white/10 text-white hover:bg-white/20 disabled:opacity-50"
+                title="Changer de caméra"
+              >
+                <SwitchCamera className="w-5 h-5" />
+              </button>
               <button 
                 onClick={toggleVideo}
                 className={`p-3 rounded-xl transition-colors ${videoEnabled ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-red-500/20 text-red-500 hover:bg-red-500/30'}`}
