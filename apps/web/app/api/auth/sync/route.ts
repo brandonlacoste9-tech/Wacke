@@ -80,6 +80,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ user: dbUser }, { status: 200 });
   } catch (error) {
     console.error("[AUTH_SYNC_ERROR]", error);
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+    return NextResponse.json({ error: "Erreur serveur", details: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 }
