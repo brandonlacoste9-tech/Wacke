@@ -126,9 +126,14 @@ export default function LoginPage() {
                          font-bold text-lg flex items-center justify-center space-x-2
                          shadow-[0_0_20px_rgba(83,252,24,0.3)] hover:shadow-[0_0_30px_rgba(83,252,24,0.5)] kick-element"
             >
-              <span className="emoji text-2xl">🟢</span>
+              {/* Kick official logo SVG */}
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 2H7V9L11 5H16L11 10.5L16.5 16H11.5L7 11V16H3V2Z"/>
+                <path d="M17 5H21V9H17V5Z"/>
+                <path d="M17 12H21V16H17V12Z"/>
+              </svg>
               <span>{t("loginWithKick")}</span>
-              <span className="bg-black text-[#53fc18] text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-md ml-2 border border-[#53fc18]/30 animate-pulse emoji">
+              <span className="bg-black text-[#53fc18] text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-md ml-2 border border-[#53fc18]/30 animate-pulse">
                 RECOMMENDED 🔥
               </span>
             </a>
