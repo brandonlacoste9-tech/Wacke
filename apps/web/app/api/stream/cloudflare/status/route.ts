@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { streams } from "@wacke/db";
 import { eq } from "drizzle-orm";
-import { db } from "@/lib/db";
+import { db } from "@wacke/db";
 
 export async function POST(req: Request) {
   try {

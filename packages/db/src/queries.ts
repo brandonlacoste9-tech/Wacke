@@ -508,13 +508,11 @@ export async function upsertStream({
   category,
   sacreModeEnabled,
   cloudflarePlaybackId,
-  cloudflarePlaybackId,
 }: {
   userId: string;
   title: string;
   category: string;
   sacreModeEnabled: boolean;
-  cloudflarePlaybackId: string | null;
   cloudflarePlaybackId: string | null;
 }) {
   if (isDbMocked()) {
@@ -525,7 +523,6 @@ export async function upsertStream({
       stream.category = category;
       stream.sacreModeEnabled = sacreModeEnabled;
       stream.cloudflarePlaybackId = cloudflarePlaybackId;
-      stream.cloudflarePlaybackId = cloudflarePlaybackId;
       stream.status = "offline";
       stream.updatedAt = new Date();
     } else {
@@ -535,7 +532,6 @@ export async function upsertStream({
         title,
         category,
         status: "offline",
-        cloudflarePlaybackId,
         cloudflarePlaybackId,
         sacreModeEnabled,
         viewerCount: 0,
@@ -558,7 +554,6 @@ export async function upsertStream({
         title,
         category: category as any,
         cloudflarePlaybackId,
-        cloudflarePlaybackId,
         sacreModeEnabled,
         status: "offline",
         updatedAt: new Date(),
@@ -575,7 +570,6 @@ export async function upsertStream({
       title,
       category: category as any,
       status: "offline",
-      cloudflarePlaybackId,
       cloudflarePlaybackId,
       sacreModeEnabled,
     })
@@ -631,12 +625,10 @@ export async function updateUserCloudflareCredentials({
   userId,
   cloudflareStreamId,
   cloudflarePlaybackId,
-  cloudflareStreamId,
 }: {
   userId: string;
   cloudflareStreamId: string | null;
   cloudflarePlaybackId: string | null;
-  cloudflareStreamId: string | null;
 }) {
   if (isDbMocked()) {
     const state = getMockDbState();
@@ -644,7 +636,6 @@ export async function updateUserCloudflareCredentials({
     if (user) {
       user.cloudflareStreamId = cloudflareStreamId;
       user.cloudflarePlaybackId = cloudflarePlaybackId;
-      user.cloudflareStreamId = cloudflareStreamId;
       user.isStreamer = true;
       user.updatedAt = new Date();
     }
@@ -656,7 +647,6 @@ export async function updateUserCloudflareCredentials({
     .set({
       cloudflareStreamId,
       cloudflarePlaybackId,
-      cloudflareStreamId,
       isStreamer: true,
       updatedAt: new Date(),
     })
