@@ -197,7 +197,7 @@ export default function Header() {
 
               {/* Streamer Link */}
               <Link
-                href="/dashboard/stream"
+                href="/dashboard/studio"
                 className="hidden sm:flex items-center space-x-1.5 bg-wacke-red/10 hover:bg-wacke-red/20 border border-wacke-red/30
                            text-wacke-red text-xs font-bold px-3 py-2 rounded-xl transition-all hover:scale-[1.02]"
               >

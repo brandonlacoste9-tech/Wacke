@@ -11,13 +11,3 @@ export const isSupabaseMocked = (): boolean => {
   );
 };
 
-export const isMuxMocked = (): boolean => {
-  const tokenId = process.env.MUX_TOKEN_ID || process.env.MUX_ID_TOKEN;
-  const tokenSecret = process.env.MUX_TOKEN_SECRET;
-  return (
-    !tokenId ||
-    tokenId.includes("your-mux-token-id") ||
-    !tokenSecret ||
-    tokenSecret.includes("your-mux-token-secret")
-  );
-};

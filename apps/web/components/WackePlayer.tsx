@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Maximize2, Minimize2, PictureInPicture2 } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
-import { getMuxHlsUrl } from "@/lib/mux";
 
 interface WackePlayerProps {
   playbackId: string;
@@ -16,7 +15,7 @@ interface WackePlayerProps {
 }
 
 /**
- * WackePlayer — HLS video player with Mux integration.
+ * WackePlayer — HLS video player with Cloudflare Stream integration.
  * Features: Kick/Twitch embeds, theater mode, PiP, fullscreen.
  */
 export default function WackePlayer({
@@ -38,7 +37,8 @@ export default function WackePlayer({
   const [hostname, setHostname] = useState<string>("");
   const { t } = useLanguage();
 
-  const hlsUrl = getMuxHlsUrl(playbackId);
+  // Cloudflare Stream HLS Manifest
+  const hlsUrl = playbackId ? `https://cloudflarestream.com/${playbackId}/manifest/video.m3u8` : "";
 
   useEffect(() => {
     if (typeof window !== "undefined") {

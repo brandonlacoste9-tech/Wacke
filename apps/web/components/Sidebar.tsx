@@ -97,7 +97,7 @@ export default function Sidebar() {
   const navItems = [
     { href: "/", icon: <Home className="w-5 h-5" />, label: t("home"), color: "text-wacke-pink" },
     { href: "/browse", icon: <Search className="w-5 h-5" />, label: t("browse"), color: "text-wacke-cyan" },
-    { href: "/dashboard/stream", icon: <Radio className="w-5 h-5" />, label: t("dashboardStream"), color: "text-wacke-red" },
+    { href: "/dashboard/studio", icon: <Radio className="w-5 h-5" />, label: t("dashboardStream"), color: "text-wacke-red" },
   ];
 
   const isActive = (href: string) => {

@@ -61,9 +61,9 @@ export function getMockDbState() {
         bio: "Broadcaster Wacké de test.",
         tokenBalance: 1200,
         isStreamer: true,
-        muxStreamKey: "mock-stream-key-gabriel",
-        muxPlaybackId: "mock_playback_id",
-        muxLiveStreamId: "mock-live-stream-id-gabriel",
+        cloudflareStreamId: "mock-stream-key-gabriel",
+        cloudflarePlaybackId: "mock_playback_id",
+        cloudflareStreamId: "mock-live-stream-id-gabriel",
         twitchUsername: null,
         kickUsername: null,
         isBanned: false,
@@ -80,9 +80,9 @@ export function getMockDbState() {
         bio: "NHL 26 streamer.",
         tokenBalance: 450,
         isStreamer: true,
-        muxStreamKey: "mock-stream-key-sophie",
-        muxPlaybackId: "mock_playback_id",
-        muxLiveStreamId: "mock-live-stream-id-sophie",
+        cloudflareStreamId: "mock-stream-key-sophie",
+        cloudflarePlaybackId: "mock_playback_id",
+        cloudflareStreamId: "mock-live-stream-id-sophie",
         twitchUsername: null,
         kickUsername: null,
         isBanned: false,
@@ -102,7 +102,7 @@ export function getMockDbState() {
         description: "On jase de tout et de rien en direct du dep. Venez poser vos questions!",
         category: "talk",
         status: "live",
-        muxPlaybackId: "mock_playback_id",
+        cloudflarePlaybackId: "mock_playback_id",
         viewerCount: 142,
         peakViewerCount: 300,
         sacreModeEnabled: true,
@@ -116,7 +116,7 @@ export function getMockDbState() {
         description: "NHL 26 avec les chums. Le perdant mange une poutine épicée.",
         category: "gaming",
         status: "live",
-        muxPlaybackId: "mock_playback_id",
+        cloudflarePlaybackId: "mock_playback_id",
         viewerCount: 89,
         peakViewerCount: 150,
         sacreModeEnabled: true,
@@ -228,9 +228,9 @@ export async function getUserByUsername(username: string) {
       bio: `Streamer officiel de Kick.com. Regarde son live ici sur Wacké!`,
       tokenBalance: 0,
       isStreamer: true,
-      muxStreamKey: null,
-      muxPlaybackId: null,
-      muxLiveStreamId: null,
+      cloudflareStreamId: null,
+      cloudflarePlaybackId: null,
+      cloudflareStreamId: null,
       twitchUsername: null,
       kickUsername: cleanUsername,
       isBanned: false,
@@ -260,13 +260,13 @@ export async function getUserBySupabaseId(supabaseId: string) {
   });
 }
 
-export async function getUserByMuxLiveStreamId(liveStreamId: string) {
+export async function getUserByCloudflareStreamId(liveStreamId: string) {
   if (isDbMocked()) {
     const state = getMockDbState();
-    return state.users.find((u) => u.muxLiveStreamId === liveStreamId) || null;
+    return state.users.find((u) => u.cloudflareStreamId === liveStreamId) || null;
   }
   return db.query.users.findFirst({
-    where: eq(users.muxLiveStreamId, liveStreamId),
+    where: eq(users.cloudflareStreamId, liveStreamId),
   });
 }
 
@@ -394,7 +394,7 @@ export async function getLiveStreams(limit = 20, category?: string, search?: str
       description: `Watch ${username} stream live via direct Kick.com integration on Wacké.`,
       category: getStreamerCategory(username),
       status: "live",
-      muxPlaybackId: "mock_playback_id",
+      cloudflarePlaybackId: "mock_playback_id",
       viewerCount: 4200 + index * 1250,
       sacreModeEnabled: true,
       createdAt: new Date(),
@@ -441,7 +441,7 @@ export async function getStreamByUserId(userId: string) {
         description: `Watch ${username} stream live via direct Kick.com integration on Wacké.`,
         category: getStreamerCategory(username),
         status: "live",
-        muxPlaybackId: "mock_playback_id",
+        cloudflarePlaybackId: "mock_playback_id",
         viewerCount: 14200,
         sacreModeEnabled: true,
         createdAt: new Date(),
@@ -466,7 +466,7 @@ export async function getStreamByUserId(userId: string) {
         description: `Watch ${username} stream live via direct Kick.com integration on Wacké.`,
         category: getStreamerCategory(username) as any,
         status: "live",
-        muxPlaybackId: "mock_playback_id",
+        cloudflarePlaybackId: "mock_playback_id",
         viewerCount: 9400,
         sacreModeEnabled: true,
         createdAt: new Date(),
@@ -491,7 +491,7 @@ export async function getStreamByUserId(userId: string) {
       description: `Watch ${username} stream live via direct Kick.com integration on Wacké.`,
       category: getStreamerCategory(username) as any,
       status: "live",
-      muxPlaybackId: "mock_playback_id",
+      cloudflarePlaybackId: "mock_playback_id",
       viewerCount: 9400,
       sacreModeEnabled: true,
       createdAt: new Date(),
@@ -507,15 +507,15 @@ export async function upsertStream({
   title,
   category,
   sacreModeEnabled,
-  muxPlaybackId,
-  muxAssetId,
+  cloudflarePlaybackId,
+  cloudflarePlaybackId,
 }: {
   userId: string;
   title: string;
   category: string;
   sacreModeEnabled: boolean;
-  muxPlaybackId: string | null;
-  muxAssetId: string | null;
+  cloudflarePlaybackId: string | null;
+  cloudflarePlaybackId: string | null;
 }) {
   if (isDbMocked()) {
     const state = getMockDbState();
@@ -524,8 +524,8 @@ export async function upsertStream({
       stream.title = title;
       stream.category = category;
       stream.sacreModeEnabled = sacreModeEnabled;
-      stream.muxPlaybackId = muxPlaybackId;
-      stream.muxAssetId = muxAssetId;
+      stream.cloudflarePlaybackId = cloudflarePlaybackId;
+      stream.cloudflarePlaybackId = cloudflarePlaybackId;
       stream.status = "offline";
       stream.updatedAt = new Date();
     } else {
@@ -535,8 +535,8 @@ export async function upsertStream({
         title,
         category,
         status: "offline",
-        muxPlaybackId,
-        muxAssetId,
+        cloudflarePlaybackId,
+        cloudflarePlaybackId,
         sacreModeEnabled,
         viewerCount: 0,
         createdAt: new Date(),
@@ -557,8 +557,8 @@ export async function upsertStream({
       .set({
         title,
         category: category as any,
-        muxPlaybackId,
-        muxAssetId,
+        cloudflarePlaybackId,
+        cloudflarePlaybackId,
         sacreModeEnabled,
         status: "offline",
         updatedAt: new Date(),
@@ -575,8 +575,8 @@ export async function upsertStream({
       title,
       category: category as any,
       status: "offline",
-      muxPlaybackId,
-      muxAssetId,
+      cloudflarePlaybackId,
+      cloudflarePlaybackId,
       sacreModeEnabled,
     })
     .returning();
@@ -606,10 +606,10 @@ export async function updateStreamStatus(userId: string, status: "live" | "offli
     .where(eq(streams.userId, userId));
 }
 
-export async function updateStreamStatusByMuxId(liveStreamId: string, status: "live" | "offline" | "ended") {
+export async function updateStreamStatusByCloudflareId(liveStreamId: string, status: "live" | "offline" | "ended") {
   if (isDbMocked()) {
     const state = getMockDbState();
-    const user = state.users.find((u) => u.muxLiveStreamId === liveStreamId);
+    const user = state.users.find((u) => u.cloudflareStreamId === liveStreamId);
     if (user) {
       await updateStreamStatus(user.id, status);
     }
@@ -617,7 +617,7 @@ export async function updateStreamStatusByMuxId(liveStreamId: string, status: "l
   }
 
   const dbUser = await db.query.users.findFirst({
-    where: eq(users.muxLiveStreamId, liveStreamId),
+    where: eq(users.cloudflareStreamId, liveStreamId),
   });
   if (dbUser) {
     await db
@@ -627,24 +627,24 @@ export async function updateStreamStatusByMuxId(liveStreamId: string, status: "l
   }
 }
 
-export async function updateUserMuxCredentials({
+export async function updateUserCloudflareCredentials({
   userId,
-  muxStreamKey,
-  muxPlaybackId,
-  muxLiveStreamId,
+  cloudflareStreamId,
+  cloudflarePlaybackId,
+  cloudflareStreamId,
 }: {
   userId: string;
-  muxStreamKey: string | null;
-  muxPlaybackId: string | null;
-  muxLiveStreamId: string | null;
+  cloudflareStreamId: string | null;
+  cloudflarePlaybackId: string | null;
+  cloudflareStreamId: string | null;
 }) {
   if (isDbMocked()) {
     const state = getMockDbState();
     const user = state.users.find((u) => u.id === userId);
     if (user) {
-      user.muxStreamKey = muxStreamKey;
-      user.muxPlaybackId = muxPlaybackId;
-      user.muxLiveStreamId = muxLiveStreamId;
+      user.cloudflareStreamId = cloudflareStreamId;
+      user.cloudflarePlaybackId = cloudflarePlaybackId;
+      user.cloudflareStreamId = cloudflareStreamId;
       user.isStreamer = true;
       user.updatedAt = new Date();
     }
@@ -654,9 +654,9 @@ export async function updateUserMuxCredentials({
   await db
     .update(users)
     .set({
-      muxStreamKey,
-      muxPlaybackId,
-      muxLiveStreamId,
+      cloudflareStreamId,
+      cloudflarePlaybackId,
+      cloudflareStreamId,
       isStreamer: true,
       updatedAt: new Date(),
     })
@@ -718,8 +718,8 @@ export async function endStream(userId: string) {
     }
     const user = state.users.find((u) => u.id === userId);
     if (user) {
-      user.muxStreamKey = null;
-      user.muxLiveStreamId = null;
+      user.cloudflareStreamId = null;
+      user.cloudflareStreamId = null;
       user.updatedAt = new Date();
     }
     return;
@@ -733,8 +733,8 @@ export async function endStream(userId: string) {
   await db
     .update(users)
     .set({
-      muxStreamKey: null,
-      muxLiveStreamId: null,
+      cloudflareStreamId: null,
+      cloudflareStreamId: null,
       updatedAt: new Date(),
     })
     .where(eq(users.id, userId));

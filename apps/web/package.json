@@ -10,8 +10,6 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@mux/mux-node": "^8.5.0",
-    "@mux/mux-player-react": "^2.9.0",
     "@supabase/supabase-js": "^2.43.4",
     "@wacke/db": "workspace:*",
     "@wacke/ui": "workspace:*",

@@ -3,15 +3,14 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ["@wacke/ui", "@wacke/db"],
   images: {
-    domains: [
-      "image.mux.com",
-      "stream.mux.com",
-      "thumbnails.mux.com",
+    remotePatterns: [
+      { protocol: "https", hostname: "a.kick.com" },
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
+      { protocol: "https", hostname: "customer-*.cloudflarestream.com" },
     ],
   },
   // serverExternalPackages is supported in Next 13+, keeping for server-only bundles
   // serverExternalPackages: [
-  //   "@mux/mux-node",
   //   "@neondatabase/serverless",
   //   "drizzle-orm",
   // ],

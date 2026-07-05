@@ -85,7 +85,7 @@ export default function UserDropdown() {
               <span className="text-sm">{t("myProfile")}</span>
             </Link>
             <Link
-              href="/dashboard/stream"
+              href="/dashboard/studio"
               onClick={() => setIsOpen(false)}
               className="flex items-center space-x-3 px-4 py-2.5 hover:bg-white/3 transition-colors text-gray-300 hover:text-white"
             >

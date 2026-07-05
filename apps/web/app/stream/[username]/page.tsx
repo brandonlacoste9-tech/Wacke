@@ -8,7 +8,6 @@ import GraffitiChat from "@/components/GraffitiChat";
 import TokenBar from "@/components/TokenBar";
 import FollowButton from "@/components/FollowButton";
 import ReactionButton from "@/components/ReactionButton";
-import { getMuxThumbnailUrl } from "@/lib/mux";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import type { Metadata } from "next";
 
@@ -47,8 +46,8 @@ export async function generateMetadata({ params }: StreamPageProps): Promise<Met
     title: stream ? `${stream.title} — ${user.displayName} | Wacké` : `${user.displayName} | Wacké`,
     description: stream?.description ?? (isEn ? `Watch ${user.displayName} on Wacké` : `Regarde ${user.displayName} sur Wacké`),
     openGraph: {
-      images: stream?.muxPlaybackId
-        ? [getMuxThumbnailUrl(stream.muxPlaybackId)]
+      images: stream?.cloudflarePlaybackId
+        ? [`https://customer-${process.env.CLOUDFLARE_ACCOUNT_ID}.cloudflarestream.com/${stream.cloudflarePlaybackId}/thumbnails/thumbnail.jpg`]
         : [],
     },
   };
@@ -189,9 +188,9 @@ export default async function StreamPage({ params }: StreamPageProps) {
     <div className="flex flex-col lg:flex-row min-h-[calc(100vh-160px)] lg:h-[calc(100vh-64px)] relative">
       {/* ── Main Stream Area ─────────────────────────────────────────────── */}
       <main className="flex-none lg:flex-1 w-full overflow-y-visible lg:overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6">
-        {isKickUser || stream.muxPlaybackId ? (
+        {isKickUser || stream.cloudflarePlaybackId ? (
           <WackePlayer
-            playbackId={stream.muxPlaybackId ?? "mock_playback_id"}
+            playbackId={stream.cloudflarePlaybackId ?? "mock_playback_id"}
             title={stream.title}
             streamerName={user.displayName}
             viewerCount={stream.viewerCount}

@@ -26,7 +26,7 @@ export default function MobileBottomNav() {
   const items = [
     { href: "/",               icon: <Home className="w-5 h-5" />,   label: t("home") },
     { href: "/browse",         icon: <Search className="w-5 h-5" />, label: t("explore") },
-    { href: "/dashboard/stream", icon: <Radio className="w-5 h-5" />,  label: t("stream") },
+    { href: "/dashboard/studio", icon: <Radio className="w-5 h-5" />,  label: t("stream") },
     { href: user ? `/profile/${user.username}` : "/auth/login", icon: <User className="w-5 h-5" />, label: t("profile") },
   ];
 
