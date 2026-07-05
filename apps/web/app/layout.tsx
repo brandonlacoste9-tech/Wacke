@@ -45,7 +45,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr-CA">
+    <html lang="fr-CA" translate="no">
+      <head>
+        <meta name="google" content="notranslate" />
+      </head>
       <body
         className={`${inter.className} bg-wacke-dark text-white antialiased`}
         style={{
