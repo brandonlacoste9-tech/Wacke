@@ -101,13 +101,13 @@ export default function UserDropdown() {
               <span className="text-sm">{t("settings")}</span>
             </Link>
             
-            {/* Language Toggle (Mobile Only) */}
+            {/* Language Toggle */}
             <button
               onClick={() => {
                 setLanguage(language === "fr" ? "en" : "fr");
                 setIsOpen(false);
               }}
-              className="sm:hidden flex items-center justify-between px-4 py-2.5 hover:bg-white/3 transition-colors text-gray-300 hover:text-white w-full"
+              className="flex items-center justify-between px-4 py-2.5 hover:bg-white/3 transition-colors text-gray-300 hover:text-white w-full"
             >
               <div className="flex items-center space-x-3">
                 <Globe className="w-4 h-4" />
