@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "./AuthProvider";
 import { useLanguage } from "./LanguageProvider";
 
@@ -14,8 +15,13 @@ export default function TokenShopModal({ isOpen, onClose }: TokenShopModalProps)
   const { t } = useLanguage();
   const [loadingAmount, setLoadingAmount] = useState<number | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
 
   const handlePurchase = async (amount: number) => {
     if (!token) {
@@ -59,8 +65,8 @@ export default function TokenShopModal({ isOpen, onClose }: TokenShopModalProps)
     { amount: 10000, price: "$8.99 CAD", badge: "📦 Caisse Pack" },
   ];
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex flex-col items-center p-4">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] overflow-y-auto flex flex-col items-center p-4">
       {/* Background glass blur overlay */}
       <div 
         className="fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity" 
@@ -156,4 +162,6 @@ export default function TokenShopModal({ isOpen, onClose }: TokenShopModalProps)
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
