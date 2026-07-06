@@ -18,17 +18,13 @@ export async function GET(req: NextRequest) {
   const kickError = searchParams.get("error");
   const kickErrorDesc = searchParams.get("error_description") || searchParams.get("error");
 
-  // Determine the redirect origin. Prefer env var, then clean the incoming host for known domains.
+  // Always use a consistent production domain for Kick redirect_uri.
+  // This must exactly match what is registered in the Kick developer app.
   let origin = reqOrigin;
   if (process.env.NEXT_PUBLIC_APP_URL) {
     origin = process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '');
   } else if (process.env.NODE_ENV === "production") {
-    const host = new URL(reqOrigin).hostname.replace(/^www\./, '');
-    if (host.includes('wacke.live') || host.includes('netlify.app')) {
-      origin = `https://${host}`;
-    } else {
-      origin = "https://wacke.live";
-    }
+    origin = "https://wacke.live";
   }
 
   const stateCookie = req.cookies.get("kick_oauth_state")?.value;
@@ -41,7 +37,7 @@ export async function GET(req: NextRequest) {
     console.error("[KICK_AUTH_ERROR_FROM_KICK]", kickError, kickErrorDesc, "computed redirectUri:", redirectUri, "incoming origin:", reqOrigin);
     const errorUrl = new URL("/auth/login", origin);
     errorUrl.searchParams.set("error", "kick_callback_failed");
-    const detailMsg = `Kick authorization error: ${kickError}${kickErrorDesc ? ` - ${kickErrorDesc}` : ''}. We sent redirect_uri=${redirectUri}. Register EXACTLY this (and preferably also the other variant: https://wacke.live/api/auth/kick/callback or with www) in your Kick app's OAuth Redirect URIs. No trailing slash, exact match required.`;
+    const detailMsg = `Kick authorization error: ${kickError}${kickErrorDesc ? ` - ${kickErrorDesc}` : ''}. We sent redirect_uri=${redirectUri}. You MUST register EXACTLY "${redirectUri}" (and also "https://www.wacke.live/api/auth/kick/callback") in your Kick developer app OAuth settings. Set NEXT_PUBLIC_APP_URL=https://wacke.live in Netlify envs for consistency. Exact match required, no trailing slash.`;
     errorUrl.searchParams.set("detail", detailMsg.slice(0, 300));
     return NextResponse.redirect(errorUrl);
   }

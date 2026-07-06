@@ -12,19 +12,13 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(req: NextRequest) {
   const reqOrigin = new URL(req.url).origin;
-  // Determine the redirect origin. Prefer env var, then clean the incoming host for known domains,
-  // fallback to hardcoded for production to avoid mismatches.
+  // Always use a consistent production domain for Kick redirect_uri.
+  // This must exactly match what is registered in the Kick developer app.
   let origin = reqOrigin;
   if (process.env.NEXT_PUBLIC_APP_URL) {
     origin = process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '');
   } else if (process.env.NODE_ENV === "production") {
-    // Clean the host: use the apex domain by default, but if request came via www, we can support it
-    const host = new URL(reqOrigin).hostname.replace(/^www\./, '');
-    if (host.includes('wacke.live') || host.includes('netlify.app')) {
-      origin = `https://${host}`;
-    } else {
-      origin = "https://wacke.live";
-    }
+    origin = "https://wacke.live";
   }
 
   const clientId = process.env.KICK_CLIENT_ID;
