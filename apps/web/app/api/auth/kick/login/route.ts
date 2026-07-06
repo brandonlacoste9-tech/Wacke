@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { isSupabaseMocked } from "@/lib/config";
 import crypto from "crypto";
 
@@ -62,10 +63,8 @@ export async function GET(req: NextRequest) {
   authUrl.searchParams.set("code_challenge_method", "S256");
 
 
-  const response = NextResponse.redirect(authUrl.toString());
-
   // 3. Store cookies for validation in the callback handler
-  response.cookies.set("kick_oauth_state", state, {
+  cookies().set("kick_oauth_state", state, {
     path: "/",
     httpOnly: true,
     maxAge: 600, // 10 minutes
@@ -73,7 +72,7 @@ export async function GET(req: NextRequest) {
     secure: process.env.NODE_ENV === "production",
   });
 
-  response.cookies.set("kick_oauth_verifier", codeVerifier, {
+  cookies().set("kick_oauth_verifier", codeVerifier, {
     path: "/",
     httpOnly: true,
     maxAge: 600,
@@ -81,5 +80,5 @@ export async function GET(req: NextRequest) {
     secure: process.env.NODE_ENV === "production",
   });
 
-  return response;
+  return NextResponse.redirect(authUrl.toString());
 }

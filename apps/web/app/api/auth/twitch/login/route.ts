@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import crypto from "crypto";
 
 export const runtime = "nodejs";
@@ -41,8 +42,6 @@ export async function GET(req: NextRequest) {
   authUrl.searchParams.set("code_challenge", codeChallenge);
   authUrl.searchParams.set("code_challenge_method", "S256");
 
-  const response = NextResponse.redirect(authUrl.toString());
-
   // 3. Store state + verifier in cookies for callback validation
   const cookieOpts = {
     path: "/",
@@ -52,8 +51,8 @@ export async function GET(req: NextRequest) {
     secure: process.env.NODE_ENV === "production",
   };
 
-  response.cookies.set("twitch_oauth_state", state, cookieOpts);
-  response.cookies.set("twitch_oauth_verifier", codeVerifier, cookieOpts);
+  cookies().set("twitch_oauth_state", state, cookieOpts);
+  cookies().set("twitch_oauth_verifier", codeVerifier, cookieOpts);
 
-  return response;
+  return NextResponse.redirect(authUrl.toString());
 }
