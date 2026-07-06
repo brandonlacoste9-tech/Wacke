@@ -68,7 +68,7 @@ export default function TokenShopModal({ isOpen, onClose }: TokenShopModalProps)
       />
 
       {/* Modal Container */}
-      <div className="relative glass-dark w-full max-w-md rounded-2xl p-6 shadow-2xl border border-wacke-pink/20 animate-scale-in z-10 overflow-hidden">
+      <div className="relative glass-dark w-full max-w-md max-h-[90vh] rounded-2xl p-6 shadow-2xl border border-wacke-pink/20 animate-scale-in z-10 overflow-y-auto">
         {/* Neon Glow Lines */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-wacke-pink via-wacke-purple to-wacke-cyan" />
 
