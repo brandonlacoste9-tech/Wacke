@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useLanguage } from "./LanguageProvider";
 import { Sparkles, Volume2 } from "lucide-react";
-import { speakWithGrokVoice } from "@/lib/audio";
+import { speakWithGrokVoice, speakWithCloudGrokVoice } from "@/lib/audio";
 
 export default function GrokHotTakes() {
   const { language, t } = useLanguage();
@@ -28,9 +28,9 @@ export default function GrokHotTakes() {
         const lines = data.content.split('\n').filter((l: string) => l.trim());
         const newTakes = lines.slice(0, 3);
         setTakes(newTakes);
-        // Speak the hot takes with Grok voice (first one auto, rest on demand)
+        // Speak the hot takes with real Grok xAI cloud voice
         if (newTakes.length > 0) {
-          speakWithGrokVoice(newTakes[0], language === "fr" ? "fr-FR" : "en-US");
+          speakWithCloudGrokVoice(newTakes[0], language);
         }
       }
     } catch (e) {
@@ -40,7 +40,7 @@ export default function GrokHotTakes() {
   };
 
   const speakTake = (take: string) => {
-    speakWithGrokVoice(take, language === "fr" ? "fr-FR" : "en-US");
+    speakWithCloudGrokVoice(take, language);
   };
 
   return (

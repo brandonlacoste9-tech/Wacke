@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useLanguage } from "./LanguageProvider";
 import { Flame, Zap, Volume2 } from "lucide-react";
-import { speakWithGrokVoice } from "@/lib/audio";
+import { speakWithGrokVoice, speakWithCloudGrokVoice } from "@/lib/audio";
 
 export default function GrokFire() {
   const { language } = useLanguage();
@@ -29,15 +29,17 @@ export default function GrokFire() {
       });
 
       const data = await res.json();
-      const lines = data.content ? data.content.split('\n').filter((l: string) => l.trim()).slice(0, 5) : [
-        "BOOM! Grok a allumé le feu!",
-        "TABARNAK LE DÉPANNEUR EST EN FLAMMES!",
-      ];
+      const lines: string[] = data.content 
+        ? data.content.split('\n').filter((l: string) => l.trim()).slice(0, 5) 
+        : [
+            "BOOM! Grok a allumé le feu!",
+            "TABARNAK LE DÉPANNEUR EST EN FLAMMES!",
+          ];
 
       setBoomMessages(lines);
-      // Speak the fire lines with Grok voice
+      // Speak the fire lines with real Grok xAI cloud voice
       lines.forEach((line, idx) => {
-        setTimeout(() => speakWithGrokVoice(line, language === "fr" ? "fr-FR" : "en-US"), idx * 800);
+        setTimeout(() => speakWithCloudGrokVoice(line, language), idx * 900);
       });
 
       // Trigger global fire effects
@@ -183,7 +185,7 @@ export default function GrokFire() {
           {boomMessages.map((msg, i) => (
             <div key={i} className="text-yellow-400 font-bold text-lg graffiti-text flex items-center justify-center gap-2">
               {msg}
-              <button onClick={() => speakWithGrokVoice(msg, language === "fr" ? "fr-FR" : "en-US")} className="p-1">
+              <button onClick={() => speakWithCloudGrokVoice(msg, language)} className="p-1">
                 <Volume2 size={16} />
               </button>
             </div>

@@ -32,10 +32,10 @@ interface UseGraffitiChatOptions {
 interface UseGraffitiChatReturn {
   messages: ChatMessage[];
   sendMessage: (content: string) => Promise<{ error?: string }>;
-  sendTtsMessage: (content: string) => Promise<{ error?: string }>;
+  sendTtsMessage: (content: string, lang?: "fr" | "en") => Promise<{ error?: string }>;
   sendSprayMessage: (prompt: string) => Promise<{ error?: string }>;
   sendSoundboardMessage: (soundType: string) => Promise<{ error?: string }>;
-  sendSacreMessage: (prefix: string, core: string, suffix: string, useTts: boolean) => Promise<{ error?: string }>;
+  sendSacreMessage: (prefix: string, core: string, suffix: string, useTts: boolean, lang?: "fr" | "en") => Promise<{ error?: string }>;
   isConnected: boolean;
   isSending: boolean;
   isSendingTts: boolean;
@@ -229,7 +229,7 @@ export function useGraffitiChat({
 
   // ─── Send TTS Message ──────────────────────────────────────────────────────
   const sendTtsMessage = useCallback(
-    async (content: string): Promise<{ error?: string }> => {
+    async (content: string, lang: "fr" | "en" = "fr"): Promise<{ error?: string }> => {
       if (!currentUserId || !authToken) return { error: "Tu dois être connecté pour envoyer un TTS" };
       if (isSendingTts) return { error: "Attends la fin de la génération TTS..." };
 
@@ -251,6 +251,7 @@ export function useGraffitiChat({
             streamId,
             content: modResult.sanitized,
             isSacre: modResult.isSacre,
+            lang,
           }),
         });
 
@@ -347,7 +348,7 @@ export function useGraffitiChat({
   );
 
   const sendSacreMessage = useCallback(
-    async (prefix: string, core: string, suffix: string, useTts: boolean): Promise<{ error?: string }> => {
+    async (prefix: string, core: string, suffix: string, useTts: boolean, lang: "fr" | "en" = "fr"): Promise<{ error?: string }> => {
       if (!currentUserId || !authToken) return { error: "Tu dois être connecté pour jurer" };
       if (isSendingSacre) return { error: "Attends que le sacre soit envoyé..." };
 
@@ -366,6 +367,7 @@ export function useGraffitiChat({
               streamId,
               content: sentence,
               isSacre: true,
+              lang,
             }),
           });
 

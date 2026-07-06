@@ -53,10 +53,19 @@ export function getSupabaseAdmin() {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-  // Fallback to anonKey if serviceKey is missing or is the default dummy placeholder
+  // IMPORTANT: For storage uploads (TTS audio etc) we *must* use service role
+  // to bypass RLS. Never silently fall back here for admin ops.
   const finalKey = (!serviceKey || serviceKey.includes("your-supabase-service-role-key"))
     ? anonKey
     : serviceKey;
+
+  if (finalKey === anonKey && !isSupabaseMocked()) {
+    console.warn(
+      "[SUPABASE ADMIN] WARNING: Using ANON key instead of SERVICE_ROLE_KEY. " +
+      "This will cause RLS violations on storage uploads (e.g. TTS audio). " +
+      "Set SUPABASE_SERVICE_ROLE_KEY in your environment."
+    );
+  }
 
   const client = createClient(url, finalKey, {
     auth: {
@@ -86,4 +95,31 @@ export function getSupabaseAdmin() {
   };
 
   return client;
+}
+
+/**
+ * Strict service-role client. Throws a clear error if the service key is not properly configured.
+ * Use this for storage uploads, privileged writes, etc. where RLS must be bypassed.
+ */
+export function getSupabaseServiceRole() {
+  if (isSupabaseMocked()) {
+    return getSupabaseAdmin();
+  }
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!serviceKey || serviceKey.includes("your-supabase-service-role-key") || serviceKey.length < 30) {
+    throw new Error(
+      "SUPABASE_SERVICE_ROLE_KEY is missing or invalid. TTS audio uploads (and other admin storage) require the service role key to bypass RLS policies. " +
+      "Add it to your .env.local / hosting environment variables."
+    );
+  }
+
+  return createClient(url, serviceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
 }

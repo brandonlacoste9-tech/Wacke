@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { getSupabaseAdmin, getSupabaseServiceRole } from "@/lib/supabase/server";
 import {
   getUserBySupabaseId,
   createChatMessage,
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Session invalide" }, { status: 401 });
     }
 
-    const { content, streamId, isSacre } = await req.json();
+    const { content, streamId, isSacre, voiceId = "leo", lang = "fr" } = await req.json();
 
     if (!content || !streamId) {
       return NextResponse.json(
@@ -78,8 +78,8 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           text: content,
-          voice_id: "leo", // energetic male voice good for hype & sacres (or eve, ara, rex, sal)
-          language: "fr",  // Quebec French vibes
+          voice_id: voiceId, // e.g. "leo", "eve", "ara", "rex", "sal"
+          language: lang === "en" ? "en" : "fr",  // pass through from UI lang toggle (Quebec French default)
           output_format: {
             codec: "mp3",
             sample_rate: 44100,
@@ -97,17 +97,52 @@ export async function POST(req: NextRequest) {
       const audioBuffer = await ttsResponse.arrayBuffer();
       
       // Upload to Supabase Storage for persistent public URL (chat playback)
-      const supabaseAdmin = getSupabaseAdmin();
+      // Use strict service role so we bypass RLS reliably (matches policy expectation of auth.uid() first segment).
+      const supabaseAdmin = getSupabaseServiceRole();
       const bucket = "audio";
       
-      // Ensure bucket exists (safe to call, will error if exists which we ignore)
+      // Ensure bucket exists (idempotent).
+      // IMPORTANT: Run this complete SQL ONCE in Supabase SQL Editor:
+      /*
+      INSERT INTO storage.buckets (id, name, public)
+      VALUES ('audio', 'audio', true)
+      ON CONFLICT (id) DO UPDATE
+      SET public = EXCLUDED.public, name = EXCLUDED.name;
+
+      ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+
+      -- User-owned audio (paid TTS messages etc). UUID must be FIRST segment.
+      CREATE POLICY "Users can upload audio to their folder"
+      ON storage.objects FOR INSERT TO authenticated
+      WITH CHECK (bucket_id = 'audio' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+      CREATE POLICY "Users can update their own audio"
+      ON storage.objects FOR UPDATE TO authenticated
+      USING (bucket_id = 'audio' AND (storage.foldername(name))[1] = auth.uid()::text)
+      WITH CHECK (bucket_id = 'audio' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+      CREATE POLICY "Users can delete their own audio"
+      ON storage.objects FOR DELETE TO authenticated
+      USING ( bucket_id = 'audio' AND (storage.foldername(name))[1] = auth.uid()::text );
+
+      CREATE POLICY "Users can select their own audio"
+      ON storage.objects FOR SELECT TO authenticated
+      USING ( bucket_id = 'audio' AND (storage.foldername(name))[1] = auth.uid()::text );
+      */
+
       try {
         await supabaseAdmin.storage.createBucket(bucket, { public: true });
       } catch (e) {
-        // bucket already exists or permission ok
+        // bucket already exists or permission ok (public bucket + service role uploads bypass RLS)
       }
 
-      const fileName = `tts/${Date.now()}-${Math.random().toString(36).substring(2)}.mp3`;
+      // Object names MUST be "<supabase-auth-uid>/tts/filename.mp3" (first folder segment = auth.uid() for RLS)
+      // Example: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/tts/1720123456789-abc123.mp3"
+      // Object path for RLS: first folder segment MUST be the auth uid.
+      // ✅ "{USER_UUID}/tts/....mp3"
+      // We use authUser.id (the Supabase auth uid from the validated token).
+      // All uploads here go through getSupabaseServiceRole() (bypasses RLS).
+      const fileName = `${authUser.id}/tts/${Date.now()}-${Math.random().toString(36).substring(2)}.mp3`;
       
       const { error: uploadError } = await supabaseAdmin.storage
         .from(bucket)

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useLanguage } from "./LanguageProvider";
 import { Flame, Sword, Volume2 } from "lucide-react";
-import { speakWithGrokVoice } from "@/lib/audio";
+import { speakWithGrokVoice, speakWithCloudGrokVoice } from "@/lib/audio";
 
 interface GrokRoastBattleProps {
   streamerName: string;
@@ -59,8 +59,8 @@ export default function GrokRoastBattle({ streamerName }: GrokRoastBattleProps) 
       };
       setBattle(finalBattle);
       
-      // Speak the winner with Grok voice
-      speakWithGrokVoice(`Winner: ${finalBattle.winner}`, language === "fr" ? "fr-FR" : "en-US");
+      // Speak the winner with real Grok voice
+      speakWithCloudGrokVoice(`Winner: ${finalBattle.winner}`, language);
     } catch (e) {
       const fallback = {
         roast1: "Grok a planté le premier roast.",
@@ -68,13 +68,13 @@ export default function GrokRoastBattle({ streamerName }: GrokRoastBattleProps) 
         winner: "Personne ne gagne, c'est un tie wacké.",
       };
       setBattle(fallback);
-      speakWithGrokVoice(fallback.winner, language === "fr" ? "fr-FR" : "en-US");
+      speakWithCloudGrokVoice(fallback.winner, language);
     }
     setLoading(false);
   };
 
   const speakRoast = (text: string) => {
-    speakWithGrokVoice(text, language === "fr" ? "fr-FR" : "en-US");
+    speakWithCloudGrokVoice(text, language);
   };
 
   return (

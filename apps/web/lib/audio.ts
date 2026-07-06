@@ -149,3 +149,36 @@ export function stopGrokVoice() {
     window.speechSynthesis.cancel();
   }
 }
+
+/**
+ * Cloud Grok xAI Voice (real AI TTS) for system outputs (CoHost, HotTakes, Fire, events...).
+ * Calls /api/tts/system (no user tokens deducted). Falls back to browser synth on failure.
+ * Use for premium "Grok is really speaking" feel on key AI moments.
+ */
+export async function speakWithCloudGrokVoice(text: string, lang: "fr" | "en" = "fr") {
+  if (typeof window === "undefined") return;
+
+  try {
+    const res = await fetch("/api/tts/system", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: text.replace(/— Grok xAI/g, "").trim(), lang }),
+    });
+
+    if (!res.ok) throw new Error(await res.text());
+
+    const { audioUrl } = await res.json();
+    if (audioUrl) {
+      // Stop any browser synth that might be running
+      stopGrokVoice();
+      const audio = new Audio(audioUrl);
+      // slightly boost for hype
+      audio.volume = 0.95;
+      await audio.play();
+    }
+  } catch (e) {
+    console.warn("[CLOUD_GROK_TTS] falling back to browser voice:", e);
+    // Fallback keeps the experience alive
+    speakWithGrokVoice(text, lang === "fr" ? "fr-FR" : "en-US");
+  }
+}

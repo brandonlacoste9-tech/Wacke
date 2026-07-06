@@ -7,7 +7,7 @@ import { useTwitchChat, type TwitchChatMessage } from "@/hooks/useTwitchChat";
 import { Moon, Flame, Mic, Users, Sparkles, Volume2, Bot } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import EmojiPicker from "./EmojiPicker";
-import { playSyntheticSound, speakWithGrokVoice } from "@/lib/audio";
+import { playSyntheticSound, speakWithGrokVoice, speakWithCloudGrokVoice } from "@/lib/audio";
 import { useLanguage } from "./LanguageProvider";
 import { generateGrokResponse, getRandomGrokEvent, generateChaosEvent, getUltraChaosIntervention, GROK_BRAND } from "@/lib/grok-wit";
 import { EMOTE_MAP, EMOTE_IMAGES, getBadgeEmoji, getBadgeLabel, parseKickBadges, getDemoBadgesForUser, getTwemojiUrl, type ChatBadge } from "@/lib/emotes";
@@ -401,8 +401,8 @@ export default function GraffitiChat({
             user: { id: "grok-fuego", username: "grok", displayName: "GROK ON FUEGO", avatarUrl: null },
           };
           setGrokMessages(prev => [...prev, fuegoMsg].slice(-5));
-          // Grok FUEGO voice!
-          speakWithGrokVoice(`🔥 ${data.content}`, language === "fr" ? "fr-FR" : "en-US");
+          // Grok FUEGO — use real cloud Grok voice
+          speakWithCloudGrokVoice(`🔥 ${data.content}`, language);
         }
       } catch {}
     }, 15000); // fuego every 15s
@@ -434,7 +434,7 @@ export default function GraffitiChat({
 
   const handleSacreSubmit = async () => {
     setErrorMsg(null);
-    const { error } = await sendSacreMessage(sacrePrefix, sacreCore, sacreSuffix, sacreTts);
+    const { error } = await sendSacreMessage(sacrePrefix, sacreCore, sacreSuffix, sacreTts, language);
     if (error) {
       setErrorMsg(error);
       return;
@@ -583,6 +583,8 @@ export default function GraffitiChat({
       setInputValue("");
       setGrokMessages(prev => [...prev, grokMsg]);
       await sendMessage(`(demanda à Groké: ${prompt})`);
+      // Speak explicit Grok reply with cloud voice
+      speakWithCloudGrokVoice(grokReply, language);
       return;
     }
 
@@ -615,7 +617,7 @@ export default function GraffitiChat({
     if (!inputValue.trim() || isSending || isSendingTts) return;
     setErrorMsg(null);
 
-    const { error } = await sendTtsMessage(inputValue.trim());
+    const { error } = await sendTtsMessage(inputValue.trim(), language);
     if (error) {
       setErrorMsg(error);
       return;
