@@ -58,11 +58,32 @@ export function getSupabaseAdmin() {
     ? anonKey
     : serviceKey;
 
-  return createClient(url, finalKey, {
+  const client = createClient(url, finalKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
     },
   });
-}
 
+  // Intercept auth.getUser to support our custom mock-session tokens for Kick OAuth
+  const originalGetUser = client.auth.getUser.bind(client.auth);
+  client.auth.getUser = async (jwt?: string) => {
+    if (jwt && jwt.startsWith("mock-session:")) {
+      const parts = jwt.split(":");
+      const username = parts[1];
+      const supabaseId = parts[2];
+      return {
+        data: {
+          user: {
+            id: supabaseId,
+            email: `${username}@mock.wacke.ca`,
+          } as any,
+        },
+        error: null,
+      };
+    }
+    return originalGetUser(jwt);
+  };
+
+  return client;
+}
