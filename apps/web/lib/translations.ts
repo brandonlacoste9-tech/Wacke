@@ -244,6 +244,22 @@ export const translations = {
     dashErrorCreateStream: "Erreur lors de la création du stream",
     dashErrorEndStream: "Erreur lors de l'arrêt du stream",
     dashErrorConnection: "Connexion perdue. Réessaie.",
+
+    // ── Profile Page ──────────────────────────────────────────────────
+    followers: "Abonnés",
+    streamOngoing: "Stream en cours",
+    lastStream: "Dernier stream",
+    watchLiveProfile: "🔴 Regarder le live",
+    backHome: "← Retour à l'accueil",
+
+    // ── Grok ──────────────────────────────────────────────────────────
+    grokErrorTakes: "Grok est en train de sacrer sur le réseau. Réessaie.",
+    grokErrorCoHost: "Grok dit: Tabarnak, le stream est fire!",
+    grokBackstage: "Grok est en train de sacrer dans les coulisses.",
+    grokCohostTitle: "GROK xAI CO-HÔTE",
+    grokSpeaking: "GROK PARLE...",
+    grokSummon: "INVOQUER GROK",
+    grokHint: "Grok intervient avec des commentaires xAI en direct",
   },
   en: {
     // ── Header & Nav ──────────────────────────────────────────────────
@@ -488,6 +504,22 @@ export const translations = {
     dashErrorCreateStream: "Error generating stream key",
     dashErrorEndStream: "Error closing stream",
     dashErrorConnection: "Connection lost. Try again.",
+
+    // ── Profile Page ──────────────────────────────────────────────────
+    followers: "Followers",
+    streamOngoing: "Stream Live",
+    lastStream: "Last stream",
+    watchLiveProfile: "🔴 Watch Live",
+    backHome: "← Back to home",
+
+    // ── Grok ──────────────────────────────────────────────────────────
+    grokErrorTakes: "Grok is swearing at the network. Try again.",
+    grokErrorCoHost: "Grok says: Damn, this stream is fire!",
+    grokBackstage: "Grok is swearing in the backstage.",
+    grokCohostTitle: "GROK xAI CO-HOST",
+    grokSpeaking: "GROK IS SPEAKING...",
+    grokSummon: "SUMMON GROK",
+    grokHint: "Grok jumps in with real xAI commentary",
   }
 } as const;
 

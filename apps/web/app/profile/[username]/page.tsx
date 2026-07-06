@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getUserByUsername, getStreamByUserId, getFollowerCount } from "@wacke/db";
 import GrokRoastButton from "@/components/GrokRoastButton";
+import { cookies } from "next/headers";
+import { translations, type Language, type TranslationKey } from "@/lib/translations";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +23,11 @@ export async function generateMetadata({ params }: ProfilePageProps) {
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const user = await getUserByUsername(params.username);
   if (!user) notFound();
+
+  const cookieStore = cookies();
+  const langCookie = cookieStore.get("wacke_lang")?.value as Language | undefined;
+  const lang = (langCookie === "fr" || langCookie === "en") ? langCookie : "fr";
+  const t = (key: TranslationKey) => translations[lang][key] ?? translations["fr"][key] ?? key;
 
   const stream = await getStreamByUserId(user.id);
   const followers = await getFollowerCount(user.id);
@@ -61,16 +68,16 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             <div className="flex items-center space-x-6">
               <div>
                 <p className="text-lg font-bold text-white">{followers}</p>
-                <p className="text-[10px] text-gray-500 uppercase tracking-wider">Abonnés</p>
+                <p className="text-[10px] text-gray-500 uppercase tracking-wider">{t("followers")}</p>
               </div>
               <div>
-                <p className="text-lg font-bold text-wacke-gold">{(user.tokenBalance ?? 0).toLocaleString("fr-CA")}</p>
-                <p className="text-[10px] text-gray-500 uppercase tracking-wider">Jetons</p>
+                <p className="text-lg font-bold text-wacke-gold">{(user.tokenBalance ?? 0).toLocaleString(lang === "fr" ? "fr-CA" : "en-US")}</p>
+                <p className="text-[10px] text-gray-500 uppercase tracking-wider">{t("tokens")}</p>
               </div>
               {stream && (
                 <div>
-                  <p className="text-lg font-bold text-white">{stream.viewerCount?.toLocaleString("fr-CA") ?? 0}</p>
-                  <p className="text-[10px] text-gray-500 uppercase tracking-wider">Spectateurs</p>
+                  <p className="text-lg font-bold text-white">{stream.viewerCount?.toLocaleString(lang === "fr" ? "fr-CA" : "en-US") ?? 0}</p>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider">{t("spectators")}</p>
                 </div>
               )}
             </div>
@@ -92,7 +99,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         <div className="glass-card rounded-2xl p-6 mb-8">
           <h2 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
             <span>📺</span>
-            <span>{isLive ? "Stream en cours" : "Dernier stream"}</span>
+            <span>{isLive ? t("streamOngoing") : t("lastStream")}</span>
           </h2>
 
           <Link
@@ -114,7 +121,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 <p className="text-xs text-gray-500 capitalize mt-1">{stream.category}</p>
                 {isLive && (
                   <p className="text-xs text-wacke-cyan font-bold mt-2">
-                    👁 {(stream.viewerCount ?? 0).toLocaleString("fr-CA")} spectateurs
+                    👁 {(stream.viewerCount ?? 0).toLocaleString(lang === "fr" ? "fr-CA" : "en-US")} {t("spectators").toLowerCase()}
                   </p>
                 )}
               </div>
@@ -130,14 +137,14 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             href={`/stream/${user.username}`}
             className="bg-gradient-to-r from-wacke-pink to-wacke-purple px-6 py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-all hover:scale-105 shadow-lg shadow-wacke-pink/20"
           >
-            🔴 Regarder le live
+            {t("watchLiveProfile")}
           </Link>
         )}
         <Link
           href="/"
           className="bg-white/3 hover:bg-white/5 border border-wacke-purple/20 px-6 py-3 rounded-xl font-bold text-sm text-gray-300 hover:text-white transition-all"
         >
-          ← Retour à l&apos;accueil
+          {t("backHome")}
         </Link>
       </div>
     </div>

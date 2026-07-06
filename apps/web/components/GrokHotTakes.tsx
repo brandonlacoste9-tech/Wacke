@@ -5,7 +5,7 @@ import { useLanguage } from "./LanguageProvider";
 import { Sparkles } from "lucide-react";
 
 export default function GrokHotTakes() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [takes, setTakes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -28,7 +28,7 @@ export default function GrokHotTakes() {
         setTakes(lines.slice(0, 3));
       }
     } catch (e) {
-      setTakes(["Grok est en train de sacrer sur le réseau. Réessaie."]);
+      setTakes([t("grokErrorTakes")]);
     }
     setLoading(false);
   };

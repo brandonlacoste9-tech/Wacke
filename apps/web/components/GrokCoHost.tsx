@@ -10,7 +10,7 @@ interface GrokCoHostProps {
 }
 
 export default function GrokCoHost({ streamerName, streamId }: GrokCoHostProps) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [comment, setComment] = useState<string>("");
   const [isActive, setIsActive] = useState(false);
 
@@ -28,9 +28,9 @@ export default function GrokCoHost({ streamerName, streamId }: GrokCoHostProps) 
         }),
       });
       const data = await res.json();
-      setComment(data.content || "Grok est en train de sacrer dans les coulisses.");
+      setComment(data.content || t("grokBackstage"));
     } catch {
-      setComment("Grok dit: Tabarnak, le stream est fire!");
+      setComment(t("grokErrorCoHost"));
     }
     setTimeout(() => setIsActive(false), 8000);
   };
@@ -39,14 +39,14 @@ export default function GrokCoHost({ streamerName, streamId }: GrokCoHostProps) 
     <div className="glass p-4 rounded-xl border border-wacke-cyan/30 flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-wacke-cyan text-sm font-bold">
-          <Bot /> {language === "fr" ? "GROK xAI CO-HÔTE" : "GROK xAI CO-HOST"}
+          <Bot /> {t("grokCohostTitle")}
         </div>
         <button 
           onClick={summonGrok}
           disabled={isActive}
           className="text-xs px-2 py-1 bg-wacke-cyan text-black rounded font-bold"
         >
-          {isActive ? (language === "fr" ? "GROK PARLE..." : "GROK IS SPEAKING...") : (language === "fr" ? "INVOQUER GROK" : "SUMMON GROK")}
+          {isActive ? t("grokSpeaking") : t("grokSummon")}
         </button>
       </div>
       {comment && (
@@ -55,7 +55,7 @@ export default function GrokCoHost({ streamerName, streamId }: GrokCoHostProps) 
         </div>
       )}
       <div className="text-[9px] text-gray-500">
-        {language === "fr" ? "Grok intervient avec des commentaires xAI en direct" : "Grok jumps in with real xAI commentary"}
+        {t("grokHint")}
       </div>
     </div>
   );
