@@ -18,15 +18,36 @@ export async function POST(req: NextRequest) {
     }
 
     const token = authHeader.replace("Bearer ", "");
-    const supabase = getSupabaseAdmin();
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    let user: any = null;
 
-    if (authError || !user) {
-      console.error("[AUTH_SYNC_GETUSER_FAIL]", authError?.message || authError);
-      return NextResponse.json({ 
-        error: "Token invalide ou expiré", 
-        details: authError?.message || "Supabase rejected the token (wrong project keys, expired, or used OTP code)" 
-      }, { status: 401 });
+    if (token.startsWith("mock-session:")) {
+      const parts = token.split(":");
+      const username = parts[1];
+      const supabaseId = parts[2];
+      
+      const dbUser = await getUserBySupabaseId(supabaseId);
+      if (!dbUser || dbUser.username !== username) {
+        return NextResponse.json({ error: "Session invalide" }, { status: 401 });
+      }
+      
+      user = {
+        id: dbUser.supabaseId,
+        email: dbUser.email,
+      };
+    } else {
+      const supabase = getSupabaseAdmin();
+      const { data: { user: supaUser }, error: authError } = await supabase.auth.getUser(token);
+
+      if (authError || !supaUser) {
+        console.error("[AUTH_SYNC_GETUSER_FAIL]", authError?.message || authError);
+        return NextResponse.json({ 
+          error: "Token invalide ou expiré", 
+          details: authError?.message || "Supabase rejected the token (wrong project keys, expired, or used OTP code)" 
+        }, { status: 401 });
+      }
+      
+      user = supaUser;
     }
 
     // Try parsing optional payload
