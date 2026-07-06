@@ -12,14 +12,14 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(req: NextRequest) {
   const reqOrigin = new URL(req.url).origin;
-  // Always use a consistent production domain for Kick redirect_uri.
-  // This must exactly match what is registered in the Kick developer app.
-  // Prefer NEXT_PUBLIC_APP_URL if set (recommended for Netlify custom domains).
-  let origin = reqOrigin;
+  // Always force the production custom domain for Kick OAuth redirect.
+  // This value MUST be registered exactly in the Kick developer app settings.
+  // Set NEXT_PUBLIC_APP_URL=https://wacke.live in Netlify for flexibility.
+  let origin = "https://wacke.live";
   if (process.env.NEXT_PUBLIC_APP_URL) {
     origin = process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '');
-  } else if (process.env.NODE_ENV === "production") {
-    origin = "https://wacke.live";
+  } else if (process.env.NODE_ENV !== "production") {
+    origin = reqOrigin;
   }
 
   const clientId = process.env.KICK_CLIENT_ID;

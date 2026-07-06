@@ -34,7 +34,7 @@ export default function LoginPage() {
         callback_failed: 'Login failed: invalid or expired token. Make sure https://wacke.live and /auth/callback are in Supabase Redirect URLs, then try again.',
         csrf_failed: 'Login failed: security state mismatch. Please try again.',
         missing_code: 'Login failed: no authorization code received from Kick.',
-        kick_callback_failed: 'Kick login failed: invalid redirect uri from Kick. See detail below for exact URI to register.',
+        kick_callback_failed: 'Kick login failed: invalid redirect uri. Register the exact URIs shown in the detail below in your Kick developer app.',
         twitch_callback_failed: 'Twitch login failed.',
         server_config: 'Server configuration error — contact support.',
       };

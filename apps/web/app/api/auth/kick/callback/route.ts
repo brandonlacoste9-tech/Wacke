@@ -18,14 +18,14 @@ export async function GET(req: NextRequest) {
   const kickError = searchParams.get("error");
   const kickErrorDesc = searchParams.get("error_description") || searchParams.get("error");
 
-  // Always use a consistent production domain for Kick redirect_uri.
-  // This must exactly match what is registered in the Kick developer app.
-  // Prefer NEXT_PUBLIC_APP_URL if set (recommended for Netlify custom domains).
-  let origin = reqOrigin;
+  // Always force the production custom domain for Kick OAuth redirect.
+  // This value MUST be registered exactly in the Kick developer app settings.
+  // Set NEXT_PUBLIC_APP_URL=https://wacke.live in Netlify for flexibility.
+  let origin = "https://wacke.live";
   if (process.env.NEXT_PUBLIC_APP_URL) {
     origin = process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '');
-  } else if (process.env.NODE_ENV === "production") {
-    origin = "https://wacke.live";
+  } else if (process.env.NODE_ENV !== "production") {
+    origin = reqOrigin;
   }
 
   const stateCookie = req.cookies.get("kick_oauth_state")?.value;
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
     console.error("[KICK_AUTH_ERROR_FROM_KICK]", kickError, kickErrorDesc, "computed redirectUri:", redirectUri, "incoming origin:", reqOrigin);
     const errorUrl = new URL("/auth/login", origin);
     errorUrl.searchParams.set("error", "kick_callback_failed");
-    const detailMsg = `Kick authorization error: ${kickError}${kickErrorDesc ? ` - ${kickErrorDesc}` : ''}. We sent redirect_uri=${redirectUri}. You MUST register EXACTLY "${redirectUri}" (and also "https://www.wacke.live/api/auth/kick/callback") in your Kick developer app OAuth settings. Set NEXT_PUBLIC_APP_URL=https://wacke.live in Netlify envs for consistency. Exact match required, no trailing slash.`;
+    const detailMsg = `Kick rejected the redirect_uri=${redirectUri}. Register EXACTLY these two in your Kick app OAuth settings: https://wacke.live/api/auth/kick/callback and https://www.wacke.live/api/auth/kick/callback . Set NEXT_PUBLIC_APP_URL=https://wacke.live in Netlify. No trailing slash, exact match.`;
     errorUrl.searchParams.set("detail", detailMsg.slice(0, 300));
     return NextResponse.redirect(errorUrl);
   }
