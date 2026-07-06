@@ -18,6 +18,7 @@ export interface KickChatMessage {
     isModerator?: boolean;
     isSubscriber?: boolean;
     isBroadcaster?: boolean;
+    rawBadges?: any[];
   };
   createdAt: string;
 }
@@ -131,7 +132,7 @@ export function useKickChat({
 
           const sender = msg.sender ?? {};
           const identity = msg.broadcaster ?? sender;
-          const badges: string[] = sender.identity?.badges?.map((b: any) => b.type) ?? [];
+          const rawBadges: any[] = sender.identity?.badges ?? [];
 
           const kickMsg: KickChatMessage = {
             id: `kick-${msg.id ?? Date.now()}-${Math.random()}`,
@@ -142,10 +143,12 @@ export function useKickChat({
               username: sender.slug ?? sender.username ?? identity.username ?? "unknown",
               displayName: sender.username ?? identity.username ?? "Viewer",
               color: sender.identity?.color ?? undefined,
-              isModerator: badges.includes("moderator"),
-              isSubscriber: badges.includes("subscriber"),
-              isBroadcaster: badges.includes("broadcaster"),
-            },
+              isModerator: rawBadges.some((b: any) => (b?.type || "").toLowerCase().includes("moderator")),
+              isSubscriber: rawBadges.some((b: any) => (b?.type || "").toLowerCase().includes("subscriber")),
+              isBroadcaster: rawBadges.some((b: any) => (b?.type || "").toLowerCase().includes("broadcaster")),
+              // full for badge renderer (supports sub tiers etc)
+              rawBadges,
+            } as any,
             createdAt: new Date().toISOString(),
           };
 

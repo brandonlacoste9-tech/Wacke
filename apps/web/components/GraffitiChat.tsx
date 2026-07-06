@@ -10,6 +10,7 @@ import EmojiPicker from "./EmojiPicker";
 import { playSyntheticSound } from "@/lib/audio";
 import { useLanguage } from "./LanguageProvider";
 import { generateGrokResponse, getRandomGrokEvent, generateChaosEvent, getUltraChaosIntervention, GROK_BRAND } from "@/lib/grok-wit";
+import { EMOTE_MAP, EMOTE_IMAGES, getBadgeEmoji, getBadgeLabel, parseKickBadges, getDemoBadgesForUser, getTwemojiUrl, type ChatBadge } from "@/lib/emotes";
 
 // ─── Colour palette for usernames ─────────────────────────────────────────────
 const USER_COLORS = [
@@ -62,55 +63,12 @@ function SoundDisplay({ soundType, soundLabels }: { soundType: string; soundLabe
   );
 }
 
-// Twemoji helper for consistent, crisp emojis across platforms
-const getTwemojiUrl = (emoji: string) => {
-  const codePoints = Array.from(emoji)
-    .map((c) => c.codePointAt(0)!.toString(16))
-    .join('-');
-  return `https://twemoji.maxcdn.com/v/14.0.2/svg/${codePoints}.svg`;
-};
+// Twemoji helper (shared from lib/emotes for Kick-style crisp rendering)
 
 // Simple emoji regex (covers most)
 const emojiRegex = /\p{Emoji_Presentation}|\p{Emoji}\uFE0F|\p{Emoji_Modifier_Base}\p{Emoji_Modifier}?/gu;
 
-// Emote shortcodes like Kick (e.g. :fire: -> 🔥 )
-const EMOTE_MAP: Record<string, string> = {
-  fire: '🔥',
-  boom: '💥',
-  rocket: '🚀',
-  cracker: '🧨',
-  ogre: '👹',
-  bomb: '💣',
-  volcano: '🌋',
-  skull: '💀',
-  devil: '😈',
-  imp: '👿',
-  cyclone: '🌀',
-  tornado: '🌪️',
-  scorpion: '🦂',
-  hundred: '💯',
-  mindblown: '🤯',
-  dep: '🏪',
-  frette: '❄️',
-  art: '🎨',
-  crown: '👑',
-  wolf: '🐺',
-  rage: '😤',
-  unicorn: '🦄',
-  rainbow: '🌈',
-  pumpkin: '🎃',
-  bat: '🦇',
-  maple: '🍁',
-  whisky: '🥃',
-  beer: '🍺',
-  pistol: '🔫',
-  syringe: '💉',
-  kick: '🟢',
-  stream: '📺',
-  heart: '💚',
-  eyes: '👀',
-  game: '🎮',
-};
+// (EMOTE_MAP now imported from @/lib/emotes — full Kick-style Global/Channel/Sub coverage + shortcodes)
 
 // Highlight @mentions + convert emojis to Twemoji SVGs for better consistency
 function renderContent(content: string): React.ReactNode {
@@ -142,9 +100,12 @@ function renderContent(content: string): React.ReactNode {
     );
   }
 
-  // Replace emote shortcodes like :fire: with the emoji (Kick style)
-  const processedContent = content.replace(/:(\w+):/g, (match, code) => {
+  // Replace emote shortcodes like :fire: or :raccoon: (Kick style - images for customs)
+  let processedContent = content.replace(/:(\w+):/g, (match, code) => {
     const lower = code.toLowerCase();
+    if (EMOTE_IMAGES[lower]) {
+      return `__EMOTE_IMG__${lower}__`;
+    }
     return EMOTE_MAP[lower] || match;
   });
 
@@ -177,30 +138,65 @@ function renderContent(content: string): React.ReactNode {
         </span>
       );
     } else {
-      // Split text for emojis
-      const text = part.value;
-      let emojiLast = 0;
-      let emojiMatch;
-      emojiRegex.lastIndex = 0;
-      while ((emojiMatch = emojiRegex.exec(text)) !== null) {
-        if (emojiMatch.index > emojiLast) {
-          parts.push(text.slice(emojiLast, emojiMatch.index));
+      // Split text for emojis + custom image emotes (Kick channel/sub style)
+      let text = part.value;
+      // Handle custom emote image sentinels first
+      const imgSentinelRegex = /__EMOTE_IMG__(\w+)__/g;
+      let imgMatch;
+      const textFragments: React.ReactNode[] = [];
+      let lastImg = 0;
+      while ((imgMatch = imgSentinelRegex.exec(text)) !== null) {
+        if (imgMatch.index > lastImg) textFragments.push(text.slice(lastImg, imgMatch.index));
+        const code = imgMatch[1];
+        const imgSrc = EMOTE_IMAGES[code];
+        if (imgSrc) {
+          textFragments.push(
+            <img
+              key={`ce-${i}-${lastImg}`}
+              src={imgSrc}
+              alt={code}
+              className="emoji inline-block align-[-0.1em] w-[1.1em] h-[1.1em] rounded-sm"
+              style={{ imageRendering: "crisp-edges" }}
+            />
+          );
+        } else {
+          textFragments.push(imgMatch[0]);
         }
-        const emoji = emojiMatch[0];
-        parts.push(
-          <img
-            key={`e-${i}-${emojiLast}`}
-            src={getTwemojiUrl(emoji)}
-            alt={emoji}
-            className="emoji inline-block align-[-0.125em] w-[1.1em] h-[1.1em]"
-            style={{ imageRendering: 'crisp-edges' }}
-          />
-        );
-        emojiLast = emojiRegex.lastIndex;
+        lastImg = imgSentinelRegex.lastIndex;
       }
-      if (emojiLast < text.length) {
-        parts.push(text.slice(emojiLast));
-      }
+      if (lastImg < text.length) textFragments.push(text.slice(lastImg));
+
+      // Now process the fragments (or original) for regular emojis
+      const toProcess = textFragments.length ? textFragments : [text];
+      toProcess.forEach((frag, fi) => {
+        if (typeof frag !== "string") {
+          parts.push(frag);
+          return;
+        }
+        const t = frag;
+        let emojiLast = 0;
+        let emojiMatch;
+        emojiRegex.lastIndex = 0;
+        while ((emojiMatch = emojiRegex.exec(t)) !== null) {
+          if (emojiMatch.index > emojiLast) {
+            parts.push(t.slice(emojiLast, emojiMatch.index));
+          }
+          const emoji = emojiMatch[0];
+          parts.push(
+            <img
+              key={`e-${i}-${fi}-${emojiLast}`}
+              src={getTwemojiUrl(emoji)}
+              alt={emoji}
+              className="emoji inline-block align-[-0.125em] w-[1.1em] h-[1.1em]"
+              style={{ imageRendering: "crisp-edges" }}
+            />
+          );
+          emojiLast = emojiRegex.lastIndex;
+        }
+        if (emojiLast < t.length) {
+          parts.push(t.slice(emojiLast));
+        }
+      });
     }
   });
 
@@ -323,7 +319,11 @@ export default function GraffitiChat({
         avatarUrl: null,
       },
       _source: "kick" as const,
-      _kickSender: km.sender,
+      _kickSender: {
+        ...km.sender,
+        // attach full raw badges if hook provides (for evolving sub badges etc)
+        badges: (km.sender as any).rawBadges || [],
+      },
     }));
     const twitchNormalized = twitchMessages.map((tm: TwitchChatMessage) => ({
       id: tm.id,
@@ -583,9 +583,10 @@ export default function GraffitiChat({
     }
 
     // Send to Wacké chat
-    // Replace shortcodes before sending (like :fire: -> 🔥 )
+    // Replace shortcodes before sending (like :fire: -> 🔥 ). Keep :short: for custom image emotes.
     const processedVal = val.replace(/:(\w+):/g, (match, code) => {
       const lower = code.toLowerCase();
+      if (EMOTE_IMAGES[lower]) return match;
       return EMOTE_MAP[lower] || match;
     });
     const { error } = await sendMessage(processedVal);
@@ -737,10 +738,33 @@ export default function GraffitiChat({
                 </span>
               )}
               <p className={`text-xs font-bold ${msg._source === "kick" ? "text-[#53fc18]" : msg._source === "twitch" ? "text-[#9146FF]" : getUserColor(msg.userId)} shrink-0`}>
-                {msg._source === "kick" && msg._kickSender?.isBroadcaster && <span className="mr-1 emoji">👑</span>}
-                {msg._source === "kick" && msg._kickSender?.isModerator && <span className="mr-1 emoji">🔧</span>}
-                {msg._source === "twitch" && msg._twitchSender?.isBroadcaster && <span className="mr-1 emoji">👑</span>}
-                {msg._source === "twitch" && msg._twitchSender?.isModerator && <span className="mr-1 emoji">🗡️</span>}
+                {/* Rich Kick-style badges (Broadcaster, Mod, VIP/OG, Verified, evolving Sub tiers) */}
+                {(() => {
+                  let badges: ChatBadge[] = [];
+                  if (msg._source === "kick" && msg._kickSender) {
+                    // Use real badges from Kick when present
+                    const raw = (msg._kickSender as any).badges || [];
+                    badges = parseKickBadges(raw);
+                    if (badges.length === 0) {
+                      if (msg._kickSender.isBroadcaster) badges.push({ type: "broadcaster" });
+                      if (msg._kickSender.isModerator) badges.push({ type: "moderator" });
+                      if (msg._kickSender.isSubscriber) badges.push({ type: "subscriber", tier: 1 });
+                    }
+                  } else if (msg._source === "twitch" && msg._twitchSender) {
+                    if (msg._twitchSender.isBroadcaster) badges.push({ type: "broadcaster" });
+                    if (msg._twitchSender.isModerator) badges.push({ type: "moderator" });
+                    if (msg._twitchSender.isSubscriber) badges.push({ type: "subscriber", tier: 1 });
+                  } else {
+                    // Demo Wacké badges (variety + fun)
+                    const isBC = (msg.user?.username || "").toLowerCase() === (kickUsername || twitchUsername || "").toLowerCase();
+                    badges = getDemoBadgesForUser(msg.user?.username || msg.user?.displayName || "", isBC);
+                  }
+                  return badges.slice(0, 3).map((b, i) => (
+                    <span key={i} title={getBadgeLabel(b)} className="mr-0.5 emoji align-middle text-[10px]">
+                      {getBadgeEmoji(b)}
+                    </span>
+                  ));
+                })()}
                 {msg._source === "wacke" && <span className="mr-1 emoji">🏪</span>}
                 {msg.user?.displayName ?? msg.user?.username ?? "Anonyme"}
                 {msg.isSacre && (
@@ -1095,9 +1119,10 @@ export default function GraffitiChat({
             value={inputValue}
             onChange={(e) => {
               let val = e.target.value;
-              // Live shortcode replace like Kick (demo)
+              // Live shortcode replace like Kick (keep shortcode for image customs so render shows the graphic)
               val = val.replace(/:(\w+):/g, (match, code) => {
                 const lower = code.toLowerCase();
+                if (EMOTE_IMAGES[lower]) return match; // keep :raccoon: so render turns it into image
                 return EMOTE_MAP[lower] || match;
               });
               setInputValue(val);

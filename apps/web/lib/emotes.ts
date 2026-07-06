@@ -9,6 +9,8 @@ export interface Emote {
   emoji: string;
   label: string;
   category: EmoteCategory;
+  // Optional: for real custom uploaded emotes (after remove.bg). Falls back to emoji/Twemoji.
+  imageUrl?: string;
 }
 
 // --- GLOBAL EMOTES (like Kick defaults - meme culture, everyone can use) ---
@@ -43,6 +45,9 @@ export const CHANNEL_EMOTES: Emote[] = [
   { shortcode: "rage", emoji: "😤", label: "Rage", category: "channel" },
   { shortcode: "unicorn", emoji: "🦄", label: "Licorne", category: "channel" },
   { shortcode: "pumpkin", emoji: "🎃", label: "Citrouille", category: "channel" },
+  // Demo customs generated with the EXACT Grok formula in the spec (replace jpgs with your remove.bg transparent PNGs)
+  { shortcode: "raccoon", emoji: "🦝", label: "Raccoon Hype (custom)", category: "channel", imageUrl: "/emotes/raccoon-hype.jpg" },
+  { shortcode: "gcoin", emoji: "🪙", label: "Gold Skull (custom)", category: "channel", imageUrl: "/emotes/gold-skull.jpg" },
 ];
 
 // --- SUBSCRIBER EMOTES (Affiliate perk, up to 24 - subs can use in ANY channel) ---
@@ -60,6 +65,11 @@ export const ALL_EMOTES = [...GLOBAL_EMOTES, ...CHANNEL_EMOTES, ...SUBSCRIBER_EM
 // Shortcode -> emoji map (Kick style :shortcode: replacement)
 export const EMOTE_MAP: Record<string, string> = Object.fromEntries(
   ALL_EMOTES.map((e) => [e.shortcode.toLowerCase(), e.emoji])
+);
+
+// For custom image emotes: shortcode -> public path (use after background removal!)
+export const EMOTE_IMAGES: Record<string, string> = Object.fromEntries(
+  ALL_EMOTES.filter((e) => e.imageUrl).map((e) => [e.shortcode.toLowerCase(), e.imageUrl!])
 );
 
 // Grouped for the picker UI
@@ -160,6 +170,11 @@ export function parseKickBadges(rawBadges: any[] | undefined): ChatBadge[] {
 }
 
 // For demo Wacké users (fake some variety)
+export const getTwemojiUrl = (emoji: string) =>
+  `https://twemoji.maxcdn.com/v/14.0.2/svg/${Array.from(emoji)
+    .map((c) => c.codePointAt(0)!.toString(16))
+    .join("-")}.svg`;
+
 export function getDemoBadgesForUser(username: string, isBroadcaster?: boolean): ChatBadge[] {
   const lower = (username || "").toLowerCase();
   const badges: ChatBadge[] = [];
