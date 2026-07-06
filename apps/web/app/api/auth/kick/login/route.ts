@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
   const reqOrigin = new URL(req.url).origin;
   // Always use a consistent production domain for Kick redirect_uri.
   // This must exactly match what is registered in the Kick developer app.
+  // Prefer NEXT_PUBLIC_APP_URL if set (recommended for Netlify custom domains).
   let origin = reqOrigin;
   if (process.env.NEXT_PUBLIC_APP_URL) {
     origin = process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '');
