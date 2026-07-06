@@ -33,8 +33,8 @@ export default function LoginPage() {
       const errorMessages: Record<string, string> = {
         callback_failed: 'Login failed: invalid or expired token. Make sure https://wacke.live and /auth/callback are in Supabase Redirect URLs, then try again.',
         csrf_failed: 'Login failed: security state mismatch. Please try again.',
-        missing_code: 'Login failed: no authorization code received. (Kick did not return a code — check that https://wacke.live/api/auth/kick/callback is precisely registered as Redirect URI in your Kick developer app settings)',
-        kick_callback_failed: 'Kick login failed. (Vérifiez que https://wacke.live/api/auth/kick/callback est EXACTEMENT enregistrée comme Redirect URI dans les settings de votre app sur le portail developer Kick. Pas de www, pas de slash final, https obligatoire)',
+        missing_code: 'Login failed: no authorization code received.',
+        kick_callback_failed: 'Kick login failed.',
         twitch_callback_failed: 'Twitch login failed.',
         server_config: 'Server configuration error — contact support.',
       };

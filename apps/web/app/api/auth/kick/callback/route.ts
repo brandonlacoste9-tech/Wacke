@@ -24,13 +24,15 @@ export async function GET(req: NextRequest) {
   const stateCookie = req.cookies.get("kick_oauth_state")?.value;
   const verifierCookie = req.cookies.get("kick_oauth_verifier")?.value;
 
+  const redirectUri = `${origin}/api/auth/kick/callback`;
+
   // Check for errors returned by Kick during authorization (e.g. redirect_uri_mismatch, access_denied)
   if (kickError) {
-    console.error("[KICK_AUTH_ERROR_FROM_KICK]", kickError, kickErrorDesc, "incoming origin:", reqOrigin);
+    console.error("[KICK_AUTH_ERROR_FROM_KICK]", kickError, kickErrorDesc, "computed redirectUri:", redirectUri, "incoming origin:", reqOrigin);
     const errorUrl = new URL("/auth/login", origin);
     errorUrl.searchParams.set("error", "kick_callback_failed");
-    const detailMsg = `Kick authorization error: ${kickError}${kickErrorDesc ? ` - ${kickErrorDesc}` : ''}. Common causes: redirect URI not exactly registered in Kick developer app (must be https://wacke.live/api/auth/kick/callback), or user denied permission.`;
-    errorUrl.searchParams.set("detail", detailMsg.slice(0, 280));
+    const detailMsg = `Kick authorization error: ${kickError}${kickErrorDesc ? ` - ${kickErrorDesc}` : ''}. We sent redirect_uri=${redirectUri}. You MUST register EXACTLY this string in your Kick developer app (no www, no trailing slash, https only). Also try adding https://www.wacke.live/api/auth/kick/callback as backup.`;
+    errorUrl.searchParams.set("detail", detailMsg.slice(0, 300));
     return NextResponse.redirect(errorUrl);
   }
 

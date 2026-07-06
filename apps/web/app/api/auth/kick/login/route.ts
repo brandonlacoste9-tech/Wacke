@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
   }
 
   const redirectUri = `${origin}/api/auth/kick/callback`;
-  console.log("[KICK_LOGIN] Initiating authorize with redirect_uri:", redirectUri);
+  console.log("[KICK_LOGIN] Initiating authorize with redirect_uri:", redirectUri, "(this must be registered exactly in Kick app)");
 
   // 1. Generate state & PKCE parameters
   const state = crypto.randomBytes(16).toString("hex");
