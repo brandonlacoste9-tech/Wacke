@@ -305,23 +305,41 @@ export async function syncUser({
     return user;
   }
 
-  // Check if exists
+  // Check if exists by supabaseId OR email
   let dbUser = await db.query.users.findFirst({
-    where: eq(users.supabaseId, supabaseId),
+    where: or(eq(users.supabaseId, supabaseId), eq(users.email, email)),
   });
 
   if (!dbUser) {
+    // Ensure username is unique before inserting
+    let finalUsername = username;
+    let usernameExists = await db.query.users.findFirst({
+      where: eq(users.username, finalUsername),
+    });
+    
+    if (usernameExists) {
+      finalUsername = `${username}_${Math.random().toString(36).substring(2, 6)}`;
+    }
+
     const [newUser] = await db
       .insert(users)
       .values({
         supabaseId,
         email,
-        username,
+        username: finalUsername,
         displayName,
         tokenBalance: 500,
       })
       .returning();
     dbUser = newUser;
+  } else if (!dbUser.supabaseId && supabaseId) {
+    // Link supabaseId if it was previously null
+    const [updatedUser] = await db
+      .update(users)
+      .set({ supabaseId })
+      .where(eq(users.id, dbUser.id))
+      .returning();
+    dbUser = updatedUser;
   }
 
   return dbUser;

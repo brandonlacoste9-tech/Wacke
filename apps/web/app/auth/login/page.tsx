@@ -31,7 +31,7 @@ export default function LoginPage() {
       const detail = params.get('detail');
 
       const errorMessages: Record<string, string> = {
-        callback_failed: 'Login failed: invalid or expired token. Make sure https://wacke.live and /auth/callback are in Supabase Redirect URLs, then try again.',
+        callback_failed: 'Login failed: invalid or expired token. Make sure your domain and /auth/callback are in Supabase Redirect URLs, then try again.',
         csrf_failed: 'Login failed: security state mismatch. Please try again.',
         missing_code: 'Login failed: no authorization code received from Kick.',
         kick_callback_failed: 'Kick login failed: invalid redirect uri. Register the exact URIs shown in the detail below in your Kick developer app.',
@@ -62,8 +62,8 @@ export default function LoginPage() {
 
     try {
       const supabase = getSupabaseClient();
-      const redirectTo = typeof window !== "undefined" && window.location.hostname === "localhost"
-        ? "http://localhost:3000/auth/callback"
+      const redirectTo = typeof window !== "undefined"
+        ? `${window.location.origin}/auth/callback`
         : "https://wacke.live/auth/callback";
 
       const { error } = await supabase.auth.signInWithOAuth({

@@ -12,15 +12,11 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(req: NextRequest) {
   const reqOrigin = new URL(req.url).origin;
-  // Always force the production custom domain for Kick OAuth redirect.
-  // This value MUST be registered exactly in the Kick developer app settings.
-  // Set NEXT_PUBLIC_APP_URL=https://wacke.live in Netlify for flexibility.
-  let origin = "https://wacke.live";
-  if (process.env.NEXT_PUBLIC_APP_URL) {
-    origin = process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '');
-  } else if (process.env.NODE_ENV !== "production") {
-    origin = reqOrigin;
-  }
+  // Use NEXT_PUBLIC_APP_URL if defined (recommended for production/Netlify),
+  // otherwise fallback to the incoming request's origin.
+  const origin = process.env.NEXT_PUBLIC_APP_URL 
+    ? process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '') 
+    : reqOrigin;
 
   const clientId = process.env.KICK_CLIENT_ID;
   const clientSecret = process.env.KICK_CLIENT_SECRET;

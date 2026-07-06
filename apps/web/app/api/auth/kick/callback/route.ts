@@ -18,15 +18,11 @@ export async function GET(req: NextRequest) {
   const kickError = searchParams.get("error");
   const kickErrorDesc = searchParams.get("error_description") || searchParams.get("error");
 
-  // Always force the production custom domain for Kick OAuth redirect.
-  // This value MUST be registered exactly in the Kick developer app settings.
-  // Set NEXT_PUBLIC_APP_URL=https://wacke.live in Netlify for flexibility.
-  let origin = "https://wacke.live";
-  if (process.env.NEXT_PUBLIC_APP_URL) {
-    origin = process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '');
-  } else if (process.env.NODE_ENV !== "production") {
-    origin = reqOrigin;
-  }
+  // Use NEXT_PUBLIC_APP_URL if defined (recommended for production/Netlify),
+  // otherwise fallback to the incoming request's origin.
+  const origin = process.env.NEXT_PUBLIC_APP_URL 
+    ? process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '') 
+    : reqOrigin;
 
   const stateCookie = req.cookies.get("kick_oauth_state")?.value;
   const verifierCookie = req.cookies.get("kick_oauth_verifier")?.value;
@@ -38,7 +34,7 @@ export async function GET(req: NextRequest) {
     console.error("[KICK_AUTH_ERROR_FROM_KICK]", kickError, kickErrorDesc, "computed redirectUri:", redirectUri, "incoming origin:", reqOrigin);
     const errorUrl = new URL("/auth/login", origin);
     errorUrl.searchParams.set("error", "kick_callback_failed");
-    const detailMsg = `Kick rejected the redirect_uri=${redirectUri}. Register EXACTLY these two in your Kick app OAuth settings: https://wacke.live/api/auth/kick/callback and https://www.wacke.live/api/auth/kick/callback . Set NEXT_PUBLIC_APP_URL=https://wacke.live in Netlify. No trailing slash, exact match.`;
+    const detailMsg = `Kick rejected the redirect_uri=${redirectUri}. Register EXACTLY these two in your Kick app OAuth settings: ${origin}/api/auth/kick/callback and ${origin.replace('https://', 'https://www.')}/api/auth/kick/callback . Make sure your domain matches. No trailing slash, exact match.`;
     errorUrl.searchParams.set("detail", detailMsg.slice(0, 300));
     return NextResponse.redirect(errorUrl);
   }
