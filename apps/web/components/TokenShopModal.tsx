@@ -157,5 +157,6 @@ export default function TokenShopModal({ isOpen, onClose }: TokenShopModalProps)
         </div>
       </div>
     </div>
+    </div>
   );
 }
