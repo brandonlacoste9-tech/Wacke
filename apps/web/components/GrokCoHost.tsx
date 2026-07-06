@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useLanguage } from "./LanguageProvider";
-import { Bot, MessageCircle } from "lucide-react";
+import { Bot, MessageCircle, Volume2 } from "lucide-react";
+import { speakWithGrokVoice } from "@/lib/audio";
 
 interface GrokCoHostProps {
   streamerName: string;
@@ -28,7 +29,11 @@ export default function GrokCoHost({ streamerName, streamId }: GrokCoHostProps) 
         }),
       });
       const data = await res.json();
-      setComment(data.content || t("grokBackstage"));
+      const grokText = data.content || t("grokBackstage");
+      setComment(grokText);
+      
+      // Speak with browser Grok voice (free & instant, French preferred)
+      speakWithGrokVoice(grokText, language === "fr" ? "fr-FR" : "en-US");
     } catch {
       setComment(t("grokErrorCoHost"));
     }
@@ -50,8 +55,15 @@ export default function GrokCoHost({ streamerName, streamId }: GrokCoHostProps) 
         </button>
       </div>
       {comment && (
-        <div className="text-xs bg-black/30 p-2 rounded border-l-2 border-wacke-cyan text-gray-200">
-          {comment} <span className="text-wacke-cyan/60">— Grok xAI</span>
+        <div className="text-xs bg-black/30 p-2 rounded border-l-2 border-wacke-cyan text-gray-200 flex items-start gap-2">
+          <div className="flex-1">{comment} <span className="text-wacke-cyan/60">— Grok xAI</span></div>
+          <button 
+            onClick={() => speakWithGrokVoice(comment, language === "fr" ? "fr-FR" : "en-US")}
+            className="shrink-0 p-1 hover:bg-wacke-cyan/10 rounded"
+            title="Speak with Grok Voice"
+          >
+            <Volume2 size={14} />
+          </button>
         </div>
       )}
       <div className="text-[9px] text-gray-500">

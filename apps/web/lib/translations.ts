@@ -69,14 +69,14 @@ export const translations = {
 
     // ── Graffiti Chat ─────────────────────────────────────────────────
     chatPlaceholder: "Spray ton message...",
-    ttsBtn: "TTS (50 🪙)",
-    ttsGenerating: "Génération...",
+    ttsBtn: "Grok Voice TTS (50 🪙)",
+    ttsGenerating: "Grok parle...",
     stickerTitle: "GÉNÉRATEUR DE STICKERS AI (100 🪙)",
     stickerPlaceholder: "Ex: un canard punk...",
     stickerBtn: "Sprayer",
     soundboardTitle: "SOUNDBOARD INTERACTIVE",
     sacreTitle: "GÉNÉRATEUR DE SACRES QUÉBÉCOIS",
-    sacreTtsCheckbox: "Hurler via TTS (+50 🪙)",
+    sacreTtsCheckbox: "Hurler avec Grok Voice (+50 🪙)",
     sacreBtn: "Crier",
     sacreActive: "Mode Sacré actif — sacres permis",
     sacreDisabled: "Mode Sacré désactivé",
@@ -97,7 +97,7 @@ export const translations = {
 
     // ── Token Shop ────────────────────────────────────────────────────
     shopTitle: "BOUTIQUE DE JETONS 🪙",
-    shopSubtitle: "Recharge ton solde pour débloquer les modules sacrés, TTS, stickers et soundboard !",
+    shopSubtitle: "Recharge ton solde pour débloquer les sacres, Grok Voice TTS, stickers et soundboard !",
     buyBtn: "Recharger",
     loadingCheckout: "Redirection vers Stripe...",
     loginToBuy: "Tu dois être connecté pour acheter des jetons",
@@ -329,14 +329,14 @@ export const translations = {
 
     // ── Graffiti Chat ─────────────────────────────────────────────────
     chatPlaceholder: "Spray your message...",
-    ttsBtn: "TTS (50 🪙)",
-    ttsGenerating: "Generating...",
+    ttsBtn: "Grok Voice TTS (50 🪙)",
+    ttsGenerating: "Grok speaking...",
     stickerTitle: "AI STICKER GENERATOR (100 🪙)",
     stickerPlaceholder: "Ex: a punk duck...",
     stickerBtn: "Spray",
     soundboardTitle: "INTERACTIVE SOUNDBOARD",
     sacreTitle: "QUÉBÉCOIS SWEAR GENERATOR",
-    sacreTtsCheckbox: "Scream via TTS (+50 🪙)",
+    sacreTtsCheckbox: "Scream with Grok Voice (+50 🪙)",
     sacreBtn: "Shout",
     sacreActive: "Mode Sacré active — swears allowed",
     sacreDisabled: "Mode Sacré disabled",
@@ -357,7 +357,7 @@ export const translations = {
 
     // ── Token Shop ────────────────────────────────────────────────────
     shopTitle: "TOKEN SHOP 🪙",
-    shopSubtitle: "Refill your balance to unlock swear generators, TTS voices, stickers, and soundboard chimes!",
+    shopSubtitle: "Refill your balance to unlock swear generators, Grok Voice TTS, stickers, and soundboard chimes!",
     buyBtn: "Purchase",
     loadingCheckout: "Redirecting to Stripe...",
     loginToBuy: "You must be logged in to buy tokens",

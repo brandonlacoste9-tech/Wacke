@@ -5,10 +5,6 @@ import {
   createChatMessage,
   deductTokens,
 } from "@wacke/db";
-import { exec } from "child_process";
-import { promisify } from "util";
-
-const execAsync = promisify(exec);
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,7 +13,7 @@ const TTS_COST = 50;
 
 /**
  * POST /api/chat/tts
- * Deducts tokens, runs Higgsfield CLI to generate TTS, and saves the message.
+ * Deducts tokens, uses native Grok xAI Voice (TTS) to generate expressive audio, uploads to Supabase, and saves the message.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -66,22 +62,73 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Generate TTS via Higgsfield CLI
+    // 2. Generate TTS via Grok xAI Voice (native Grok AI voice!)
     let audioUrl = null;
     try {
-      // Escape double quotes for shell safety
-      const safeContent = content.replace(/"/g, '\\"');
-      const cmd = `higgsfield generate create inworld_text_to_speech --prompt "${safeContent}" --voice "Mathieu (fr)" --wait --json`;
-      
-      const { stdout } = await execAsync(cmd);
-      const jsonResponse = JSON.parse(stdout);
-      
-      // Expected output is an array of jobs, grab the first one
-      if (Array.isArray(jsonResponse) && jsonResponse[0]?.result_url) {
-        audioUrl = jsonResponse[0].result_url;
+      const xaiKey = process.env.XAI_API_KEY;
+      if (!xaiKey) {
+        throw new Error("XAI_API_KEY not configured for Grok TTS");
       }
-    } catch (cliError) {
-      console.error("[TTS_CLI_ERROR]", cliError);
+
+      const ttsResponse = await fetch("https://api.x.ai/v1/tts", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${xaiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: content,
+          voice_id: "leo", // energetic male voice good for hype & sacres (or eve, ara, rex, sal)
+          language: "fr",  // Quebec French vibes
+          output_format: {
+            codec: "mp3",
+            sample_rate: 44100,
+          },
+          speed: 1.05, // slightly energetic
+        }),
+      });
+
+      if (!ttsResponse.ok) {
+        const errText = await ttsResponse.text();
+        console.error("[GROK_TTS_ERROR]", ttsResponse.status, errText);
+        throw new Error("Grok TTS generation failed");
+      }
+
+      const audioBuffer = await ttsResponse.arrayBuffer();
+      
+      // Upload to Supabase Storage for persistent public URL (chat playback)
+      const supabaseAdmin = getSupabaseAdmin();
+      const bucket = "audio";
+      
+      // Ensure bucket exists (safe to call, will error if exists which we ignore)
+      try {
+        await supabaseAdmin.storage.createBucket(bucket, { public: true });
+      } catch (e) {
+        // bucket already exists or permission ok
+      }
+
+      const fileName = `tts/${Date.now()}-${Math.random().toString(36).substring(2)}.mp3`;
+      
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from(bucket)
+        .upload(fileName, Buffer.from(audioBuffer), {
+          contentType: "audio/mpeg",
+          upsert: false,
+        });
+
+      if (uploadError) {
+        console.error("[GROK_TTS_STORAGE_ERROR]", uploadError);
+        // Fallback: data URL (works for demo, large messages may be heavy)
+        const base64 = Buffer.from(audioBuffer).toString("base64");
+        audioUrl = `data:audio/mpeg;base64,${base64}`;
+      } else {
+        const { data: publicUrlData } = supabaseAdmin.storage
+          .from(bucket)
+          .getPublicUrl(fileName);
+        audioUrl = publicUrlData.publicUrl;
+      }
+    } catch (ttsError) {
+      console.error("[GROK_TTS_ERROR]", ttsError);
       // Refund tokens if TTS fails
       await deductTokens({
         userId: user.id,
@@ -90,7 +137,7 @@ export async function POST(req: NextRequest) {
         streamId,
       });
       return NextResponse.json(
-        { error: "Erreur de génération vocale (Remboursé)" },
+        { error: "Erreur de génération vocale Grok (Remboursé)" },
         { status: 500 }
       );
     }

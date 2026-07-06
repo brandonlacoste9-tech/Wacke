@@ -7,7 +7,7 @@ import { useTwitchChat, type TwitchChatMessage } from "@/hooks/useTwitchChat";
 import { Moon, Flame, Mic, Users, Sparkles, Volume2, Bot } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import EmojiPicker from "./EmojiPicker";
-import { playSyntheticSound } from "@/lib/audio";
+import { playSyntheticSound, speakWithGrokVoice } from "@/lib/audio";
 import { useLanguage } from "./LanguageProvider";
 import { generateGrokResponse, getRandomGrokEvent, generateChaosEvent, getUltraChaosIntervention, GROK_BRAND } from "@/lib/grok-wit";
 import { EMOTE_MAP, EMOTE_IMAGES, getBadgeEmoji, getBadgeLabel, parseKickBadges, getDemoBadgesForUser, getTwemojiUrl, type ChatBadge } from "@/lib/emotes";
@@ -365,6 +365,8 @@ export default function GraffitiChat({
           user: { id: "grok-xai", username: "grok", displayName: "Grok xAI", avatarUrl: null },
         };
         setGrokMessages(prev => [...prev, grokEventMsg].slice(-5));
+        // Speak Grok's random interjections with browser voice
+        speakWithGrokVoice(event, language === "fr" ? "fr-FR" : "en-US");
       }
     }, 22000); // every ~22s chance
 
@@ -399,6 +401,8 @@ export default function GraffitiChat({
             user: { id: "grok-fuego", username: "grok", displayName: "GROK ON FUEGO", avatarUrl: null },
           };
           setGrokMessages(prev => [...prev, fuegoMsg].slice(-5));
+          // Grok FUEGO voice!
+          speakWithGrokVoice(`🔥 ${data.content}`, language === "fr" ? "fr-FR" : "en-US");
         }
       } catch {}
     }, 15000); // fuego every 15s
