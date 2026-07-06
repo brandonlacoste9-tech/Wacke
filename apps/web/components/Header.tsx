@@ -170,29 +170,37 @@ export default function Header() {
                 </div>
               )}
 
-              {/* Tokens Display */}
-              <div 
-                onClick={() => setIsShopOpen(true)}
-                className="flex items-center space-x-2 bg-yellow-500/5 border border-yellow-500/20 rounded-xl px-3 py-1.5 group cursor-pointer hover:bg-yellow-500/10 hover:border-yellow-500/35 transition-all select-none"
-                title={t("openShop")}
-              >
-                <img
-                  src="/token.png"
-                  alt="Token"
-                  className={`h-4 w-4 object-contain rounded-full shadow-[0_0_6px_rgba(255,215,0,0.4)] ${coinAnimate ? "animate-coin-float" : ""}`}
-                />
-                <span className="text-sm font-bold text-yellow-400">{user.tokenBalance.toLocaleString("fr-CA")}</span>
+              <div className="flex items-center space-x-2">
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleClaim();
-                  }}
-                  disabled={isClaiming}
-                  className="text-[10px] bg-yellow-500/15 hover:bg-yellow-500/30 text-yellow-300 px-2 py-0.5 rounded-md font-bold transition-all disabled:opacity-50 uppercase tracking-wider"
-                  title={t("claimTooltip")}
+                  onClick={() => setIsShopOpen(true)}
+                  className="hidden sm:flex items-center space-x-1.5 bg-[#53FC18] hover:bg-[#53FC18]/90 text-black text-[11px] font-black px-3 py-1.5 rounded-lg transition-transform hover:scale-105 uppercase tracking-wider shadow-[0_0_10px_rgba(83,252,24,0.3)]"
+                  title={t("openShop")}
                 >
-                  {isClaiming ? "..." : "+500"}
+                  <span>{t("getCoins")}</span>
                 </button>
+                <div 
+                  onClick={() => setIsShopOpen(true)}
+                  className="flex items-center space-x-2 bg-yellow-500/5 border border-yellow-500/20 rounded-xl px-3 py-1.5 group cursor-pointer hover:bg-yellow-500/10 hover:border-yellow-500/35 transition-all select-none"
+                  title={t("openShop")}
+                >
+                  <img
+                    src="/token.png"
+                    alt="Token"
+                    className={`h-4 w-4 object-contain rounded-full shadow-[0_0_6px_rgba(255,215,0,0.4)] ${coinAnimate ? "animate-coin-float" : ""}`}
+                  />
+                  <span className="text-sm font-bold text-yellow-400">{user.tokenBalance.toLocaleString("fr-CA")}</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleClaim();
+                    }}
+                    disabled={isClaiming}
+                    className="text-[10px] bg-yellow-500/15 hover:bg-yellow-500/30 text-yellow-300 px-2 py-0.5 rounded-md font-bold transition-all disabled:opacity-50 uppercase tracking-wider"
+                    title={t("claimTooltip")}
+                  >
+                    {isClaiming ? "..." : "+500"}
+                  </button>
+                </div>
               </div>
 
               {/* Streamer Link */}

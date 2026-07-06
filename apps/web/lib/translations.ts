@@ -172,6 +172,7 @@ export const translations = {
     claimTooltip: "Réclamer ton bonus quotidien de 500 jetons",
     themeLabel: "Thème",
     nightMode: "Mode Nuit Blanche",
+    getCoins: "Obtenir des jetons",
 
     // ── Auth Pages ────────────────────────────────────────────────────
     loginTitle: "CONNEXION",
@@ -415,6 +416,7 @@ export const translations = {
     claimTooltip: "Claim your daily 500 token bonus",
     themeLabel: "Theme",
     nightMode: "Night Owl Mode",
+    getCoins: "Get Coins",
 
     // ── Auth Pages ────────────────────────────────────────────────────
     loginTitle: "LOG IN",
