@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useLanguage } from "./LanguageProvider";
-import { Flame, Sword } from "lucide-react";
+import { Flame, Sword, Volume2 } from "lucide-react";
+import { speakWithGrokVoice } from "@/lib/audio";
 
 interface GrokRoastBattleProps {
   streamerName: string;
@@ -51,19 +52,29 @@ export default function GrokRoastBattle({ streamerName }: GrokRoastBattleProps) 
       
       const winner = judge.toLowerCase().includes("2") ? "2" : "1";
       
-      setBattle({
+      const finalBattle = {
         roast1,
         roast2,
         winner: winner === "1" ? roast1 : roast2,
-      });
+      };
+      setBattle(finalBattle);
+      
+      // Speak the winner with Grok voice
+      speakWithGrokVoice(`Winner: ${finalBattle.winner}`, language === "fr" ? "fr-FR" : "en-US");
     } catch (e) {
-      setBattle({
+      const fallback = {
         roast1: "Grok a planté le premier roast.",
         roast2: "Le deuxième était pire.",
         winner: "Personne ne gagne, c'est un tie wacké.",
-      });
+      };
+      setBattle(fallback);
+      speakWithGrokVoice(fallback.winner, language === "fr" ? "fr-FR" : "en-US");
     }
     setLoading(false);
+  };
+
+  const speakRoast = (text: string) => {
+    speakWithGrokVoice(text, language === "fr" ? "fr-FR" : "en-US");
   };
 
   return (
@@ -82,14 +93,17 @@ export default function GrokRoastBattle({ streamerName }: GrokRoastBattleProps) 
       
       {battle && (
         <div className="mt-3 space-y-2 text-xs">
-          <div className="p-2 bg-black/40 rounded border-l-2 border-red-500">
-            <strong>Roast 1:</strong> {battle.roast1}
+          <div className="p-2 bg-black/40 rounded border-l-2 border-red-500 flex justify-between items-start">
+            <div><strong>Roast 1:</strong> {battle.roast1}</div>
+            <button onClick={() => speakRoast(battle.roast1)} className="p-1"><Volume2 size={12} /></button>
           </div>
-          <div className="p-2 bg-black/40 rounded border-l-2 border-red-500">
-            <strong>Roast 2:</strong> {battle.roast2}
+          <div className="p-2 bg-black/40 rounded border-l-2 border-red-500 flex justify-between items-start">
+            <div><strong>Roast 2:</strong> {battle.roast2}</div>
+            <button onClick={() => speakRoast(battle.roast2)} className="p-1"><Volume2 size={12} /></button>
           </div>
-          <div className="p-2 bg-wacke-cyan/10 rounded text-wacke-cyan font-bold">
-            WINNER: {battle.winner}
+          <div className="p-2 bg-wacke-cyan/10 rounded text-wacke-cyan font-bold flex justify-between items-start">
+            <div>WINNER: {battle.winner}</div>
+            <button onClick={() => speakRoast(battle.winner)} className="p-1"><Volume2 size={12} /></button>
           </div>
           <div className="text-[10px] text-center text-gray-500">
             {language === "fr" ? "Jugé par Grok xAI • Maximum wacké" : "Judged by Grok xAI • Maximum wacké"}

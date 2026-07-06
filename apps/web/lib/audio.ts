@@ -97,35 +97,55 @@ export function playSyntheticSound(type: string) {
  * Browser-native speech synthesis for Grok voice output.
  * Uses device voices (great French support on modern OS).
  * Complements the paid Grok xAI cloud TTS for user messages.
+ * Auto-loads voices and prefers French/Quebec voices.
  */
 export function speakWithGrokVoice(text: string, lang = "fr-FR") {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
 
-  try {
-    // Cancel any previous
-    window.speechSynthesis.cancel();
+  const speak = () => {
+    try {
+      window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = lang;
-    utterance.rate = 1.08;   // slightly energetic
-    utterance.pitch = 1.05;
-    utterance.volume = 0.95;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang;
+      utterance.rate = 1.1;   // energetic hype delivery
+      utterance.pitch = 1.08;
+      utterance.volume = 0.95;
 
-    // Prefer French / Quebec-ish voice
-    const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find(
-      (v) =>
-        v.lang.toLowerCase().includes("fr-ca") ||
-        v.lang.toLowerCase().includes("fr-fr") ||
-        v.name.toLowerCase().includes("french") ||
-        v.name.toLowerCase().includes("quebec")
-    );
-    if (preferred) {
-      utterance.voice = preferred;
+      // Prefer French / Quebec-ish voice
+      const voices = window.speechSynthesis.getVoices();
+      const preferred = voices.find(
+        (v) =>
+          v.lang.toLowerCase().includes("fr-ca") ||
+          v.lang.toLowerCase().includes("fr-fr") ||
+          v.name.toLowerCase().includes("french") ||
+          v.name.toLowerCase().includes("quebec") ||
+          v.name.toLowerCase().includes("canadian")
+      );
+      if (preferred) {
+        utterance.voice = preferred;
+      }
+
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.warn("Speech synthesis failed:", e);
     }
+  };
 
-    window.speechSynthesis.speak(utterance);
-  } catch (e) {
-    console.warn("Speech synthesis failed:", e);
+  // Voices may load asynchronously
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length === 0) {
+    window.speechSynthesis.onvoiceschanged = speak;
+    // Fallback speak after short delay
+    setTimeout(speak, 300);
+  } else {
+    speak();
+  }
+}
+
+/** Stop any ongoing Grok voice */
+export function stopGrokVoice() {
+  if (typeof window !== "undefined" && "speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
   }
 }

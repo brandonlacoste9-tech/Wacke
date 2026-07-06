@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useLanguage } from "./LanguageProvider";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Volume2 } from "lucide-react";
+import { speakWithGrokVoice } from "@/lib/audio";
 
 export default function GrokHotTakes() {
   const { language, t } = useLanguage();
@@ -25,12 +26,21 @@ export default function GrokHotTakes() {
       const data = await res.json();
       if (data.content) {
         const lines = data.content.split('\n').filter((l: string) => l.trim());
-        setTakes(lines.slice(0, 3));
+        const newTakes = lines.slice(0, 3);
+        setTakes(newTakes);
+        // Speak the hot takes with Grok voice (first one auto, rest on demand)
+        if (newTakes.length > 0) {
+          speakWithGrokVoice(newTakes[0], language === "fr" ? "fr-FR" : "en-US");
+        }
       }
     } catch (e) {
       setTakes([t("grokErrorTakes")]);
     }
     setLoading(false);
+  };
+
+  const speakTake = (take: string) => {
+    speakWithGrokVoice(take, language === "fr" ? "fr-FR" : "en-US");
   };
 
   return (
@@ -51,8 +61,15 @@ export default function GrokHotTakes() {
       {takes.length > 0 ? (
         <ul className="space-y-3 text-sm">
           {takes.map((take, i) => (
-            <li key={i} className="border-l-2 border-wacke-cyan pl-3 text-gray-200">
-              {take}
+            <li key={i} className="border-l-2 border-wacke-cyan pl-3 text-gray-200 flex items-start gap-2">
+              <span className="flex-1">{take}</span>
+              <button 
+                onClick={() => speakTake(take)} 
+                className="shrink-0 p-1 text-wacke-cyan hover:bg-wacke-cyan/10 rounded"
+                title="Speak with Grok Voice"
+              >
+                <Volume2 size={14} />
+              </button>
             </li>
           ))}
         </ul>

@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useLanguage } from "./LanguageProvider";
-import { Flame, Zap } from "lucide-react";
+import { Flame, Zap, Volume2 } from "lucide-react";
+import { speakWithGrokVoice } from "@/lib/audio";
 
 export default function GrokFire() {
   const { language } = useLanguage();
@@ -34,6 +35,10 @@ export default function GrokFire() {
       ];
 
       setBoomMessages(lines);
+      // Speak the fire lines with Grok voice
+      lines.forEach((line, idx) => {
+        setTimeout(() => speakWithGrokVoice(line, language === "fr" ? "fr-FR" : "en-US"), idx * 800);
+      });
 
       // Trigger global fire effects
       document.body.classList.add("grok-fire-mode");
@@ -176,8 +181,11 @@ export default function GrokFire() {
         <div className="mt-4 p-6 bg-black/90 border-2 border-red-500 rounded-2xl text-center space-y-3 animate-pulse">
           <div className="text-red-500 font-black text-2xl tracking-widest">GROK xAI ON FIRE 🔥</div>
           {boomMessages.map((msg, i) => (
-            <div key={i} className="text-yellow-400 font-bold text-lg graffiti-text">
+            <div key={i} className="text-yellow-400 font-bold text-lg graffiti-text flex items-center justify-center gap-2">
               {msg}
+              <button onClick={() => speakWithGrokVoice(msg, language === "fr" ? "fr-FR" : "en-US")} className="p-1">
+                <Volume2 size={16} />
+              </button>
             </div>
           ))}
           <div className="text-xs text-red-400 mt-2">MAXIMUM CHAOS • POWERED BY GROK xAI</div>

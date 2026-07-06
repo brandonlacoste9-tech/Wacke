@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useLanguage } from "./LanguageProvider";
-import { Bot } from "lucide-react";
+import { Bot, Volume2 } from "lucide-react";
+import { speakWithGrokVoice } from "@/lib/audio";
 
 interface StatsData {
   totalViewers: number;
@@ -36,7 +37,11 @@ export default function LiveStatsTicker() {
         }),
       });
       const data = await res.json();
-      if (data.content) setGrokFact(data.content.trim());
+      if (data.content) {
+        const fact = data.content.trim();
+        setGrokFact(fact);
+        speakWithGrokVoice(fact, language === "fr" ? "fr-FR" : "en-US");
+      }
     } catch {}
     setFactLoading(false);
   };
@@ -136,6 +141,7 @@ export default function LiveStatsTicker() {
               <Bot className="w-3 h-3" />
               <span className="font-bold">GROK:</span>
               <span className="text-gray-300 hover:text-white">{factLoading ? "..." : grokFact}</span>
+              <Volume2 className="w-3 h-3 hover:text-white" onClick={(e) => { e.stopPropagation(); speakWithGrokVoice(grokFact, language === "fr" ? "fr-FR" : "en-US"); }} />
             </span>
             <span className="flex items-center space-x-1">
               <span className="text-wacke-pink font-bold">Boost:</span>
