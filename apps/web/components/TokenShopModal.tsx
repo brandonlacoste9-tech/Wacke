@@ -60,19 +60,17 @@ export default function TokenShopModal({ isOpen, onClose }: TokenShopModalProps)
   ];
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Background glass blur overlay */}
       <div 
-        className="fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity" 
+        className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity" 
         onClick={onClose}
       />
 
-      {/* Center wrapper */}
-      <div className="flex min-h-full items-center justify-center p-4">
-        {/* Modal Container */}
-        <div className="relative glass-dark w-full max-w-md rounded-2xl p-6 shadow-2xl border border-wacke-pink/20 animate-scale-in z-10">
-          {/* Neon Glow Lines */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-wacke-pink via-wacke-purple to-wacke-cyan" />
+      {/* Modal Container */}
+      <div className="relative glass-dark w-full max-w-md max-h-[90vh] rounded-2xl p-6 shadow-2xl border border-wacke-pink/20 animate-scale-in z-10 overflow-y-auto">
+        {/* Neon Glow Lines */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-wacke-pink via-wacke-purple to-wacke-cyan" />
 
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-black tracking-wider text-white uppercase font-sans">
@@ -156,7 +154,6 @@ export default function TokenShopModal({ isOpen, onClose }: TokenShopModalProps)
           </span>
         </div>
       </div>
-    </div>
     </div>
   );
 }
