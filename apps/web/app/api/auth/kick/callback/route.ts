@@ -78,7 +78,7 @@ export async function GET(req: NextRequest) {
       if (!tokenRes.ok) {
         const errText = await tokenRes.text();
         console.error("[KICK_TOKEN_EXCHANGE_ERROR]", errText);
-        throw new Error("Échec de l'échange de token");
+        throw new Error(`Échec de l'échange de token: ${errText}`);
       }
 
       const tokenData = await tokenRes.json();
