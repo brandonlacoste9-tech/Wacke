@@ -12,8 +12,20 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(req: NextRequest) {
   const reqOrigin = new URL(req.url).origin;
-  // Force consistent production domain to avoid www vs apex or Netlify subdomain mismatches with registered redirect
-  const origin = process.env.NODE_ENV === "production" ? "https://wacke.live" : reqOrigin;
+  // Determine the redirect origin. Prefer env var, then clean the incoming host for known domains,
+  // fallback to hardcoded for production to avoid mismatches.
+  let origin = reqOrigin;
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    origin = process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '');
+  } else if (process.env.NODE_ENV === "production") {
+    // Clean the host: use the apex domain by default, but if request came via www, we can support it
+    const host = new URL(reqOrigin).hostname.replace(/^www\./, '');
+    if (host.includes('wacke.live') || host.includes('netlify.app')) {
+      origin = `https://${host}`;
+    } else {
+      origin = "https://wacke.live";
+    }
+  }
 
   const clientId = process.env.KICK_CLIENT_ID;
   const clientSecret = process.env.KICK_CLIENT_SECRET;

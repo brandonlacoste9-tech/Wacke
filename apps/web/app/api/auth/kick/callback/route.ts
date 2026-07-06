@@ -18,8 +18,18 @@ export async function GET(req: NextRequest) {
   const kickError = searchParams.get("error");
   const kickErrorDesc = searchParams.get("error_description") || searchParams.get("error");
 
-  // Force consistent production domain (must match exactly what is registered in Kick app)
-  const origin = process.env.NODE_ENV === "production" ? "https://wacke.live" : reqOrigin;
+  // Determine the redirect origin. Prefer env var, then clean the incoming host for known domains.
+  let origin = reqOrigin;
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    origin = process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '');
+  } else if (process.env.NODE_ENV === "production") {
+    const host = new URL(reqOrigin).hostname.replace(/^www\./, '');
+    if (host.includes('wacke.live') || host.includes('netlify.app')) {
+      origin = `https://${host}`;
+    } else {
+      origin = "https://wacke.live";
+    }
+  }
 
   const stateCookie = req.cookies.get("kick_oauth_state")?.value;
   const verifierCookie = req.cookies.get("kick_oauth_verifier")?.value;
@@ -31,7 +41,7 @@ export async function GET(req: NextRequest) {
     console.error("[KICK_AUTH_ERROR_FROM_KICK]", kickError, kickErrorDesc, "computed redirectUri:", redirectUri, "incoming origin:", reqOrigin);
     const errorUrl = new URL("/auth/login", origin);
     errorUrl.searchParams.set("error", "kick_callback_failed");
-    const detailMsg = `Kick authorization error: ${kickError}${kickErrorDesc ? ` - ${kickErrorDesc}` : ''}. We sent redirect_uri=${redirectUri}. You MUST register EXACTLY this string in your Kick developer app (no www, no trailing slash, https only). Also try adding https://www.wacke.live/api/auth/kick/callback as backup.`;
+    const detailMsg = `Kick authorization error: ${kickError}${kickErrorDesc ? ` - ${kickErrorDesc}` : ''}. We sent redirect_uri=${redirectUri}. Register EXACTLY this (and preferably also the other variant: https://wacke.live/api/auth/kick/callback or with www) in your Kick app's OAuth Redirect URIs. No trailing slash, exact match required.`;
     errorUrl.searchParams.set("detail", detailMsg.slice(0, 300));
     return NextResponse.redirect(errorUrl);
   }
