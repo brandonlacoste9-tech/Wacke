@@ -33,6 +33,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(errorUrl);
   }
 
+  if (!code) {
+    const errorUrl = new URL("/auth/login", origin);
+    errorUrl.searchParams.set("error", "missing_code");
+    errorUrl.searchParams.set("detail", "No authorization code returned from Kick");
+    return NextResponse.redirect(errorUrl);
+  }
+
   try {
     let kickUser = {
       id: "",
@@ -57,32 +64,36 @@ export async function GET(req: NextRequest) {
     } else {
       // Real OAuth Flow: Exchange code for user token
       const redirectUri = `${origin}/api/auth/kick/callback`;
+      console.log("[KICK_CALLBACK] Using redirect_uri:", redirectUri);
 
       if (!verifierCookie) {
         throw new Error("Code verifier cookie manquant");
       }
 
-      // Token Exchange POST request
+      if (!clientId || !clientSecret) {
+        throw new Error("KICK_CLIENT_ID or KICK_CLIENT_SECRET missing in environment");
+      }
+
+      // Token Exchange POST request - MUST use form-urlencoded per Kick docs
       const tokenRes = await fetch("https://id.kick.com/oauth/token", {
         method: "POST",
         headers: { 
-          "Content-Type": "application/json",
-          "Accept": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: JSON.stringify({
+        body: new URLSearchParams({
           grant_type: "authorization_code",
           code: code!,
-          client_id: clientId,
-          client_secret: clientSecret,
+          client_id: clientId!,
+          client_secret: clientSecret!,
           redirect_uri: redirectUri,
           code_verifier: verifierCookie,
-        }),
+        }).toString(),
       });
 
       if (!tokenRes.ok) {
         const errText = await tokenRes.text();
-        console.error("[KICK_TOKEN_EXCHANGE_ERROR]", errText);
-        throw new Error(`Échec de l'échange de token: ${errText}`);
+        console.error("[KICK_TOKEN_EXCHANGE_ERROR]", tokenRes.status, errText);
+        throw new Error(`Échec de l'échange de token: ${tokenRes.status} ${errText}`);
       }
 
       const tokenData = await tokenRes.json();

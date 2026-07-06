@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
   }
   
   authUrl.searchParams.set("redirect_uri", redirectUri);
-  authUrl.searchParams.set("scope", "user.read chat:write");
+  authUrl.searchParams.set("scope", "user:read chat:write");
   authUrl.searchParams.set("state", state);
   authUrl.searchParams.set("code_challenge", codeChallenge);
   authUrl.searchParams.set("code_challenge_method", "S256");
