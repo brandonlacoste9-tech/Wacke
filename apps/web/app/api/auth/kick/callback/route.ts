@@ -61,15 +61,18 @@ export async function GET(req: NextRequest) {
         throw new Error("Code verifier cookie manquant");
       }
 
+      const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+
       // Token Exchange POST request
       const tokenRes = await fetch("https://id.kick.com/oauth/token", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: { 
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization": `Basic ${basicAuth}`,
+        },
         body: new URLSearchParams({
           grant_type: "authorization_code",
           code: code!,
-          client_id: clientId,
-          client_secret: clientSecret,
           redirect_uri: redirectUri,
           code_verifier: verifierCookie,
         }),
