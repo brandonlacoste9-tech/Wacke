@@ -124,7 +124,7 @@ export default function LoginPage() {
               href="/api/auth/kick/login"
               className="w-full bg-[#53fc18] text-black hover:scale-[1.02] active:scale-[0.98] transition-all py-4 rounded-xl
                          font-bold text-lg flex items-center justify-center space-x-2
-                         shadow-[0_0_20px_rgba(83,252,24,0.3)] hover:shadow-[0_0_30px_rgba(83,252,24,0.5)] kick-element"
+                         shadow-[0_0_20px_rgba(83,252,24,0.3)] hover:shadow-[0_0_30px_rgba(83,252,24,0.5)]"
             >
               {/* Kick official logo SVG */}
               <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">

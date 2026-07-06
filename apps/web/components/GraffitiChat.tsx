@@ -73,6 +73,45 @@ const getTwemojiUrl = (emoji: string) => {
 // Simple emoji regex (covers most)
 const emojiRegex = /\p{Emoji_Presentation}|\p{Emoji}\uFE0F|\p{Emoji_Modifier_Base}\p{Emoji_Modifier}?/gu;
 
+// Emote shortcodes like Kick (e.g. :fire: -> 🔥 )
+const EMOTE_MAP: Record<string, string> = {
+  fire: '🔥',
+  boom: '💥',
+  rocket: '🚀',
+  cracker: '🧨',
+  ogre: '👹',
+  bomb: '💣',
+  volcano: '🌋',
+  skull: '💀',
+  devil: '😈',
+  imp: '👿',
+  cyclone: '🌀',
+  tornado: '🌪️',
+  scorpion: '🦂',
+  hundred: '💯',
+  mindblown: '🤯',
+  dep: '🏪',
+  frette: '❄️',
+  art: '🎨',
+  crown: '👑',
+  wolf: '🐺',
+  rage: '😤',
+  unicorn: '🦄',
+  rainbow: '🌈',
+  pumpkin: '🎃',
+  bat: '🦇',
+  maple: '🍁',
+  whisky: '🥃',
+  beer: '🍺',
+  pistol: '🔫',
+  syringe: '💉',
+  kick: '🟢',
+  stream: '📺',
+  heart: '💚',
+  eyes: '👀',
+  game: '🎮',
+};
+
 // Highlight @mentions + convert emojis to Twemoji SVGs for better consistency
 function renderContent(content: string): React.ReactNode {
   if (content.startsWith("[spray]:")) {
@@ -103,6 +142,12 @@ function renderContent(content: string): React.ReactNode {
     );
   }
 
+  // Replace emote shortcodes like :fire: with the emoji (Kick style)
+  const processedContent = content.replace(/:(\w+):/g, (match, code) => {
+    const lower = code.toLowerCase();
+    return EMOTE_MAP[lower] || match;
+  });
+
   // Split by @mentions and emojis
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
@@ -110,17 +155,17 @@ function renderContent(content: string): React.ReactNode {
   // First handle mentions
   const mentionRegex = /(@\w+)/g;
   let match;
-  const mentionParts: Array<{ type: 'text' | 'mention' | 'emoji'; value: string; index: number }> = [];
+  const mentionParts: Array<{ type: 'text' | 'mention'; value: string; index: number }> = [];
 
-  while ((match = mentionRegex.exec(content)) !== null) {
+  while ((match = mentionRegex.exec(processedContent)) !== null) {
     if (match.index > lastIndex) {
-      mentionParts.push({ type: 'text', value: content.slice(lastIndex, match.index), index: lastIndex });
+      mentionParts.push({ type: 'text', value: processedContent.slice(lastIndex, match.index), index: lastIndex });
     }
     mentionParts.push({ type: 'mention', value: match[0], index: match.index });
     lastIndex = mentionRegex.lastIndex;
   }
-  if (lastIndex < content.length) {
-    mentionParts.push({ type: 'text', value: content.slice(lastIndex), index: lastIndex });
+  if (lastIndex < processedContent.length) {
+    mentionParts.push({ type: 'text', value: processedContent.slice(lastIndex), index: lastIndex });
   }
 
   // Now process text parts for emojis
@@ -159,7 +204,7 @@ function renderContent(content: string): React.ReactNode {
     }
   });
 
-  return parts.length > 0 ? parts : content;
+  return parts.length > 0 ? parts : processedContent;
 }
 
 
@@ -538,7 +583,12 @@ export default function GraffitiChat({
     }
 
     // Send to Wacké chat
-    const { error } = await sendMessage(val);
+    // Replace shortcodes before sending (like :fire: -> 🔥 )
+    const processedVal = val.replace(/:(\w+):/g, (match, code) => {
+      const lower = code.toLowerCase();
+      return EMOTE_MAP[lower] || match;
+    });
+    const { error } = await sendMessage(processedVal);
     if (error) {
       setErrorMsg(error);
       return;
@@ -546,7 +596,7 @@ export default function GraffitiChat({
 
     // Also send to Kick chat if user is Kick-authed and on a Kick stream
     if (kickUsername && hasKickAuth) {
-      const kickResult = await sendToKick(val);
+      const kickResult = await sendToKick(processedVal);
       if (!kickResult.success) {
         console.warn("[GraffitiChat] Kick send failed:", kickResult.error);
         // Don't block — Wacké message already sent successfully
@@ -680,11 +730,18 @@ export default function GraffitiChat({
                   🟣 TWITCH
                 </span>
               )}
+              {/* Wacké source badge */}
+              {msg._source === "wacke" && (
+                <span className="text-[8px] font-extrabold bg-wacke-pink/15 text-wacke-pink border border-wacke-pink/30 px-1 py-0.5 rounded shrink-0 emoji">
+                  🏪 WACKÉ
+                </span>
+              )}
               <p className={`text-xs font-bold ${msg._source === "kick" ? "text-[#53fc18]" : msg._source === "twitch" ? "text-[#9146FF]" : getUserColor(msg.userId)} shrink-0`}>
                 {msg._source === "kick" && msg._kickSender?.isBroadcaster && <span className="mr-1 emoji">👑</span>}
                 {msg._source === "kick" && msg._kickSender?.isModerator && <span className="mr-1 emoji">🔧</span>}
                 {msg._source === "twitch" && msg._twitchSender?.isBroadcaster && <span className="mr-1 emoji">👑</span>}
                 {msg._source === "twitch" && msg._twitchSender?.isModerator && <span className="mr-1 emoji">🗡️</span>}
+                {msg._source === "wacke" && <span className="mr-1 emoji">🏪</span>}
                 {msg.user?.displayName ?? msg.user?.username ?? "Anonyme"}
                 {msg.isSacre && (
                   <Flame className="w-3 h-3 inline ml-0.5 text-red-500 fill-current drop-shadow-[0_0_4px_rgba(255,0,0,0.6)]" />
@@ -1036,7 +1093,15 @@ export default function GraffitiChat({
             ref={inputRef}
             type="text"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => {
+              let val = e.target.value;
+              // Live shortcode replace like Kick (demo)
+              val = val.replace(/:(\w+):/g, (match, code) => {
+                const lower = code.toLowerCase();
+                return EMOTE_MAP[lower] || match;
+              });
+              setInputValue(val);
+            }}
             onKeyDown={handleKeyDown}
              placeholder={
                currentUserId ? t("chatPlaceholder") : t("loginToChat")
