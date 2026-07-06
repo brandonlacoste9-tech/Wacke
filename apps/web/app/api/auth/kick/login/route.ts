@@ -11,7 +11,9 @@ export const dynamic = 'force-dynamic';
  * Initiates Kick.com OAuth2 + PKCE flow.
  */
 export async function GET(req: NextRequest) {
-  const origin = new URL(req.url).origin;
+  const reqOrigin = new URL(req.url).origin;
+  // Force consistent production domain to avoid www vs apex or Netlify subdomain mismatches with registered redirect
+  const origin = process.env.NODE_ENV === "production" ? "https://wacke.live" : reqOrigin;
 
   const clientId = process.env.KICK_CLIENT_ID;
   const clientSecret = process.env.KICK_CLIENT_SECRET;
@@ -32,6 +34,7 @@ export async function GET(req: NextRequest) {
   }
 
   const redirectUri = `${origin}/api/auth/kick/callback`;
+  console.log("[KICK_LOGIN] Initiating authorize with redirect_uri:", redirectUri);
 
   // 1. Generate state & PKCE parameters
   const state = crypto.randomBytes(16).toString("hex");

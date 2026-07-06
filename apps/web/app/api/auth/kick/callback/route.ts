@@ -12,12 +12,27 @@ export const dynamic = 'force-dynamic';
  * Exchanges the code for user profiles, synchronizes the database, and sets the session cookie.
  */
 export async function GET(req: NextRequest) {
-  const { searchParams, origin } = new URL(req.url);
+  const { searchParams, origin: reqOrigin } = new URL(req.url);
   const code = searchParams.get("code");
   const state = searchParams.get("state");
+  const kickError = searchParams.get("error");
+  const kickErrorDesc = searchParams.get("error_description") || searchParams.get("error");
+
+  // Force consistent production domain (must match exactly what is registered in Kick app)
+  const origin = process.env.NODE_ENV === "production" ? "https://wacke.live" : reqOrigin;
 
   const stateCookie = req.cookies.get("kick_oauth_state")?.value;
   const verifierCookie = req.cookies.get("kick_oauth_verifier")?.value;
+
+  // Check for errors returned by Kick during authorization (e.g. redirect_uri_mismatch, access_denied)
+  if (kickError) {
+    console.error("[KICK_AUTH_ERROR_FROM_KICK]", kickError, kickErrorDesc, "incoming origin:", reqOrigin);
+    const errorUrl = new URL("/auth/login", origin);
+    errorUrl.searchParams.set("error", "kick_callback_failed");
+    const detailMsg = `Kick authorization error: ${kickError}${kickErrorDesc ? ` - ${kickErrorDesc}` : ''}. Common causes: redirect URI not exactly registered in Kick developer app (must be https://wacke.live/api/auth/kick/callback), or user denied permission.`;
+    errorUrl.searchParams.set("detail", detailMsg.slice(0, 280));
+    return NextResponse.redirect(errorUrl);
+  }
 
   // 1. State CSRF Validation
   if (!state || state !== stateCookie) {
@@ -34,9 +49,10 @@ export async function GET(req: NextRequest) {
   }
 
   if (!code) {
+    console.error("[KICK_CALLBACK_NO_CODE]", "state present but no code. incoming origin:", reqOrigin, "computed origin:", origin);
     const errorUrl = new URL("/auth/login", origin);
     errorUrl.searchParams.set("error", "missing_code");
-    errorUrl.searchParams.set("detail", "No authorization code returned from Kick");
+    errorUrl.searchParams.set("detail", "No authorization code returned from Kick. This usually means Kick rejected the authorize request (check redirect URI registration in your Kick app settings).");
     return NextResponse.redirect(errorUrl);
   }
 
