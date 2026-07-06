@@ -710,7 +710,7 @@ export default function GraffitiChat({
 
       {/* ── Emoji Picker ──────────────────────────────────────────────────── */}
       {showEmojis && (
-        <div className="px-4 py-1 border-t border-wacke-purple/10 animate-fade-in">
+        <div className="px-2 py-1 border-t border-wacke-purple/10 animate-fade-in bg-wacke-darker/50">
           <EmojiPicker onSelect={handleEmojiSelect} />
         </div>
       )}
