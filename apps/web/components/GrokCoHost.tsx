@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLanguage } from "./LanguageProvider";
-import { Bot, MessageCircle, Volume2 } from "lucide-react";
-import { speakWithGrokVoice, speakWithCloudGrokVoice } from "@/lib/audio";
+import { Bot, MessageCircle } from "lucide-react";
 
 interface GrokCoHostProps {
   streamerName: string;
@@ -32,8 +31,8 @@ export default function GrokCoHost({ streamerName, streamId }: GrokCoHostProps) 
       const grokText = data.content || t("grokBackstage");
       setComment(grokText);
       
-      // Speak with real Grok xAI cloud voice (expressive AI TTS)
-      speakWithCloudGrokVoice(grokText, language);
+      // Removed TTS per user request
+      // speakWithCloudGrokVoice(grokText, language);
     } catch {
       setComment(t("grokErrorCoHost"));
     }
@@ -57,17 +56,10 @@ export default function GrokCoHost({ streamerName, streamId }: GrokCoHostProps) 
       {comment && (
         <div className="text-xs bg-black/30 p-2 rounded border-l-2 border-wacke-cyan text-gray-200 flex items-start gap-2">
           <div className="flex-1">{comment} <span className="text-wacke-cyan/60">— Grok xAI</span></div>
-          <button 
-            onClick={() => speakWithCloudGrokVoice(comment, language)}
-            className="shrink-0 p-1 hover:bg-wacke-cyan/10 rounded"
-            title="Speak with real Grok Voice (xAI)"
-          >
-            <Volume2 size={14} />
-          </button>
         </div>
       )}
       <div className="text-[9px] text-gray-500">
-        {t("grokHint")} — real Grok xAI voice!
+        {t("grokHint")}
       </div>
     </div>
   );

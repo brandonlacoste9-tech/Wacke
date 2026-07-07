@@ -253,7 +253,7 @@ export default function GraffitiChat({
   const [sacrePrefix, setSacrePrefix] = useState(SACRE_PREFIXES[0]);
   const [sacreCore, setSacreCore] = useState(SACRE_CORES[0]);
   const [sacreSuffix, setSacreSuffix] = useState(SACRE_SUFFIXES[0]);
-  const [sacreTts, setSacreTts] = useState(false);
+  const [sacreTts, setSacreTts] = useState(false); // Deprecated feature
   const [isGrokSacre, setIsGrokSacre] = useState(false);
   // Listen for global fuego
   useEffect(() => {
@@ -548,11 +548,11 @@ export default function GraffitiChat({
     if (messages.length > 0) {
       const latestMessage = messages[messages.length - 1];
       
-      // Play TTS audio
+      // Play TTS audio disabled per user request
       if (latestMessage.audioUrl && !playedAudioRef.current.has(latestMessage.id)) {
         playedAudioRef.current.add(latestMessage.id);
-        const audio = new Audio(latestMessage.audioUrl);
-        audio.play().catch(e => console.error("Auto-play prevented", e));
+        // const audio = new Audio(latestMessage.audioUrl);
+        // audio.play().catch(e => console.error("Auto-play prevented", e));
       }
 
       // Play soundboard chimes
@@ -944,22 +944,13 @@ export default function GraffitiChat({
           </div>
 
           <div className="flex items-center justify-between pt-1 border-t border-wacke-purple/10">
-            <label className="flex items-center space-x-1.5 cursor-pointer select-none text-[9px] font-bold text-gray-400">
-              <input
-                type="checkbox"
-                checked={sacreTts}
-                onChange={(e) => setSacreTts(e.target.checked)}
-                className="rounded border-wacke-purple/20 bg-white/5 text-wacke-pink focus:ring-0 focus:ring-offset-0"
-              />
-              <span>{t("sacreTtsCheckbox")}</span>
-            </label>
-
+          <div className="flex items-center justify-end pt-1 border-t border-wacke-purple/10">
             <button
               onClick={handleSacreSubmit}
               disabled={isSendingSacre}
               className="bg-gradient-to-r from-red-600 to-orange-500 text-[10px] font-extrabold px-3 py-1.5 rounded-lg text-white hover:scale-105 active:scale-95 transition-all shadow-md shadow-red-500/10 shrink-0"
             >
-               {isSendingSacre ? t("shouting") : `${t("sacreBtn")} (${sacreTts ? 60 : 10} 🪙)`}
+               {isSendingSacre ? t("shouting") : `${t("sacreBtn")} (10 🪙)`}
             </button>
             <button
               onClick={handleGrokSacre}
@@ -1158,21 +1149,7 @@ export default function GraffitiChat({
           </button>
         </div>
 
-        {/* TTS / Voice Talk Button - main place to "talk" with Grok voice */}
-        <div className="mt-2">
-          <div className="text-[8px] text-wacke-cyan/70 mb-0.5 text-right">Type above → send with voice</div>
-          <div className="flex justify-end">
-            <button
-              onClick={handleSendTts}
-              disabled={!currentUserId || isSending || isSendingTts || !inputValue.trim()}
-              className="flex items-center space-x-1.5 text-[9px] bg-wacke-cyan/10 border border-wacke-cyan/30 text-wacke-cyan px-3 py-1.5 rounded-lg hover:bg-wacke-cyan/20 transition-all disabled:opacity-30 font-bold uppercase tracking-wider"
-            >
-              <Mic className="w-3 h-3" />
-              <span>{isSendingTts ? t("ttsGenerating") : t("ttsBtn")}</span>
-            </button>
-          </div>
-        </div>
-      </div>
+        {/* TTS Button Removed per user request */}
     </aside>
   );
 }
