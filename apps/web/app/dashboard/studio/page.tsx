@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mic, MicOff, Video, VideoOff, Play, Square, SwitchCamera } from "lucide-react";
+import { Mic, MicOff, Video, VideoOff, Play, Square, SwitchCamera, CameraOff } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
+import { useLanguage } from "@/components/LanguageProvider";
 import GraffitiChat from "@/components/GraffitiChat";
 
-export default function BroadcastStudio() {
+export default function StudioPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const { user, isLoading, token } = useAuth();
   
@@ -275,15 +277,15 @@ export default function BroadcastStudio() {
     <div className="max-w-5xl mx-auto p-4 lg:p-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-black text-white uppercase tracking-tight">Studio Wacké</h1>
-          <p className="text-gray-400 mt-1">Diffuse en direct sans aucun logiciel (via Cloudflare WHIP).</p>
+          <h1 className="text-3xl font-black text-white uppercase tracking-tight">{t("dashStudioTitle")}</h1>
+          <p className="text-gray-400 mt-1">{t("dashStudioSubtitle")}</p>
         </div>
         
         {isBroadcasting && (
           <div className="flex items-center space-x-3 bg-red-500/20 text-red-500 px-4 py-2 rounded-xl font-bold border border-red-500/50">
             <div className="flex items-center space-x-2">
               <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
-              <span>EN DIRECT</span>
+              <span>{t("dashLiveStatus")}</span>
             </div>
             <span className="text-white font-mono bg-black/50 px-2 py-0.5 rounded text-sm border border-white/10 shadow-inner">
               {formatTime(broadcastTime)}
@@ -301,13 +303,19 @@ export default function BroadcastStudio() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Camera Preview */}
         <div className="lg:col-span-2">
-          <div className="relative bg-black rounded-2xl overflow-hidden aspect-video border border-white/10 shadow-2xl group">
+          <div className="relative glass-card rounded-2xl overflow-hidden aspect-video border border-wacke-pink/20 shadow-2xl shadow-wacke-pink/10 group bg-black/60">
+            {!stream && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
+                <CameraOff className="w-16 h-16 mb-4 opacity-50" />
+                <p className="font-semibold text-lg">{t("dashCameraOff")}</p>
+              </div>
+            )}
             <video
               ref={videoRef}
               autoPlay
               playsInline
               muted // Always mute local preview to avoid feedback loop
-              className="w-full h-full object-cover mirror-mode"
+              className={`w-full h-full object-cover mirror-mode transition-opacity duration-300 ${stream ? 'opacity-100' : 'opacity-0'}`}
               style={{ transform: facingMode === "user" ? "scaleX(-1)" : "none" }}
             />
             
@@ -317,7 +325,7 @@ export default function BroadcastStudio() {
                 onClick={switchCamera}
                 disabled={isSwitching}
                 className="p-3 rounded-xl transition-colors bg-white/10 text-white hover:bg-white/20 disabled:opacity-50"
-                title="Changer de caméra"
+                title={t("dashSwitchCamera")}
               >
                 <SwitchCamera className="w-5 h-5" />
               </button>
@@ -338,24 +346,25 @@ export default function BroadcastStudio() {
         </div>
 
         {/* Control Panel */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col">
-          <h2 className="text-xl font-bold text-white mb-4">Contrôles du Stream</h2>
+        <div className="glass-card rounded-2xl p-6 flex flex-col border border-wacke-cyan/20">
+          <h2 className="text-xl font-bold text-white mb-6 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-wacke-cyan to-wacke-pink">{t("dashStreamControls")}</h2>
           
-          <div className="space-y-4 flex-1">
-            <div className="bg-black/30 p-4 rounded-xl">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Titre du stream</label>
+          <div className="space-y-5 flex-1">
+            <div className="bg-black/40 p-4 rounded-xl border border-white/5">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">{t("dashStreamTitleLabel")}</label>
               <input 
                 type="text" 
-                defaultValue="Live depuis le Studio Wacké"
-                className="w-full bg-transparent border-none p-0 text-white focus:ring-0 font-medium"
+                defaultValue={t("dashDefaultTitle")}
+                className="w-full bg-transparent border-none p-0 text-white focus:ring-0 font-medium text-lg placeholder-gray-600"
               />
             </div>
             
-            <div className="bg-black/30 p-4 rounded-xl">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Catégorie</label>
-              <select className="w-full bg-transparent border-none p-0 text-white focus:ring-0 font-medium">
-                <option value="irl">IRL</option>
-                <option value="talk">Jasette</option>
+            <div className="bg-black/40 p-4 rounded-xl border border-white/5">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">{t("dashCategoryLabel")}</label>
+              <select className="w-full bg-transparent border-none p-0 text-white focus:ring-0 font-medium text-lg">
+                <option value="irl">{t("catIrl")}</option>
+                <option value="talk">{t("catTalk")}</option>
+                <option value="gaming">{t("catGaming")}</option>
               </select>
             </div>
           </div>
@@ -364,18 +373,18 @@ export default function BroadcastStudio() {
             {!isBroadcasting ? (
               <button 
                 onClick={startBroadcast}
-                className="w-full py-4 bg-gradient-to-r from-wacke-pink to-wacke-purple text-white rounded-xl font-black text-xl hover:opacity-90 hover:scale-[1.02] transition-all flex items-center justify-center space-x-2 shadow-lg shadow-wacke-pink/20"
+                className="w-full py-4 bg-gradient-to-r from-wacke-pink to-wacke-purple text-white rounded-xl font-black text-xl hover:opacity-90 hover:scale-[1.02] transition-all flex items-center justify-center space-x-3 shadow-lg shadow-wacke-pink/20 uppercase tracking-wider"
               >
                 <Play className="w-6 h-6 fill-current" />
-                <span>GO LIVE</span>
+                <span>{t("dashGoLive")}</span>
               </button>
             ) : (
               <button 
                 onClick={stopBroadcast}
-                className="w-full py-4 bg-red-600 text-white rounded-xl font-black text-xl hover:bg-red-700 hover:scale-[1.02] transition-all flex items-center justify-center space-x-2"
+                className="w-full py-4 bg-red-600 text-white rounded-xl font-black text-xl hover:bg-red-700 hover:scale-[1.02] transition-all flex items-center justify-center space-x-3 uppercase tracking-wider"
               >
                 <Square className="w-6 h-6 fill-current" />
-                <span>ARRÊTER LE STREAM</span>
+                <span>{t("dashStopLive")}</span>
               </button>
             )}
           </div>

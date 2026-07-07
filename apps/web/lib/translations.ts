@@ -247,6 +247,15 @@ export const translations = {
     dashCameraError: "Erreur: Impossible d'accéder à la caméra ou au microphone. Vérifiez vos permissions.",
     dashServerError: "Erreur de connexion au serveur",
     dashWhipError: "Erreur de négociation WHIP avec Cloudflare",
+    dashStudioTitle: "Studio Wacké",
+    dashStudioSubtitle: "Diffuse en direct sans aucun logiciel (via Cloudflare WHIP).",
+    dashStreamControls: "Contrôles du Stream",
+    dashDefaultTitle: "Live depuis le Studio Wacké",
+    dashGoLive: "GO LIVE",
+    dashStopLive: "ARRÊTER LE STREAM",
+    dashLiveStatus: "EN DIRECT",
+    dashSwitchCamera: "Changer de caméra",
+    dashCameraOff: "Caméra désactivée ou accès refusé",
 
     // ── Profile Page ──────────────────────────────────────────────────
     followers: "Abonnés",
@@ -510,6 +519,15 @@ export const translations = {
     dashCameraError: "Error: Could not access camera or microphone. Please check your browser permissions.",
     dashServerError: "Error connecting to server",
     dashWhipError: "Error during WHIP negotiation with Cloudflare",
+    dashStudioTitle: "Wacké Studio",
+    dashStudioSubtitle: "Broadcast live directly from your browser (via Cloudflare WHIP).",
+    dashStreamControls: "Stream Controls",
+    dashDefaultTitle: "Live from Wacké Studio",
+    dashGoLive: "GO LIVE",
+    dashStopLive: "STOP STREAM",
+    dashLiveStatus: "LIVE",
+    dashSwitchCamera: "Switch Camera",
+    dashCameraOff: "Camera off or access denied",
 
     // ── Profile Page ──────────────────────────────────────────────────
     followers: "Followers",
