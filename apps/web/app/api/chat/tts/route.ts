@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
     const isValidStreamId = streamId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(streamId);
 
     // 1. Generate TTS first (only deduct on success to avoid charging for failures)
-    let audioUrl: string | null = null;
+    let audioUrl: string | undefined = undefined;
     let ttsSucceeded = false;
     try {
       const xaiKey = process.env.XAI_API_KEY;
@@ -194,7 +194,7 @@ export async function POST(req: NextRequest) {
       ttsSucceeded = true;
     } catch (ttsError) {
       console.error("[GROK_TTS_ERROR]", ttsError);
-      audioUrl = null;
+      audioUrl = undefined;
       ttsSucceeded = false;
     }
 
@@ -209,7 +209,7 @@ export async function POST(req: NextRequest) {
         });
       } catch (err: any) {
         // If funds issue after successful TTS (rare race), don't attach audio
-        audioUrl = null;
+        audioUrl = undefined;
         ttsSucceeded = false;
       }
     }
@@ -222,7 +222,7 @@ export async function POST(req: NextRequest) {
         userId: user.id,
         content,
         isSacre: !!isSacre,
-        audioUrl,
+        audioUrl: audioUrl || undefined,
       });
     } else {
       // Mock message for fallback Kick streams
@@ -232,7 +232,7 @@ export async function POST(req: NextRequest) {
         userId: user.id,
         content,
         isSacre: !!isSacre,
-        audioUrl,
+        audioUrl: audioUrl || undefined,
         isDeleted: false,
         createdAt: new Date(),
       };
