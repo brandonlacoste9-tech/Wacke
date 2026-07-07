@@ -38,11 +38,10 @@ export async function generateMetadata({ params }: StreamPageProps): Promise<Met
     };
   }
 
-  const isKickStream = TOP_KICK_STREAMERS.some(s => s.username === cleanUsername);
+  const isKickStream = TOP_KICK_STREAMERS.includes(cleanUsername);
 
   if (isKickStream) {
-    const streamerInfo = TOP_KICK_STREAMERS.find(s => s.username === cleanUsername);
-    const displayName = streamerInfo ? streamerInfo.displayName : cleanUsername;
+    const displayName = cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1);
     return {
       title: isEn ? `🟢 ${displayName} Live | Wacké` : `🟢 Live de ${displayName} | Wacké`,
       description: isEn 
