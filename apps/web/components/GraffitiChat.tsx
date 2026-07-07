@@ -1150,6 +1150,7 @@ export default function GraffitiChat({
         </div>
 
         {/* TTS Button Removed per user request */}
+      </div>
     </aside>
   );
 }
