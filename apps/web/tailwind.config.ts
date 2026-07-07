@@ -11,19 +11,29 @@ const config: Config = {
     extend: {
       colors: {
         wacke: {
-          pink: "#FF1493",
-          cyan: "#00FFFF",
-          purple: "#8B00FF",
+          pink: "#FF2A85",
+          cyan: "#00F0FF",
+          purple: "#8A2BE2",
           dark: "#0A0A0F",
           darker: "#05050A",
           green: "#53fc18",
           gold: "#FFD700",
           red: "#FF3B3B",
+          glass: "rgba(255,255,255,0.03)",
+          "glass-dark": "rgba(5,5,10,0.7)",
+          "glass-border": "rgba(138,43,226,0.18)",
         },
       },
       fontFamily: {
+        display: ["Outfit", "sans-serif"],
         graffiti: ["'Permanent Marker'", "cursive"],
-        outfit: ["'Outfit'", "sans-serif"],
+        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
+      },
+      boxShadow: {
+        "neon-pink": "0 0 12px rgba(255,42,133,0.35)",
+        "neon-cyan": "0 0 12px rgba(0,240,255,0.3)",
+        "neon-purple": "0 0 12px rgba(138,43,226,0.25)",
+        "glow-ring": "0 0 0 2px #00F0FF, 0 0 14px rgba(0,240,255,0.4)",
       },
       keyframes: {
         "fade-in": {
@@ -60,6 +70,19 @@ const config: Config = {
           "0%": { width: "0%" },
           "100%": { width: "100%" },
         },
+        "glow-spin": {
+          "0%": { boxShadow: "0 0 8px rgba(0,240,255,0.3), 0 0 18px rgba(0,240,255,0.1)" },
+          "50%": { boxShadow: "0 0 16px rgba(255,42,133,0.45), 0 0 28px rgba(255,42,133,0.15)" },
+          "100%": { boxShadow: "0 0 8px rgba(0,240,255,0.3), 0 0 18px rgba(0,240,255,0.1)" },
+        },
+        sheen: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        tilt: {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(-1.5deg)" },
+        },
       },
       animation: {
         "fade-in": "fade-in 0.3s ease-out forwards",
@@ -69,9 +92,18 @@ const config: Config = {
         float: "float 4s ease-in-out infinite",
         "glow-pulse": "glow-pulse 3s ease-in-out infinite",
         "progress-fill": "progress-fill 12s linear forwards",
+        "glow-spin": "glow-spin 3s linear infinite",
+        sheen: "sheen 2.2s linear infinite",
+        tilt: "tilt 0.25s ease-out forwards",
+        "pulse-fast": "pulse 1.5s cubic-bezier(0.4,0,0.6,1) infinite",
       },
       backdropBlur: {
         xs: "2px",
+      },
+      transitionProperty: {
+        height: "height",
+        width: "width",
+        colors: "color, background-color, border-color",
       },
     },
   },

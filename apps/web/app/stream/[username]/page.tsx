@@ -197,7 +197,8 @@ export default async function StreamPage({ params }: StreamPageProps) {
   const isOwner = viewer !== null && user !== null && viewer.id === user.id;
 
   return (
-    <div className="relative flex flex-col lg:flex-row gap-5 lg:gap-6 max-w-[1920px] mx-auto">
+    <>
+      <div className="relative flex flex-col lg:flex-row gap-5 lg:gap-6 max-w-[1920px] mx-auto">
       {/* Left / Main Column */}
       <main className="flex-1 min-w-0 space-y-4">
         {/* Player */}
@@ -283,29 +284,18 @@ export default async function StreamPage({ params }: StreamPageProps) {
           <div className="mt-4">
             <GrokFire />
           </div>
-        </div>
+          </section>
       </main>
 
       {/* Right Rail: Floating HUD Chat */}
-      <div className="w-full lg:w-[380px] shrink-0">
-        <div className="glass-hud sticky top-20 rounded-2xl overflow-hidden border border-wacke-cyan/15 shadow-2xl shadow-black/50 h-[calc(100vh-84px)] flex flex-col">
-          <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-wacke-cyan rounded-full shadow-[0_0_8px_#00F0FF]" />
-              <span className="text-[11px] font-black text-white/90 uppercase tracking-[0.15em]">
-                Graffiti HUD
-              </span>
-            </div>
-            <span className="text-[10px] font-mono text-gray-500">v2.0</span>
-          </div>
-          <GraffitiChat
-            streamId={stream.id}
-            initialMessages={initialMessages as any}
-            currentUserId={viewer?.id}
-            kickUsername={isKickUser ? user.username : undefined}
-            twitchUsername={(user as any).twitchUsername || undefined}
-          />
-        </div>
+      <div className="w-full lg:w-[380px] shrink-0 h-[calc(100vh-84px)] sticky top-20">
+        <GraffitiChat
+          streamId={stream.id}
+          initialMessages={initialMessages as any}
+          currentUserId={viewer?.id}
+          kickUsername={isKickUser ? user.username : undefined}
+          twitchUsername={(user as any).twitchUsername || undefined}
+        />
       </div>
     </div>
 
@@ -315,6 +305,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
       streamerId={user.id}
       streamId={stream.id}
       authToken={token}
-    />
+      />
+    </>
   );
 }

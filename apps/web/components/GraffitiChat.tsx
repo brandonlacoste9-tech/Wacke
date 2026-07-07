@@ -641,12 +641,12 @@ export default function GraffitiChat({
   };
 
   return (
-    <aside className={`w-full lg:w-96 flex flex-col h-full ${isGrokTakeover ? 'grok-takeover theme-grok-xai' : ''}`}>
+    <div className={`glass-hud flex-1 flex flex-col h-full rounded-2xl overflow-hidden border border-wacke-cyan/15 shadow-2xl shadow-black/50 ${isGrokTakeover ? 'grok-takeover theme-grok-xai' : ''}`}>
 
       {/* ── Chat Header ───────────────────────────────────────────────────── */}
       <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
         <div className="flex items-center space-x-2">
-          <img src="/spray_can.png" alt="Graffiti" className="h-5 w-5 object-contain drop-shadow-[0_0_6px_rgba(255,0,255,0.6)]" />
+          <span className="w-2 h-2 bg-wacke-cyan rounded-full shadow-[0_0_8px_#00F0FF]" />
           <span className="text-[11px] font-black text-white/90 uppercase tracking-[0.15em]">Graffiti HUD</span>
           {/* Connection status */}
           <div className="flex items-center space-x-1">
@@ -1112,44 +1112,41 @@ export default function GraffitiChat({
           >
             🤖
           </button>
-          <input
-            ref={inputRef}
-            type="text"
-            value={inputValue}
-            onChange={(e) => {
-              let val = e.target.value;
-              // Live shortcode replace like Kick (keep shortcode for image customs so render shows the graphic)
-              val = val.replace(/:(\w+):/g, (match, code) => {
-                const lower = code.toLowerCase();
-                if (EMOTE_IMAGES[lower]) return match; // keep :raccoon: so render turns it into image
-                return EMOTE_MAP[lower] || match;
-              });
-              setInputValue(val);
-            }}
-            onKeyDown={handleKeyDown}
-             placeholder={
-               currentUserId ? t("chatPlaceholder") : t("loginToChat")
-            }
-            disabled={!currentUserId || isSending || isSendingTts}
-            maxLength={500}
-            className="flex-1 bg-white/3 border border-wacke-purple/20 rounded-xl px-3 py-2 text-sm
-                       focus:border-wacke-cyan/40 focus:bg-white/5 transition-all
-                       disabled:opacity-40 disabled:cursor-not-allowed placeholder:text-gray-600"
-          />
-          <button
-            onClick={handleSend}
-            disabled={!currentUserId || isSending || isSendingTts || !inputValue.trim()}
-            className="bg-gradient-to-r from-wacke-pink to-wacke-purple px-3.5 py-2 rounded-xl
-                       hover:opacity-80 transition-all disabled:opacity-30 disabled:cursor-not-allowed
-                       hover:scale-105 active:scale-95"
-             aria-label={t("sendLabel")}
-          >
-            {isSending ? "..." : "➤"}
-          </button>
+          <div className="relative flex-1 flex items-center gap-2 rounded-2xl border border-wacke-cyan/20 bg-black/40 px-3 py-2 transition-all focus-within:border-wacke-cyan/60 focus-within:shadow-[0_0_22px_rgba(0,240,255,0.18)]">
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputValue}
+              onChange={(e) => {
+                let val = e.target.value;
+                val = val.replace(/:(\w+):/g, (match, code) => {
+                  const lower = code.toLowerCase();
+                  if (EMOTE_IMAGES[lower]) return match;
+                  return EMOTE_MAP[lower] || match;
+                });
+                setInputValue(val);
+              }}
+              onKeyDown={handleKeyDown}
+               placeholder={
+                 currentUserId ? "Write something wacké..." : t("loginToChat")
+              }
+              disabled={!currentUserId || isSending || isSendingTts}
+              maxLength={500}
+              className="flex-1 bg-transparent text-sm text-white placeholder-gray-600 outline-none disabled:opacity-40"
+            />
+            <button
+              onClick={handleSend}
+              disabled={!currentUserId || isSending || isSendingTts || !inputValue.trim()}
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-wacke-pink to-wacke-purple text-[11px] font-black text-white hover:scale-[1.04] active:scale-95 transition-all shadow-[0_0_14px_rgba(255,42,133,0.25)] disabled:opacity-30 disabled:shadow-none"
+               aria-label={t("sendLabel")}
+            >
+              {isSending ? "..." : "SEND"}
+            </button>
+          </div>
         </div>
 
         {/* TTS Button Removed per user request */}
       </div>
-    </aside>
+    </div>
   );
 }
