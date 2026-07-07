@@ -16,13 +16,17 @@ const TTS_COST = 50;
  * Deducts tokens, uses native Grok xAI Voice (TTS) to generate expressive audio, uploads to Supabase, and saves the message.
  */
 export async function POST(req: NextRequest) {
+  console.log("[TTS_DEBUG] ----------------- TTS REQUEST RECEIVED -----------------");
   try {
     const authHeader = req.headers.get("Authorization");
+    console.log("[TTS_DEBUG] Auth header:", authHeader ? authHeader.substring(0, 30) + "..." : "NONE");
+    
     if (!authHeader) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
     const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+    console.log("[TTS_DEBUG] Token starts with mock-session?:", token.startsWith("mock-session:"));
 
     // Robust auth extraction: support mock-session (Kick/demo), real JWTs, and fallbacks
     let authUserId: string | null = null;
@@ -83,23 +87,12 @@ export async function POST(req: NextRequest) {
     // Get admin client for realtime broadcast (and was previously used for auth)
     const supabase = getSupabaseAdmin();
 
-    // 1. Deduct tokens
-    try {
-      await deductTokens({
-        userId: user.id,
-        amount: TTS_COST,
-        reason: "Message vocal TTS",
-        streamId,
-      });
-    } catch (err: any) {
-      return NextResponse.json(
-        { error: err.message || "Fonds insuffisants" },
-        { status: 402 }
-      );
-    }
+    // Check if streamId is a valid UUID (mock streams from Kick use non-uuid strings)
+    const isValidStreamId = streamId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(streamId);
 
-    // 2. Generate TTS via Grok xAI Voice (native Grok AI voice!)
-    let audioUrl = null;
+    // 1. Generate TTS first (only deduct on success to avoid charging for failures)
+    let audioUrl: string | null = null;
+    let ttsSucceeded = false;
     try {
       const xaiKey = process.env.XAI_API_KEY;
       if (!xaiKey) {
@@ -198,29 +191,52 @@ export async function POST(req: NextRequest) {
           .getPublicUrl(fileName);
         audioUrl = publicUrlData.publicUrl;
       }
+      ttsSucceeded = true;
     } catch (ttsError) {
       console.error("[GROK_TTS_ERROR]", ttsError);
-      // Refund tokens if TTS fails
-      await deductTokens({
-        userId: user.id,
-        amount: -TTS_COST,
-        reason: "Remboursement: erreur TTS",
-        streamId,
-      });
-      return NextResponse.json(
-        { error: "Erreur de génération vocale Grok (Remboursé)" },
-        { status: 500 }
-      );
+      audioUrl = null;
+      ttsSucceeded = false;
     }
 
-    // 3. Save message with audioUrl
-    const message = await createChatMessage({
-      streamId,
-      userId: user.id,
-      content,
-      isSacre: !!isSacre,
-      audioUrl,
-    });
+    // 2. Deduct tokens ONLY if TTS succeeded
+    if (ttsSucceeded) {
+      try {
+        await deductTokens({
+          userId: user.id,
+          amount: TTS_COST,
+          reason: "Message vocal TTS",
+          streamId: isValidStreamId ? streamId : undefined,
+        });
+      } catch (err: any) {
+        // If funds issue after successful TTS (rare race), don't attach audio
+        audioUrl = null;
+        ttsSucceeded = false;
+      }
+    }
+
+    // 3. Save message with audioUrl (only if it's a real stream)
+    let message;
+    if (isValidStreamId) {
+      message = await createChatMessage({
+        streamId,
+        userId: user.id,
+        content,
+        isSacre: !!isSacre,
+        audioUrl,
+      });
+    } else {
+      // Mock message for fallback Kick streams
+      message = {
+        id: `mock-msg-${Date.now()}`,
+        streamId,
+        userId: user.id,
+        content,
+        isSacre: !!isSacre,
+        audioUrl,
+        isDeleted: false,
+        createdAt: new Date(),
+      };
+    }
 
     // 4. Broadcast via Supabase Realtime so chat rooms and overlays catch it instantly
     const hydratedMessage = {
