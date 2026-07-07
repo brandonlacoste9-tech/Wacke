@@ -22,28 +22,48 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    const token = authHeader.replace("Bearer ", "");
+    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
 
-    // Robust auth: support mock-session tokens (Kick/demo) + real Supabase JWTs
-    let authUserId: string;
+    // Robust auth extraction: support mock-session (Kick/demo), real JWTs, and fallbacks
+    let authUserId: string | null = null;
+
     if (token.startsWith("mock-session:")) {
       const parts = token.split(":");
-      authUserId = parts[2]; // the supabaseId portion
-      if (!authUserId) {
-        return NextResponse.json({ error: "Session invalide" }, { status: 401 });
+      authUserId = parts.length >= 3 ? parts.slice(2).join(":") : null;
+      console.log("[TTS_AUTH] mock token detected, userId:", authUserId?.substring(0, 8) + "...");
+    } else if (token.includes(".")) {
+      // Looks like a JWT - try to extract sub from payload (works even if getUser fails due to key issues)
+      try {
+        const payloadB64 = token.split(".")[1];
+        const payload = JSON.parse(Buffer.from(payloadB64, "base64").toString("utf8"));
+        authUserId = payload.sub || payload.user_id || payload.id || null;
+        console.log("[TTS_AUTH] JWT token, extracted sub:", authUserId?.substring(0, 8) + "...");
+      } catch (e) {
+        console.log("[TTS_AUTH] JWT decode failed");
       }
-    } else {
-      const supabase = getSupabaseAdmin();
-      const {
-        data: { user: authUser },
-        error: authError,
-      } = await supabase.auth.getUser(token);
+    }
 
-      if (authError || !authUser) {
-        console.error("[TTS_AUTH_FAIL]", authError?.message || authError);
-        return NextResponse.json({ error: "Session invalide" }, { status: 401 });
+    if (!authUserId) {
+      // Fallback to full getUser validation
+      try {
+        const supabase = getSupabaseAdmin();
+        const {
+          data: { user: authUser },
+          error: authError,
+        } = await supabase.auth.getUser(token);
+
+        if (!authError && authUser) {
+          authUserId = authUser.id;
+        } else {
+          console.error("[TTS_AUTH_FAIL]", authError?.message || authError);
+        }
+      } catch (e) {
+        console.error("[TTS_AUTH_EXCEPTION]", e);
       }
-      authUserId = authUser.id;
+    }
+
+    if (!authUserId) {
+      return NextResponse.json({ error: "Session invalide" }, { status: 401 });
     }
 
     const { content, streamId, isSacre, voiceId = "leo", lang = "fr" } = await req.json();

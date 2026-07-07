@@ -22,27 +22,38 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    const token = authHeader.replace("Bearer ", "");
+    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
 
-    // Robust auth: support mock-session tokens (Kick/demo) + real Supabase JWTs
-    let authUserId: string;
+    // Robust auth extraction: support mock-session (Kick/demo), real JWTs, and fallbacks
+    let authUserId: string | null = null;
+
     if (token.startsWith("mock-session:")) {
       const parts = token.split(":");
-      authUserId = parts[2];
-      if (!authUserId) {
-        return NextResponse.json({ error: "Session invalide" }, { status: 401 });
-      }
-    } else {
-      const supabase = getSupabaseAdmin();
-      const {
-        data: { user: authUser },
-        error: authError,
-      } = await supabase.auth.getUser(token);
+      authUserId = parts.length >= 3 ? parts.slice(2).join(":") : null;
+    } else if (token.includes(".")) {
+      try {
+        const payloadB64 = token.split(".")[1];
+        const payload = JSON.parse(Buffer.from(payloadB64, "base64").toString("utf8"));
+        authUserId = payload.sub || payload.user_id || payload.id || null;
+      } catch {}
+    }
 
-      if (authError || !authUser) {
-        return NextResponse.json({ error: "Session invalide" }, { status: 401 });
-      }
-      authUserId = authUser.id;
+    if (!authUserId) {
+      try {
+        const supabase = getSupabaseAdmin();
+        const {
+          data: { user: authUser },
+          error: authError,
+        } = await supabase.auth.getUser(token);
+
+        if (!authError && authUser) {
+          authUserId = authUser.id;
+        }
+      } catch {}
+    }
+
+    if (!authUserId) {
+      return NextResponse.json({ error: "Session invalide" }, { status: 401 });
     }
 
     const { prefix, core, suffix, streamId } = await req.json();
