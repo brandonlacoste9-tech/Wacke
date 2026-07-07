@@ -197,48 +197,47 @@ export default async function StreamPage({ params }: StreamPageProps) {
   const isOwner = viewer !== null && user !== null && viewer.id === user.id;
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-160px)] lg:h-[calc(100vh-64px)] relative">
-      {/* ── Main Stream Area ─────────────────────────────────────────────── */}
-      <main className="flex-none lg:flex-1 w-full overflow-y-visible lg:overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6">
-        {isKickUser || stream.cloudflarePlaybackId ? (
-          <WackePlayer
-            playbackId={stream.cloudflarePlaybackId ?? "mock_playback_id"}
-            title={stream.title}
-            streamerName={user.displayName}
-            viewerCount={stream.viewerCount}
-            isLive={stream.status === "live"}
-            kickUsername={isKickUser ? user.username : undefined}
-          />
-        ) : (
-          <div
-            className="aspect-video rounded-xl flex items-center justify-center neon-border relative overflow-hidden bg-cover bg-center"
-            style={{ backgroundImage: `url('/generated_wacke_banner.png')` }}
-          >
-            {/* Dark glass overlay */}
-            <div className="absolute inset-0 bg-black/65 backdrop-blur-[5px] z-0" />
-
-            {/* Content */}
-            <div className="text-center relative z-10 p-6 bg-wacke-darker/70 rounded-2xl border border-wacke-purple/30 backdrop-blur-md shadow-2xl max-w-sm">
-              <img src="/offline_mascot.png" alt="Offline Mascot" className="w-48 h-auto mx-auto mb-2 drop-shadow-[0_0_15px_rgba(255,0,255,0.5)]" />
-              <p className="text-wacke-pink font-black text-xl tracking-tight uppercase">
-                {isEn ? "Stream Offline" : "Stream hors ligne"}
-              </p>
-              <p className="text-gray-300 text-sm mt-2 font-medium">
-                {isEn ? `${user.displayName} is offline right now` : `${user.displayName} n'est pas en live pour l'instant`}
-              </p>
-              <div className="mt-4 flex items-center justify-center space-x-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                <span>{isEn ? "🔴 Come back later for the live" : "🔴 Reviens plus tard pour le live"}</span>
+    <div className="relative flex flex-col lg:flex-row gap-5 lg:gap-6 max-w-[1920px] mx-auto">
+      {/* Left / Main Column */}
+      <main className="flex-1 min-w-0 space-y-4">
+        {/* Player */}
+        <section className="pt-2">
+          <div className="relative group rounded-2xl overflow-hidden bg-black shadow-2xl shadow-black/60 border border-wacke-purple/15">
+            {stream.status === "live" && (
+              <div className="absolute top-3 left-3 z-20 flex items-center gap-2">
+                <span className="px-2 py-1 rounded-lg bg-red-600/90 text-white text-[11px] font-black tracking-widest flex items-center gap-1.5 shadow-[0_0_18px_rgba(255,59,59,0.4)]">
+                  <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                  LIVE
+                </span>
+                <span className="px-2 py-1 rounded-lg bg-wacke-dark/70 backdrop-blur text-[11px] font-bold text-white border border-white/10 shadow-lg shadow-black/40">
+                  👁 {stream.viewerCount.toLocaleString("fr-CA")}
+                </span>
               </div>
+            )}
+            <div className="relative aspect-video">
+              {isKickUser || stream.cloudflarePlaybackId ? (
+                <WackePlayer
+                  playbackId={stream.cloudflarePlaybackId ?? "mock_playback_id"}
+                  title={stream.title}
+                  streamerName={user.displayName}
+                  viewerCount={stream.viewerCount}
+                  isLive={stream.status === "live"}
+                  kickUsername={isKickUser ? user.username : undefined}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-black">
+                  <div className="text-center">
+                    <p className="text-wacke-pink font-bold text-sm">Offline</p>
+                    <p className="text-gray-500 text-xs mt-1">{user.displayName} is offline</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        )}
+        </section>
 
-        {isOwner && (
-          <ObsOverlayButton username={user.username} />
-        )}
-
-        {/* ── Stream Info ───────────────────────────────────────────────── */}
-        <div className="bg-wacke-darker rounded-xl p-6 border border-wacke-purple/20">
+        {/* Creator info rail */}
+        <section className="glass rounded-2xl p-5 border border-wacke-purple/20 shadow-2xl shadow-black/40">
           <div className="flex items-start justify-between border-b border-white/5 pb-5 mb-5">
             <div className="flex items-center space-x-4">
               {/* Avatar */}
@@ -287,23 +286,35 @@ export default async function StreamPage({ params }: StreamPageProps) {
         </div>
       </main>
 
-      {/* ── Graffiti Chat ─────────────────────────────────────────────────── */}
-      <GraffitiChat
-        streamId={stream.id}
-        initialMessages={initialMessages as any}
-        currentUserId={viewer?.id}
-        kickUsername={isKickUser ? user.username : undefined}
-        twitchUsername={(user as any).twitchUsername || undefined}
-      />
-
-      {/* ── Floating Token Bar ────────────────────────────────────────────── */}
-      <TokenBar
-        initialBalance={viewer?.tokenBalance ?? 0}
-        streamerId={user.id}
-        streamId={stream.id}
-        authToken={token}
-      />
+      {/* Right Rail: Floating HUD Chat */}
+      <div className="w-full lg:w-[380px] shrink-0">
+        <div className="glass-hud sticky top-20 rounded-2xl overflow-hidden border border-wacke-cyan/15 shadow-2xl shadow-black/50 h-[calc(100vh-84px)] flex flex-col">
+          <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-wacke-cyan rounded-full shadow-[0_0_8px_#00F0FF]" />
+              <span className="text-[11px] font-black text-white/90 uppercase tracking-[0.15em]">
+                Graffiti HUD
+              </span>
+            </div>
+            <span className="text-[10px] font-mono text-gray-500">v2.0</span>
+          </div>
+          <GraffitiChat
+            streamId={stream.id}
+            initialMessages={initialMessages as any}
+            currentUserId={viewer?.id}
+            kickUsername={isKickUser ? user.username : undefined}
+            twitchUsername={(user as any).twitchUsername || undefined}
+          />
+        </div>
+      </div>
     </div>
+
+    {/* Floating Token Bar */}
+    <TokenBar
+      initialBalance={viewer?.tokenBalance ?? 0}
+      streamerId={user.id}
+      streamId={stream.id}
+      authToken={token}
+    />
   );
 }
-

@@ -641,13 +641,13 @@ export default function GraffitiChat({
   };
 
   return (
-    <aside className={`w-full lg:w-96 bg-wacke-darker/95 border-t lg:border-t-0 lg:border-l border-wacke-purple/20 flex flex-col h-full backdrop-blur-sm ${isGrokTakeover ? 'grok-takeover theme-grok-xai' : ''}`}>
+    <aside className={`w-full lg:w-96 flex flex-col h-full ${isGrokTakeover ? 'grok-takeover theme-grok-xai' : ''}`}>
 
       {/* ── Chat Header ───────────────────────────────────────────────────── */}
-      <div className="p-4 border-b border-wacke-purple/20 flex items-center justify-between">
+      <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
         <div className="flex items-center space-x-2">
           <img src="/spray_can.png" alt="Graffiti" className="h-5 w-5 object-contain drop-shadow-[0_0_6px_rgba(255,0,255,0.6)]" />
-          <h2 className="text-lg font-bold graffiti-text neon-pink">GRAFFITI CHAT <span className="text-[9px] align-super text-wacke-cyan/70">× GROK xAI</span></h2>
+          <span className="text-[11px] font-black text-white/90 uppercase tracking-[0.15em]">Graffiti HUD</span>
           {/* Connection status */}
           <div className="flex items-center space-x-1">
             <span

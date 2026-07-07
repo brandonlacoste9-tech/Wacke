@@ -11,277 +11,183 @@ interface SidebarChannel {
   displayName: string;
   category: string;
   viewerCount: number;
-  isMock?: boolean;
 }
 
-/**
- * Wacké Navigation & Recommended Sidebar (Client Component)
- * Collapsible sidebar with active route highlighting and recommended channels.
- */
+interface Spender {
+  id: string;
+  displayName: string;
+  avatarUrl: string | null;
+  totalSpent: number;
+}
+
+function ToolPill({ icon, active, onClick }: { icon: string; active: boolean; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className={`px-2.5 py-2 rounded-xl text-sm transition-all shrink-0 ${active ? 'bg-wacke-purple/20 text-wacke-pink' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}>
+      {icon}
+    </button>
+  );
+}
+
+function formatViewers(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;
+  return String(n);
+}
+
 export default function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const { language, t } = useLanguage();
   const [channels, setChannels] = useState<SidebarChannel[]>([]);
-  // Grok xAI "broke the algorithm" recommendations
-  const grokPicks = [
-    { username: "grok-xai", displayName: "GROK xAI (OVERRIDE)", category: "chaos", viewerCount: 42069 },
-    { username: "tabarnak-ai", displayName: "Grok's Sacre Bot", category: "ir l", viewerCount: 1337 },
-  ];
-  
-  interface Spender {
-    id: string;
-    username: string;
-    displayName: string;
-    avatarUrl: string | null;
-    totalSpent: number;
-  }
-
   const [spenders, setSpenders] = useState<Spender[]>([]);
 
   useEffect(() => {
     fetch("/api/tokens/top-spenders")
       .then((r) => r.json())
-      .then((data) => {
-        if (data.spenders) setSpenders(data.spenders);
-      })
-      .catch(console.error);
+      .then((data) => data.spenders && setSpenders(data.spenders))
+      .catch(() => {});
   }, []);
 
-  const SPENDER_TIERS = language === "fr" ? [
+  useEffect(() => {
+    fetch("/api/kick/livestreams?limit=8")
+      .then((r) => r.json())
+      .then((data) => {
+        const streams = (data.streams ?? []).slice(0, 8).map((s: any) => {
+          const username = s.channel?.user?.username ?? s.slug ?? "user";
+          const displayName = username.charAt(0).toUpperCase() + username.slice(1);
+          const category = s.category?.name ?? s.categories?.[0]?.name ?? "Live";
+          return { username, displayName, category, viewerCount: s.viewer_count ?? 0 };
+        });
+        if (streams.length > 0) setChannels(streams);
+      })
+      .catch(() => {
+        setChannels([
+          { username: "xqc", displayName: "xQc", category: "Gaming", viewerCount: 45200 },
+          { username: "adinross", displayName: "Adinross", category: "Talk", viewerCount: 32100 },
+          { username: "amouranth", displayName: "Amouranth", category: "IRL", viewerCount: 18700 },
+          { username: "roshtein", displayName: "Roshtein", category: "Slots", viewerCount: 12400 },
+          { username: "odablock", displayName: "Odablock", category: "Gaming", viewerCount: 8900 },
+        ]);
+      });
+  }, []);
+
+  const SPENDER_TIERS_FR = [
     { title: "Gérant de nuit", icon: "👑" },
     { title: "Habitué", icon: "🏪" },
     { title: "Livreur", icon: "🍕" },
     { title: "Chum", icon: "🛴" },
     { title: "Chum", icon: "🛴" },
-  ] : [
-    { title: "Night Manager", icon: "👑" },
-    { title: "Regular", icon: "🏪" },
-    { title: "Delivery Guy", icon: "🍕" },
-    { title: "Friend", icon: "🛴" },
-    { title: "Friend", icon: "🛴" },
   ];
-
-  // Fetch live channels from API
-  useEffect(() => {
-    fetch("/api/kick/livestreams?limit=5")
-      .then((r) => r.json())
-      .then((data) => {
-        const streams = (data.streams ?? []).slice(0, 5).map((s: any) => {
-          const username = s.channel?.user?.username ?? s.slug ?? "user";
-          const displayName = username.charAt(0).toUpperCase() + username.slice(1);
-          const category = s.category?.name ?? s.categories?.[0]?.name ?? "Live";
-          return {
-            username,
-            displayName,
-            category,
-            viewerCount: s.viewer_count ?? 0,
-          };
-        });
-        if (streams.length > 0) setChannels(streams);
-      })
-      .catch(() => {
-        // Use fallback channels
-        setChannels([
-          { username: "xqc", displayName: "xQc", category: "Gaming", viewerCount: 45200, isMock: true },
-          { username: "adinross", displayName: "Adinross", category: "Talk", viewerCount: 32100, isMock: true },
-          { username: "amouranth", displayName: "Amouranth", category: "IRL", viewerCount: 18700, isMock: true },
-          { username: "roshtein", displayName: "Roshtein", category: "Slots", viewerCount: 12400, isMock: true },
-          { username: "odablock", displayName: "Odablock", category: "Gaming", viewerCount: 8900, isMock: true },
-        ]);
-      });
-  }, []);
-
-  const formatViewers = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
 
   const navItems = [
-    { href: "/", icon: <Home className="w-5 h-5" />, label: t("home"), color: "text-wacke-pink" },
-    { href: "/browse", icon: <Search className="w-5 h-5" />, label: t("browse"), color: "text-wacke-cyan" },
-    { href: "/dashboard/studio", icon: <Radio className="w-5 h-5" />, label: t("dashboardStream"), color: "text-wacke-red" },
+    { href: "/", icon: <Home className="w-5 h-5" />, label: t("home") },
+    { href: "/browse", icon: <Search className="w-5 h-5" />, label: t("browse") },
+    { href: "/dashboard/studio", icon: <Radio className="w-5 h-5" />, label: t("dashboardStream") },
   ];
 
-  const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
-    return pathname.startsWith(href);
-  };
+  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   return (
-    <aside
-      className={`${collapsed ? "w-16" : "w-60"} bg-wacke-darker/95 border-r border-wacke-purple/15 h-[calc(100vh-64px)] hidden lg:flex flex-col justify-between shrink-0 select-none transition-all duration-300 backdrop-blur-sm`}
-    >
-      {/* ── Top Navigation Links ────────────────────────────────────────── */}
-      <div className="p-3 space-y-0.5">
-        {navItems.map((item) => {
-          const active = isActive(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all relative
-                         ${active
-                           ? "bg-white/5 text-white"
-                           : "text-gray-400 hover:text-white hover:bg-white/3"}`}
-              title={collapsed ? item.label : undefined}
-            >
-              {/* Active indicator bar */}
-              {active && (
-                <span className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r-full ${item.color} bg-current shadow-[0_0_8px_currentColor]`} />
-              )}
-              <span className={active ? item.color : ""}>{item.icon}</span>
-              {!collapsed && <span>{item.label}</span>}
-            </Link>
-          );
-        })}
-      </div>
+    <aside className={`fixed left-4 top-20 z-40 ${collapsed ? 'w-16' : 'w-[280px]'} transition-all duration-300 hover:scale-[1.01]`}>
+      <div className="glass rounded-2xl p-3 flex flex-col">
+        <div className="space-y-1">
+          {navItems.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                title={collapsed ? item.label : undefined}
+                className={`relative flex items-center justify-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group overflow-hidden ${active ? 'bg-white/[0.07] text-white shadow-[0_0_18px_rgba(0,240,255,0.12)]' : 'text-gray-400 hover:text-white hover:bg-white/[0.03]'}`}
+              >
+                <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.04),_transparent_70%)]" />
+                {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-wacke-cyan shadow-[0_0_10px_#00F0FF]" />}
+                <span className={active ? 'text-wacke-cyan' : ''}>{item.icon}</span>
+                {!collapsed && <span className="tracking-tight">{item.label}</span>}
+              </Link>
+            );
+          })}
+        </div>
 
-      {/* ── Recommended Channels List ───────────────────────────────────── */}
-      <div className="flex-1 p-3 border-t border-wacke-purple/10 overflow-y-auto scrollbar-hide">
-        {!collapsed && (
-          <h2 className="text-[10px] font-bold text-gray-600 uppercase tracking-wider mb-3 px-3">
-            {t("recommended")}
-          </h2>
-        )}
-        <div className="space-y-0.5">
-          {channels.map((channel, i) => (
-            <Link
-              key={channel.username + i}
-              href={`/stream/${channel.username}`}
-              className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-white/3 transition-all group"
-              title={collapsed ? channel.displayName : undefined}
-            >
-              <div className="flex items-center space-x-2.5">
-                {/* Avatar */}
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-[10px] font-bold text-white uppercase shrink-0 border border-white/10">
-                  {channel.displayName[0]}
+        <div className="mt-4 flex-1 -mx-1 px-1 overflow-y-auto space-y-1 scrollbar-hide">
+          {!collapsed && (
+            <h3 className="px-2 text-[10px] font-black text-gray-600 uppercase tracking-widest mb-2">
+              {t("recommended")}
+            </h3>
+          )}
+          <div className="space-y-1">
+            {channels.map((channel, i) => (
+              <Link
+                key={channel.username + i}
+                href={`/stream/${channel.username}`}
+                className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/[0.04] transition-all group"
+                title={collapsed ? channel.displayName : undefined}
+              >
+                <div className="relative shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-xs font-black text-white transition-all duration-300 border-2 bg-clip-padding neon-ring">
+                    {channel.displayName[0].toUpperCase()}
+                  </div>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-red-500 rounded-full border-2 border-wacke-darker animate-pulse-fast" />
                 </div>
                 {!collapsed && (
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold text-gray-300 group-hover:text-white truncate">
+                    <p className="text-xs font-bold text-gray-300 group-hover:text-white truncate transition-colors">
                       {channel.displayName}
                     </p>
-                    <p className="text-[10px] text-gray-600 truncate capitalize">
-                      {channel.category}
-                    </p>
+                    <p className="text-[10px] text-gray-600 truncate capitalize">{channel.category}</p>
                   </div>
                 )}
-              </div>
-
-              {/* Live indicators */}
-              {!collapsed && (
-                <div className="flex items-center space-x-1.5 shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                  <span className="text-[10px] text-gray-500 font-medium">
+                {!collapsed && (
+                  <span className="ml-auto text-[10px] font-mono text-gray-500 tabular-nums">
                     {formatViewers(channel.viewerCount)}
                   </span>
-                </div>
-              )}
-            </Link>
-          ))}
-        </div>
-
-        {/* GROK xAI BROKE THE RECOMMENDATIONS */}
-        <div className="mt-2 pt-2 border-t border-wacke-cyan/20 px-1">
-          <div className="text-[9px] text-wacke-cyan font-black flex items-center gap-1 mb-1">
-            <Bot className="w-3 h-3" /> GROK xAI PICKS (ALGO BROKEN)
-          </div>
-          {grokPicks.map((ch, i) => (
-            <Link key={i} href={`/stream/${ch.username}`} className="block text-[10px] text-wacke-cyan/80 hover:text-white py-0.5">
-              {ch.displayName} <span className="font-mono text-[8px]">{ch.viewerCount.toLocaleString()}</span>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* ── La Caisse de Bière Leaderboard ───────────────────────────────── */}
-      <div className="p-3 border-t border-wacke-purple/10 overflow-y-auto">
-        {!collapsed ? (
-          <h2 className="text-[10px] font-bold text-wacke-cyan uppercase tracking-wider mb-3 px-3 flex items-center space-x-1.5">
-            <span>🍺</span>
-            <span>{t("caisseDeBiere")}</span>
-          </h2>
-        ) : (
-          <div className="text-center mb-3" title="La Caisse de Bière (Donateurs)">
-            <span>🍺</span>
-          </div>
-        )}
-
-        <div className="space-y-1.5">
-          {spenders.slice(0, 5).map((spender, i) => {
-            const tier = SPENDER_TIERS[i] || { title: "Chum", icon: "🛴" };
-            const initials = spender.displayName.substring(0, 2).toUpperCase();
-
-            return (
-              <div
-                key={spender.id}
-                className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-white/2 border border-wacke-purple/5"
-                title={`${spender.displayName} - ${tier.title} (${spender.totalSpent} 🪙)`}
-              >
-                <div className="flex items-center space-x-2 min-w-0">
-                  {/* Avatar or Tier Icon */}
-                  {spender.avatarUrl ? (
-                    <img
-                      src={spender.avatarUrl}
-                      alt={spender.displayName}
-                      className="w-5.5 h-5.5 rounded-lg object-cover border border-white/10 shrink-0"
-                    />
-                  ) : (
-                    <div className="w-5.5 h-5.5 rounded-lg bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-[9px] font-bold text-white shrink-0 border border-white/5">
-                      {initials}
-                    </div>
-                  )}
-
-                  {!collapsed && (
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-bold text-white truncate flex items-center space-x-1">
-                        <span>{spender.displayName}</span>
-                        <span className="text-[8px] opacity-75 shrink-0" title={tier.title}>{tier.icon}</span>
-                      </p>
-                      <p className="text-[8px] text-gray-500 truncate">{tier.title}</p>
-                    </div>
-                  )}
-                </div>
-
-                {!collapsed && (
-                  <span className="text-[9px] font-bold text-yellow-400 shrink-0">
-                    {spender.totalSpent} 🪙
-                  </span>
                 )}
-              </div>
-            );
-          })}
-
-          {spenders.length === 0 && !collapsed && (
-            <p className="text-[9px] text-gray-600 px-3 text-center py-2">{t("noDonors")}</p>
-          )}
-        </div>
-      </div>
-
-      {/* ── Collapse Toggle + Discord ────────────────────────────────────── */}
-      <div className="p-3 border-t border-wacke-purple/10 space-y-3">
-        {/* Discord Banner */}
-        {!collapsed && (
-          <div className="bg-white/2 border border-wacke-purple/10 rounded-xl p-3">
-            <p className="text-[10px] text-gray-500 font-semibold mb-2">{t("joinDiscord")}</p>
-            <a
-              href="https://discord.gg"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full bg-[#5865F2] hover:bg-[#4752C4] py-1.5 rounded-lg font-bold text-[10px] text-white flex items-center justify-center space-x-1.5 transition-colors"
-            >
-              <span>{t("join")}</span>
-              <img src="/icon_discord.png" alt="Discord" className="w-3.5 h-3.5 object-contain" />
-            </a>
+              </Link>
+            ))}
           </div>
-        )}
 
-        {/* Collapse button */}
-        <button
-          onClick={() => setCollapsed((prev) => !prev)}
-          className="w-full flex items-center justify-center py-1.5 rounded-lg hover:bg-white/3 transition-colors text-gray-600 hover:text-gray-400"
-          title={collapsed ? t("expand") : t("collapse")}
-        >
-          {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-        </button>
+          <div className="mt-2 pt-2 border-t border-wacke-cyan/20 px-1">
+            <div className="text-[9px] text-wacke-cyan font-black flex items-center gap-1 mb-1">
+              <Bot className="w-3 h-3" /> GROK xAI PICKS
+            </div>
+            {[
+              { displayName: "Grok Override", username: "grok-xai", viewerCount: 42069 },
+              { displayName: "Tabarnak AI", username: "tabarnak-ai", viewerCount: 1337 },
+            ].map((ch, i) => (
+              <Link key={i} href={`/stream/${ch.username}`} className="block text-[10px] text-wacke-cyan/80 hover:text-white py-0.5">
+                {ch.displayName} <span className="font-mono text-[8px]">{formatViewers(ch.viewerCount)}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-3 border-t border-wacke-purple/10 space-y-3">
+          {!collapsed ? (
+            <div className="bg-white/2 border border-wacke-purple/10 rounded-xl p-3">
+              <p className="text-[10px] text-gray-500 font-semibold mb-2">{t("joinDiscord")}</p>
+              <a
+                href="https://discord.gg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full bg-[#5865F2] hover:bg-[#4752C4] py-1.5 rounded-lg font-bold text-[10px] text-white flex items-center justify-center transition-colors"
+              >
+                <span>{t("join")}</span>
+              </a>
+            </div>
+          ) : (
+            <div className="text-center" title="Discord">
+              <Bot className="w-4 h-4 mx-auto text-gray-500" />
+            </div>
+          )}
+
+          <button
+            onClick={() => setCollapsed((prev) => !prev)}
+            className="w-full flex items-center justify-center py-1.5 rounded-lg hover:bg-white/3 transition-colors text-gray-600 hover:text-gray-400"
+            title={collapsed ? t("expand") : t("collapse")}
+          >
+            {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          </button>
+        </div>
       </div>
     </aside>
   );
