@@ -67,7 +67,7 @@ export default function GrokCoHost({ streamerName, streamId }: GrokCoHostProps) 
         </div>
       )}
       <div className="text-[9px] text-gray-500">
-        {t("grokHint")}
+        {t("grokHint")} — real Grok xAI voice!
       </div>
     </div>
   );

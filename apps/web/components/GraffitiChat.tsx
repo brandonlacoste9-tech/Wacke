@@ -497,6 +497,9 @@ export default function GraffitiChat({
     setGrokMessages(prev => [...prev, grokMessage]);
     setGrokPrompt("");
     setShowGrokPanel(false);
+
+    // Speak Grok's reply with real cloud voice
+    speakWithCloudGrokVoice(response, language);
   };
 
   // GO FURTHER: Grok xAI Takeover mode – breaks the chat with maximum chaos
@@ -975,7 +978,7 @@ export default function GraffitiChat({
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-wacke-cyan flex items-center space-x-1">
               <Bot className="w-3.5 h-3.5" />
-              <span>GROKÉ — AI wit & chaos</span>
+              <span>GROKÉ — TALK TO GROK (AI voice)</span>
             </span>
             <button
               onClick={() => setShowGrokPanel(false)}
@@ -984,7 +987,7 @@ export default function GraffitiChat({
               ✕
             </button>
           </div>
-          <div className="text-[9px] text-gray-400">Ask Groké for roasts, stream ideas, sacre inspo, or pure wacké wisdom.</div>
+          <div className="text-[9px] text-gray-400">Type a question or prompt below — Grok will reply in chat AND speak it with real xAI voice!</div>
           <div className="flex space-x-2">
             <input
               type="text"
@@ -1006,7 +1009,7 @@ export default function GraffitiChat({
               ASK
             </button>
           </div>
-          <div className="text-[8px] text-wacke-cyan/70">Try typing /grok in chat too for instant magic.</div>
+          <div className="text-[8px] text-wacke-cyan/70">Or type /grok your question directly in the main chat input below.</div>
           <button 
             onClick={triggerGrokTakeover}
             disabled={isGrokTakeover}
@@ -1114,7 +1117,7 @@ export default function GraffitiChat({
             className={`px-2 py-2 rounded-lg text-xl emoji transition-all shrink-0 ${
               showGrokPanel ? "bg-wacke-cyan/20 text-wacke-cyan" : "text-gray-500 hover:text-white hover:bg-white/5"
             }`}
-            title="Consult Groké (AI wit + Quebec chaos)"
+            title="Talk to Groké — type a prompt and hear real Grok xAI voice!"
             type="button"
           >
             🤖
@@ -1155,16 +1158,19 @@ export default function GraffitiChat({
           </button>
         </div>
 
-        {/* TTS Button */}
-        <div className="mt-2 flex justify-end">
-          <button
-            onClick={handleSendTts}
-            disabled={!currentUserId || isSending || isSendingTts || !inputValue.trim()}
-            className="flex items-center space-x-1.5 text-[9px] bg-wacke-cyan/5 border border-wacke-cyan/20 text-wacke-cyan px-2.5 py-1 rounded-lg hover:bg-wacke-cyan/10 transition-all disabled:opacity-30 font-bold uppercase tracking-wider"
-          >
-            <Mic className="w-3 h-3" />
-            <span>{isSendingTts ? t("ttsGenerating") : t("ttsBtn")}</span>
-          </button>
+        {/* TTS / Voice Talk Button - main place to "talk" with Grok voice */}
+        <div className="mt-2">
+          <div className="text-[8px] text-wacke-cyan/70 mb-0.5 text-right">Type above → send with voice</div>
+          <div className="flex justify-end">
+            <button
+              onClick={handleSendTts}
+              disabled={!currentUserId || isSending || isSendingTts || !inputValue.trim()}
+              className="flex items-center space-x-1.5 text-[9px] bg-wacke-cyan/10 border border-wacke-cyan/30 text-wacke-cyan px-3 py-1.5 rounded-lg hover:bg-wacke-cyan/20 transition-all disabled:opacity-30 font-bold uppercase tracking-wider"
+            >
+              <Mic className="w-3 h-3" />
+              <span>{isSendingTts ? t("ttsGenerating") : t("ttsBtn")}</span>
+            </button>
+          </div>
         </div>
       </div>
     </aside>
