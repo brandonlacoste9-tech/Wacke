@@ -1038,6 +1038,8 @@ export async function deductTokens({
     return true;
   }
 
+  const isStreamReal = streamId && isValidUuid(streamId);
+
   return db.transaction(async (tx) => {
     if (amount > 0) {
       const [updatedUser] = await tx
@@ -1052,7 +1054,7 @@ export async function deductTokens({
 
       await tx.insert(tokenTransactions).values({
         fromUserId: userId,
-        streamId,
+        streamId: isStreamReal ? streamId : null,
         type: "spend",
         amount,
         reason,
@@ -1066,7 +1068,7 @@ export async function deductTokens({
 
       await tx.insert(tokenTransactions).values({
         toUserId: userId,
-        streamId,
+        streamId: isStreamReal ? streamId : null,
         type: "refund",
         amount: absoluteAmount,
         reason,
@@ -1158,6 +1160,10 @@ export async function toggleFollow({
 export async function getStreamReactionCount(streamId: string) {
   if (isDbMocked()) {
     return 14;
+  }
+
+  if (!isValidUuid(streamId)) {
+    return 0;
   }
 
   const result = await db
