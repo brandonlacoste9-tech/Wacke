@@ -23,14 +23,26 @@ export async function POST(req: NextRequest) {
     }
 
     const token = authHeader.replace("Bearer ", "");
-    const supabase = getSupabaseAdmin();
-    const {
-      data: { user: authUser },
-      error: authError,
-    } = await supabase.auth.getUser(token);
 
-    if (authError || !authUser) {
-      return NextResponse.json({ error: "Session invalide" }, { status: 401 });
+    // Robust auth: support mock-session tokens (Kick/demo) + real Supabase JWTs
+    let authUserId: string;
+    if (token.startsWith("mock-session:")) {
+      const parts = token.split(":");
+      authUserId = parts[2];
+      if (!authUserId) {
+        return NextResponse.json({ error: "Session invalide" }, { status: 401 });
+      }
+    } else {
+      const supabase = getSupabaseAdmin();
+      const {
+        data: { user: authUser },
+        error: authError,
+      } = await supabase.auth.getUser(token);
+
+      if (authError || !authUser) {
+        return NextResponse.json({ error: "Session invalide" }, { status: 401 });
+      }
+      authUserId = authUser.id;
     }
 
     const { prefix, core, suffix, streamId } = await req.json();
@@ -42,7 +54,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = await getUserBySupabaseId(authUser.id);
+    const user = await getUserBySupabaseId(authUserId);
     if (!user) {
       return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
     }

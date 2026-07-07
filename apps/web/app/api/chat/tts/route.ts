@@ -23,14 +23,27 @@ export async function POST(req: NextRequest) {
     }
 
     const token = authHeader.replace("Bearer ", "");
-    const supabase = getSupabaseAdmin();
-    const {
-      data: { user: authUser },
-      error: authError,
-    } = await supabase.auth.getUser(token);
 
-    if (authError || !authUser) {
-      return NextResponse.json({ error: "Session invalide" }, { status: 401 });
+    // Robust auth: support mock-session tokens (Kick/demo) + real Supabase JWTs
+    let authUserId: string;
+    if (token.startsWith("mock-session:")) {
+      const parts = token.split(":");
+      authUserId = parts[2]; // the supabaseId portion
+      if (!authUserId) {
+        return NextResponse.json({ error: "Session invalide" }, { status: 401 });
+      }
+    } else {
+      const supabase = getSupabaseAdmin();
+      const {
+        data: { user: authUser },
+        error: authError,
+      } = await supabase.auth.getUser(token);
+
+      if (authError || !authUser) {
+        console.error("[TTS_AUTH_FAIL]", authError?.message || authError);
+        return NextResponse.json({ error: "Session invalide" }, { status: 401 });
+      }
+      authUserId = authUser.id;
     }
 
     const { content, streamId, isSacre, voiceId = "leo", lang = "fr" } = await req.json();
@@ -42,10 +55,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = await getUserBySupabaseId(authUser.id);
+    const user = await getUserBySupabaseId(authUserId);
     if (!user) {
       return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
     }
+
+    // Get admin client for realtime broadcast (and was previously used for auth)
+    const supabase = getSupabaseAdmin();
 
     // 1. Deduct tokens
     try {
@@ -140,9 +156,9 @@ export async function POST(req: NextRequest) {
       // Example: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/tts/1720123456789-abc123.mp3"
       // Object path for RLS: first folder segment MUST be the auth uid.
       // ✅ "{USER_UUID}/tts/....mp3"
-      // We use authUser.id (the Supabase auth uid from the validated token).
+      // We use authUserId (the Supabase auth uid from the validated token).
       // All uploads here go through getSupabaseServiceRole() (bypasses RLS).
-      const fileName = `${authUser.id}/tts/${Date.now()}-${Math.random().toString(36).substring(2)}.mp3`;
+      const fileName = `${authUserId}/tts/${Date.now()}-${Math.random().toString(36).substring(2)}.mp3`;
       
       const { error: uploadError } = await supabaseAdmin.storage
         .from(bucket)
