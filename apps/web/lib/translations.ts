@@ -244,6 +244,9 @@ export const translations = {
     dashErrorCreateStream: "Erreur lors de la création du stream",
     dashErrorEndStream: "Erreur lors de l'arrêt du stream",
     dashErrorConnection: "Connexion perdue. Réessaie.",
+    dashCameraError: "Erreur: Impossible d'accéder à la caméra ou au microphone. Vérifiez vos permissions.",
+    dashServerError: "Erreur de connexion au serveur",
+    dashWhipError: "Erreur de négociation WHIP avec Cloudflare",
 
     // ── Profile Page ──────────────────────────────────────────────────
     followers: "Abonnés",
@@ -501,9 +504,12 @@ export const translations = {
     dashObsGuideTitle: "OBS Studio Setup Guide",
     dashCopiedFeedback: "copied!",
     dashErrorEmptyTitle: "Provide a stream title!",
-    dashErrorCreateStream: "Error generating stream key",
-    dashErrorEndStream: "Error closing stream",
+    dashErrorCreateStream: "Error creating stream",
+    dashErrorEndStream: "Error ending stream",
     dashErrorConnection: "Connection lost. Try again.",
+    dashCameraError: "Error: Could not access camera or microphone. Please check your browser permissions.",
+    dashServerError: "Error connecting to server",
+    dashWhipError: "Error during WHIP negotiation with Cloudflare",
 
     // ── Profile Page ──────────────────────────────────────────────────
     followers: "Followers",

@@ -222,7 +222,7 @@ export async function POST(req: NextRequest) {
         userId: user.id,
         content,
         isSacre: !!isSacre,
-        audioUrl: audioUrl || undefined,
+        audioUrl,
       });
     } else {
       // Mock message for fallback Kick streams
@@ -232,7 +232,7 @@ export async function POST(req: NextRequest) {
         userId: user.id,
         content,
         isSacre: !!isSacre,
-        audioUrl: audioUrl || undefined,
+        audioUrl,
         isDeleted: false,
         createdAt: new Date(),
       };

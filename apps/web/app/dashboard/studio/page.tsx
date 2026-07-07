@@ -67,7 +67,7 @@ export default function BroadcastStudio() {
         }
       } catch (err) {
         console.error("Camera access denied", err);
-        setError("Erreur: Impossible d'accéder à la caméra ou au microphone. Vérifiez vos permissions.");
+        setError(t("dashCameraError"));
       }
     }
 
@@ -189,7 +189,7 @@ export default function BroadcastStudio() {
       
       const data = await res.json();
       if (!data.success) {
-        throw new Error(data.error || "Erreur de connexion au serveur");
+        throw new Error(data.error || t("dashServerError"));
       }
 
       const whipUrl = data.whipUrl;
@@ -216,7 +216,7 @@ export default function BroadcastStudio() {
       });
 
       if (!whipRes.ok) {
-        throw new Error("Erreur de négociation WHIP avec Cloudflare");
+        throw new Error(t("dashWhipError"));
       }
 
       // 5. Accept SDP Answer from Cloudflare

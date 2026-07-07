@@ -788,7 +788,7 @@ export async function createChatMessage({
   userId: string;
   content: string;
   isSacre: boolean;
-  audioUrl?: string;
+  audioUrl?: string | null;
 }) {
   if (isDbMocked()) {
     const state = getMockDbState();

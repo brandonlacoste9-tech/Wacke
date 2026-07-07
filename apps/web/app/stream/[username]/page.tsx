@@ -38,6 +38,19 @@ export async function generateMetadata({ params }: StreamPageProps): Promise<Met
     };
   }
 
+  const isKickStream = TOP_KICK_STREAMERS.some(s => s.username === cleanUsername);
+
+  if (isKickStream) {
+    const streamerInfo = TOP_KICK_STREAMERS.find(s => s.username === cleanUsername);
+    const displayName = streamerInfo ? streamerInfo.displayName : cleanUsername;
+    return {
+      title: isEn ? `🟢 ${displayName} Live | Wacké` : `🟢 Live de ${displayName} | Wacké`,
+      description: isEn 
+        ? `Watch ${displayName} broadcasting live on Wacké via Kick!`
+        : `Regarde ${displayName} diffuser en direct sur Wacké via Kick!`,
+    };
+  }
+
   const user = await getUserByUsername(params.username);
   if (!user) return { title: isEn ? "Stream not found — Wacké" : "Stream introuvable — Wacké" };
 

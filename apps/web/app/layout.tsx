@@ -12,32 +12,44 @@ import MainLayoutWrapper from "@/components/MainLayoutWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Wacké — Le streaming québécois | Powered by Grok xAI",
-    template: "%s | Wacké × Grok xAI",
-  },
-  description:
-    "Wacké est la plateforme de streaming française pour la Gen Z québécoise. Culture de rue, Graffiti Chat, Mode Sacré. Kick meets dépanneur drama. Powered by Grok xAI.",
-  keywords: ["streaming", "québec", "twitch", "kick", "montréal", "francophone", "live", "gaming", "wacke", "grok", "xai"],
-  icons: {
-    icon: "/logo_w.png",
-    shortcut: "/logo_w.png",
-  },
-  openGraph: {
-    title: "Wacké — Le streaming québécois | Powered by Grok xAI",
-    description: "Streaming live. Culture de rue. 100% québécois. Powered by Grok xAI.",
-    locale: "fr_CA",
-    type: "website",
-    siteName: "Wacké × Grok xAI",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Wacké — Le streaming québécois | Powered by Grok xAI",
-    description: "Streaming live. Culture de rue. 100% québécois. Powered by Grok xAI.",
-  },
-  metadataBase: new URL("https://wacke.ca"),
-};
+import { cookies } from "next/headers";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const cookieStore = cookies();
+  const lang = cookieStore.get("wacke_lang")?.value === "en" ? "en" : "fr";
+  const isEn = lang === "en";
+
+  const title = isEn ? "Wacké — Unfiltered Gen-Z Streaming | Powered by Grok xAI" : "Wacké — Le streaming québécois | Powered by Grok xAI";
+  const description = isEn
+    ? "Wacké is the ultimate streaming platform for Gen Z. AI Graffiti Chat, Roast Battles, and unfiltered chaos. Kick meets AI. Powered by Grok xAI."
+    : "Wacké est la plateforme de streaming française pour la Gen Z québécoise. Culture de rue, Graffiti Chat, Mode Sacré. Kick meets dépanneur drama. Powered by Grok xAI.";
+
+  return {
+    title: {
+      default: title,
+      template: "%s | Wacké × Grok xAI",
+    },
+    description,
+    keywords: ["streaming", "québec", "twitch", "kick", "montréal", "francophone", "live", "gaming", "wacke", "grok", "xai"],
+    icons: {
+      icon: "/logo_w.png",
+      shortcut: "/logo_w.png",
+    },
+    openGraph: {
+      title,
+      description,
+      locale: isEn ? "en_US" : "fr_CA",
+      type: "website",
+      siteName: "Wacké × Grok xAI",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+    metadataBase: new URL("https://wacke.ca"),
+  };
+}
 
 export default function RootLayout({
   children,
