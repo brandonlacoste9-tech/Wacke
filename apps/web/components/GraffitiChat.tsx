@@ -943,7 +943,6 @@ export default function GraffitiChat({
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-1 border-t border-wacke-purple/10">
           <div className="flex items-center justify-end pt-1 border-t border-wacke-purple/10">
             <button
               onClick={handleSacreSubmit}
