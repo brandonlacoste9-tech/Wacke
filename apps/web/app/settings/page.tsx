@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/AuthProvider";
+import { useLanguage } from "@/components/LanguageProvider";
 import { useRouter } from "next/navigation";
 import { Settings, Shield, LogOut, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -11,6 +12,8 @@ import Link from "next/link";
  */
 export default function SettingsPage() {
   const { user, token, logout, isLoading } = useAuth();
+  const { language } = useLanguage();
+  const isEn = language === "en";
   const router = useRouter();
 
   const [displayName, setDisplayName] = useState("");
@@ -55,12 +58,12 @@ export default function SettingsPage() {
       });
 
       if (res.ok) {
-        setFeedback("✅ Profil mis à jour avec succès!");
+        setFeedback(isEn ? "✅ Profile updated successfully!" : "✅ Profil mis à jour avec succès!");
       } else {
-        setFeedback("❌ Erreur lors de la mise à jour");
+        setFeedback(isEn ? "❌ Update failed" : "❌ Erreur lors de la mise à jour");
       }
     } catch {
-      setFeedback("❌ Connexion perdue");
+      setFeedback(isEn ? "❌ Connection lost" : "❌ Connexion perdue");
     } finally {
       setIsSaving(false);
       setTimeout(() => setFeedback(null), 3000);
@@ -87,9 +90,11 @@ export default function SettingsPage() {
         <div>
           <h1 className="text-3xl font-black graffiti-text neon-pink flex items-center space-x-2">
             <Settings className="w-7 h-7" />
-            <span>PARAMÈTRES</span>
+            <span>{isEn ? "SETTINGS" : "PARAMÈTRES"}</span>
           </h1>
-          <p className="text-gray-500 text-sm mt-1">Personnalise ton profil et tes préférences</p>
+          <p className="text-gray-500 text-sm mt-1">
+            {isEn ? "Customize your profile and preferences" : "Personnalise ton profil et tes préférences"}
+          </p>
         </div>
       </div>
 
@@ -104,13 +109,13 @@ export default function SettingsPage() {
       <section className="glass-card rounded-2xl p-6 mb-6">
         <h2 className="text-lg font-bold text-white mb-5 flex items-center space-x-2">
           <span>👤</span>
-          <span>Profil</span>
+          <span>{isEn ? "Profile" : "Profil"}</span>
         </h2>
 
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">
-              Nom d&apos;affichage
+              {isEn ? "Display Name" : "Nom d'affichage"}
             </label>
             <input
               type="text"
@@ -119,13 +124,13 @@ export default function SettingsPage() {
               maxLength={64}
               className="w-full bg-white/3 border border-wacke-purple/20 rounded-xl px-4 py-3
                          text-sm focus:border-wacke-cyan/40 transition-all"
-              placeholder="Ton nom d'affichage"
+              placeholder={isEn ? "Your display name" : "Ton nom d'affichage"}
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">
-              Bio
+              {isEn ? "Bio" : "Bio"}
             </label>
             <textarea
               value={bio}
@@ -134,14 +139,14 @@ export default function SettingsPage() {
               rows={3}
               className="w-full bg-white/3 border border-wacke-purple/20 rounded-xl px-4 py-3
                          text-sm focus:border-wacke-cyan/40 transition-all resize-none"
-              placeholder="Parle de toi en quelques mots..."
+              placeholder={isEn ? "Tell us about yourself..." : "Parle de toi en quelques mots..."}
             />
             <p className="text-[10px] text-gray-600 mt-1 text-right">{bio.length}/256</p>
           </div>
 
           <div>
             <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">
-              URL de l&apos;avatar
+              {isEn ? "Avatar URL" : "URL de l'avatar"}
             </label>
             <input
               type="url"
@@ -159,13 +164,13 @@ export default function SettingsPage() {
       <section className="glass-card rounded-2xl p-6 mb-6">
         <h2 className="text-lg font-bold text-white mb-5 flex items-center space-x-2">
           <span>🔗</span>
-          <span>Comptes Externes</span>
+          <span>{isEn ? "External Accounts" : "Comptes Externes"}</span>
         </h2>
 
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">
-              ID de la Chaîne YouTube (UC...)
+              {isEn ? "YouTube Channel ID (UC...)" : "ID de la Chaîne YouTube (UC...)"}
             </label>
             <input
               type="text"
@@ -178,7 +183,7 @@ export default function SettingsPage() {
           </div>
           <div>
             <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">
-              Nom d'utilisateur Twitch
+              {isEn ? "Twitch Username" : "Nom d'utilisateur Twitch"}
             </label>
             <input
               type="text"
@@ -189,13 +194,15 @@ export default function SettingsPage() {
               placeholder="ex: xqc"
             />
             <p className="text-[10px] text-gray-500 mt-1.5">
-              Saisis ton pseudo Twitch pour fusionner le chat Twitch avec Wacké quand tu streames ici.
+              {isEn 
+                ? "Enter your Twitch username to merge Twitch chat with Wacké when you stream here." 
+                : "Saisis ton pseudo Twitch pour fusionner le chat Twitch avec Wacké quand tu streames ici."}
             </p>
           </div>
 
           <div>
             <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">
-              Nom d'utilisateur Kick
+              {isEn ? "Kick Username" : "Nom d'utilisateur Kick"}
             </label>
             <input
               type="text"
@@ -213,13 +220,13 @@ export default function SettingsPage() {
       <section className="glass-card rounded-2xl p-6 mb-6">
         <h2 className="text-lg font-bold text-white mb-5 flex items-center space-x-2">
           <span>📺</span>
-          <span>Préférences de stream</span>
+          <span>{isEn ? "Stream Preferences" : "Préférences de stream"}</span>
         </h2>
 
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">
-              Catégorie par défaut
+              {isEn ? "Default Category" : "Catégorie par défaut"}
             </label>
             <select
               value={defaultCategory}
@@ -242,9 +249,11 @@ export default function SettingsPage() {
             <div>
               <p className="text-sm font-bold text-white flex items-center space-x-1">
                 <Shield className="w-4 h-4 text-red-500" />
-                <span>Mode Sacré par défaut</span>
+                <span>{isEn ? "Sacre Mode Enabled" : "Mode Sacré par défaut"}</span>
               </p>
-              <p className="text-[10px] text-gray-500 mt-0.5">Permet les sacres québécois dans ton chat</p>
+              <p className="text-[10px] text-gray-500 mt-0.5">
+                {isEn ? "Allows spicy Quebecois swear words in your chat" : "Permet les sacres québécois dans ton chat"}
+              </p>
             </div>
             <button
               onClick={() => setDefaultSacreMode((prev) => !prev)}
@@ -264,14 +273,16 @@ export default function SettingsPage() {
                    hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-6
                    shadow-lg shadow-wacke-pink/20"
       >
-        {isSaving ? "Sauvegarde en cours..." : "💾 Sauvegarder les changements"}
+        {isSaving 
+          ? (isEn ? "Saving changes..." : "Sauvegarde en cours...") 
+          : (isEn ? "💾 Save Changes" : "💾 Sauvegarder les changements")}
       </button>
 
       {/* ── Danger Zone ─────────────────────────────────────────────────── */}
       <section className="glass-card rounded-2xl p-6 border-red-500/20">
         <h2 className="text-lg font-bold text-red-400 mb-4 flex items-center space-x-2">
           <span>⚠️</span>
-          <span>Zone dangereuse</span>
+          <span>{isEn ? "Danger Zone" : "Zone dangereuse"}</span>
         </h2>
         <button
           onClick={logout}
@@ -279,7 +290,7 @@ export default function SettingsPage() {
                      text-red-400 px-5 py-2.5 rounded-xl font-bold text-sm transition-all hover:scale-[1.02]"
         >
           <LogOut className="w-4 h-4" />
-          <span>Se déconnecter de tous les appareils</span>
+          <span>{isEn ? "Log out from all devices" : "Se déconnecter de tous les appareils"}</span>
         </button>
       </section>
     </div>
