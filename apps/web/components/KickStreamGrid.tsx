@@ -58,7 +58,7 @@ function categoryColor(slug: string): string {
 // ─── Skeleton card ───────────────────────────────────────────────────────────
 function SkeletonCard() {
   return (
-    <div className="bg-wacke-darker rounded-2xl overflow-hidden border border-wacke-purple/10 animate-pulse">
+    <div className="glass-card rounded-2xl overflow-hidden border border-wacke-purple/10 animate-pulse">
       <div className="aspect-video bg-white/5" />
       <div className="p-3 space-y-2">
         <div className="h-3.5 bg-white/5 rounded w-3/4" />
@@ -82,7 +82,7 @@ function StreamCard({ stream }: { stream: KickStream }) {
   return (
     <Link
       href={`/stream/${username}`}
-      className="group block bg-wacke-darker rounded-2xl overflow-hidden border border-wacke-purple/10
+      className="group block glass-card rounded-2xl overflow-hidden border border-wacke-purple/10
                  hover:border-wacke-pink/40 hover:shadow-lg hover:shadow-wacke-pink/5
                  transition-all duration-200 hover:-translate-y-1"
     >

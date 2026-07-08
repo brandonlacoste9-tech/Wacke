@@ -57,7 +57,7 @@ export default function GrokStreamTools({ streamerName }: { streamerName: string
   };
 
   return (
-    <div className="bg-wacke-darker border border-wacke-cyan/30 rounded-2xl p-5 space-y-4">
+    <div className="glass-hud border border-wacke-cyan/30 rounded-2xl p-5 space-y-4">
       <div className="flex items-center gap-2 text-wacke-cyan">
         <Sparkles className="w-4 h-4" />
         <span className="font-bold text-sm tracking-widest">{GROK_BRAND}</span>

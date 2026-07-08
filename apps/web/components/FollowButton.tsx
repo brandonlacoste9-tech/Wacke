@@ -86,7 +86,7 @@ export default function FollowButton({
       </button>
 
       {toastMsg && (
-        <div className="absolute right-0 top-12 z-50 bg-wacke-darker border border-wacke-purple/40 rounded-xl px-4 py-2 text-xs font-bold text-white shadow-xl neon-border whitespace-nowrap animate-fade-in">
+        <div className="absolute right-0 top-12 z-50 glass-card border border-wacke-purple/40 rounded-xl px-4 py-2 text-xs font-bold text-white shadow-xl neon-border whitespace-nowrap animate-fade-in">
           {toastMsg}
         </div>
       )}

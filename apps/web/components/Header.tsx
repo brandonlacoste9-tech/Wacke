@@ -103,7 +103,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 glass-dark border-b border-wacke-purple/20">
+    <header className="sticky top-0 z-50 glass-hud border-b border-wacke-purple/20">
       <div className="flex items-center justify-between px-4 lg:px-6 py-2.5">
 
         {/* ── Logo ──────────────────────────────────────────────────────── */}

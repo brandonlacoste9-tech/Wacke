@@ -29,7 +29,7 @@ export default function FeaturedCarousel({ streams }: FeaturedCarouselProps) {
   if (!currentStream || !currentStream.user) return null;
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 bg-wacke-darker border border-wacke-purple/20 rounded-2xl p-4 shadow-2xl relative overflow-hidden select-none mb-4">
+    <div className="flex flex-col lg:flex-row gap-4 glass-card border border-wacke-purple/20 rounded-2xl p-4 shadow-2xl relative overflow-hidden select-none mb-4">
       {/* Large Player Embed */}
       <div className="flex-1 aspect-video relative rounded-xl overflow-hidden bg-black border border-wacke-purple/10">
         <iframe

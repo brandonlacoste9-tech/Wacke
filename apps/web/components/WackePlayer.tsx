@@ -147,7 +147,7 @@ export default function WackePlayer({
             allowFullScreen
           />
         </div>
-        <div className="p-4 bg-wacke-darker border-t border-wacke-purple/20">
+        <div className="p-4 glass-hud border-t border-wacke-purple/20">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="font-bold text-white truncate max-w-xs">{title}</h2>
@@ -185,7 +185,7 @@ export default function WackePlayer({
             </div>
           )}
         </div>
-        <div className="p-4 bg-wacke-darker border-t border-wacke-purple/20">
+        <div className="p-4 glass-hud border-t border-wacke-purple/20">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="font-bold text-white truncate max-w-xs">{title}</h2>
@@ -214,7 +214,7 @@ export default function WackePlayer({
 
         {/* Loading overlay */}
         {isLoading && !hasError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-wacke-darker/80 animate-fade-in">
+          <div className="absolute inset-0 flex items-center justify-center glass-hud animate-fade-in">
             <div className="text-center">
               <div className="w-10 h-10 border-3 border-wacke-pink border-t-transparent rounded-full animate-spin mx-auto mb-3" />
               <p className="text-wacke-cyan text-xs font-bold">{t("connectingStream")}</p>
@@ -224,7 +224,7 @@ export default function WackePlayer({
 
         {/* Error overlay */}
         {hasError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-wacke-darker/90 animate-fade-in">
+          <div className="absolute inset-0 flex items-center justify-center glass-hud animate-fade-in">
             <div className="text-center">
               <img src="/offline_mascot.png" alt="Offline" className="w-24 h-24 mx-auto mb-3 opacity-60" />
               <p className="text-wacke-pink font-bold text-sm">{t("streamOffline")}</p>
@@ -260,7 +260,7 @@ export default function WackePlayer({
       </div>
 
       {/* ── Player Controls Bar ────────────────────────────────────────────── */}
-      <div className="p-4 bg-wacke-darker border-t border-wacke-purple/20">
+      <div className="p-4 glass-hud border-t border-wacke-purple/20">
         <div className="flex items-center justify-between">
           <div className="min-w-0">
             <h2 className="font-bold text-white truncate">{title}</h2>

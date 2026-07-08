@@ -110,7 +110,7 @@ export default function LiveStatsTicker() {
   }, [displayViewers, stats.totalViewers]);
 
   return (
-    <div className="bg-wacke-darker/95 backdrop-blur-sm border-b border-wacke-purple/15 py-1 px-4 text-[10px] font-semibold overflow-hidden relative shadow-lg text-gray-400">
+    <div className="glass-hud border-b border-wacke-purple/15 py-1 px-4 text-[10px] font-semibold overflow-hidden relative shadow-lg text-gray-400">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
         {/* Live Counters */}
         <div className="flex items-center space-x-3 shrink-0">
