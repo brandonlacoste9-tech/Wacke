@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     // Robust auth extraction: support mock-session (Kick/demo), real JWTs, and fallbacks
     let authUserId: string | null = null;
 
-    if (token.startsWith("mock-session:")) {
+    if (token.startsWith("mock-session:") || token.startsWith("twitch-session:") || token.startsWith("kick-session:")) {
       const parts = token.split(":");
       authUserId = parts.length >= 3 ? parts.slice(2).join(":") : null;
     } else if (token.includes(".")) {

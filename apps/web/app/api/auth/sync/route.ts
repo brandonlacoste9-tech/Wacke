@@ -21,7 +21,11 @@ export async function POST(req: NextRequest) {
     
     let user: any = null;
 
-    if (token.startsWith("mock-session:")) {
+    if (
+      token.startsWith("mock-session:") ||
+      token.startsWith("twitch-session:") ||
+      token.startsWith("kick-session:")
+    ) {
       const parts = token.split(":");
       const username = parts[1];
       const supabaseId = parts[2];

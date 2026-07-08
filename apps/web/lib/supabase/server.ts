@@ -27,7 +27,7 @@ export function getSupabaseAdmin() {
       },
       auth: {
         getUser: async (token: string) => {
-          if (token && token.startsWith("mock-session:")) {
+          if (token && (token.startsWith("mock-session:") || token.startsWith("twitch-session:") || token.startsWith("kick-session:"))) {
             // Format: mock-session:username:supabaseId
             const parts = token.split(":");
             const username = parts[1];
@@ -77,7 +77,7 @@ export function getSupabaseAdmin() {
   // Intercept auth.getUser to support our custom mock-session tokens for Kick OAuth
   const originalGetUser = client.auth.getUser.bind(client.auth);
   client.auth.getUser = async (jwt?: string) => {
-    if (jwt && jwt.startsWith("mock-session:")) {
+    if (jwt && (jwt.startsWith("mock-session:") || jwt.startsWith("twitch-session:") || jwt.startsWith("kick-session:"))) {
       const parts = jwt.split(":");
       const username = parts[1];
       const supabaseId = parts[2];
