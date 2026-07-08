@@ -109,7 +109,7 @@ export default function Sidebar() {
           })}
         </div>
 
-        <div className="mt-4 flex-1 min-h-0 -mx-1 px-1 pb-4 overflow-y-auto space-y-1 scrollbar-hide">
+        <div className="mt-4 flex-1 min-h-0 -mx-1 px-1 pb-4 overflow-y-auto space-y-1 custom-scrollbar">
           {!collapsed && (
             <h3 className="px-2 text-[10px] font-black text-gray-600 uppercase tracking-widest mb-2">
               {t("recommended")}
@@ -146,7 +146,7 @@ export default function Sidebar() {
             ))}
           </div>
 
-          <div className="mt-2 pt-2 border-t border-wacke-cyan/20 px-1">
+          <div className="mt-2 pt-2 pb-4 border-t border-wacke-cyan/20 px-1">
             <div className="text-[9px] text-wacke-cyan font-black flex items-center gap-1 mb-1">
               <Bot className="w-3 h-3" /> GROK xAI PICKS
             </div>
