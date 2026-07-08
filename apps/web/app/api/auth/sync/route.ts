@@ -57,6 +57,7 @@ export async function POST(req: NextRequest) {
     let avatarUrl: string | undefined;
     let twitchUsername: string | undefined;
     let kickUsername: string | undefined;
+    let youtubeChannelId: string | undefined;
 
     try {
       const body = await req.json();
@@ -66,6 +67,7 @@ export async function POST(req: NextRequest) {
       avatarUrl = body.avatarUrl;
       twitchUsername = body.twitchUsername;
       kickUsername = body.kickUsername;
+      youtubeChannelId = body.youtubeChannelId;
     } catch {
       // Body is optional
     }
@@ -84,6 +86,7 @@ export async function POST(req: NextRequest) {
     // If profile fields were provided, update them on the existing user record
     const hasProfileUpdate = bio !== undefined || avatarUrl !== undefined || 
                              twitchUsername !== undefined || kickUsername !== undefined ||
+                             youtubeChannelId !== undefined ||
                              (displayName && displayName !== cleanUsername);
 
     if (hasProfileUpdate && dbUser) {
@@ -94,6 +97,7 @@ export async function POST(req: NextRequest) {
         avatarUrl,
         twitchUsername,
         kickUsername,
+        youtubeChannelId,
       });
       dbUser = updated ?? dbUser;
     }

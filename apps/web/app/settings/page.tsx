@@ -20,6 +20,7 @@ export default function SettingsPage() {
   const [defaultSacreMode, setDefaultSacreMode] = useState(true);
   const [twitchUsername, setTwitchUsername] = useState("");
   const [kickUsername, setKickUsername] = useState("");
+  const [youtubeChannelId, setYoutubeChannelId] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -35,6 +36,7 @@ export default function SettingsPage() {
       // they will be synced from the database. We will ensure the sync route returns them).
       setTwitchUsername((user as any).twitchUsername || "");
       setKickUsername((user as any).kickUsername || "");
+      setYoutubeChannelId((user as any).youtubeChannelId || "");
     }
   }, [user, isLoading, router]);
 
@@ -49,7 +51,7 @@ export default function SettingsPage() {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ displayName, bio, avatarUrl, twitchUsername, kickUsername }),
+        body: JSON.stringify({ displayName, bio, avatarUrl, twitchUsername, kickUsername, youtubeChannelId }),
       });
 
       if (res.ok) {
@@ -161,6 +163,19 @@ export default function SettingsPage() {
         </h2>
 
         <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">
+              ID de la Chaîne YouTube (UC...)
+            </label>
+            <input
+              type="text"
+              value={youtubeChannelId}
+              onChange={(e) => setYoutubeChannelId(e.target.value)}
+              className="w-full bg-white/3 border border-red-500/30 rounded-xl px-4 py-3
+                         text-sm focus:border-red-500 transition-all"
+              placeholder="ex: UC1234567890abcdefgh"
+            />
+          </div>
           <div>
             <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">
               Nom d'utilisateur Twitch

@@ -176,8 +176,8 @@ export default async function StreamPage({ params }: StreamPageProps) {
       : `🔴 Diffusion en direct de Kick.com`;
     
     return (
-      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-160px)] lg:h-[calc(100vh-64px)] relative">
-        <main className="flex-none lg:flex-1 w-full overflow-y-visible lg:overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6">
+      <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 min-h-[calc(100vh-160px)] lg:h-[calc(100vh-64px)] relative">
+        <main className="flex-none lg:flex-1 w-full overflow-y-visible lg:overflow-y-auto space-y-4 lg:space-y-6 order-1 lg:order-2">
           <WackePlayer
             playbackId="mock_playback_id"
             title={fallbackTitle}
@@ -191,12 +191,17 @@ export default async function StreamPage({ params }: StreamPageProps) {
             <p className="text-wacke-cyan font-semibold capitalize">{cleanUsername}</p>
           </div>
         </main>
-        <GraffitiChat
-          streamId={`kick-mock-chat-${cleanUsername}`}
-          initialMessages={[]}
-          currentUserId={undefined}
-          kickUsername={cleanUsername}
-        />
+        
+        {/* Left Rail: Chat (Mobile bottom, Desktop left) */}
+        <div className="w-full lg:w-[320px] shrink-0 h-[calc(100vh-84px)] sticky top-20 order-2 lg:order-1">
+          <GraffitiChat
+            streamId={`kick-mock-chat-${cleanUsername}`}
+            initialMessages={[]}
+            currentUserId={undefined}
+            kickUsername={cleanUsername}
+          />
+        </div>
+
         <TokenBar
           initialBalance={500}
           streamerId={`kick-mock-streamer-${cleanUsername}`}
@@ -238,8 +243,8 @@ export default async function StreamPage({ params }: StreamPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="relative flex flex-col lg:flex-row gap-5 lg:gap-6 max-w-[1920px] mx-auto">
-      {/* Left / Main Column */}
-      <main className="flex-1 min-w-0 space-y-4">
+      {/* Main Column */}
+      <main className="flex-1 min-w-0 space-y-4 order-1 lg:order-2">
         {/* Player */}
         <section className="pt-2">
           <div className="relative group rounded-2xl overflow-hidden bg-black shadow-2xl shadow-black/60 border border-wacke-purple/15">
@@ -255,7 +260,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
               </div>
             )}
             <div className="relative aspect-video">
-              {isKickUser || stream.cloudflarePlaybackId ? (
+              {isKickUser || user.twitchUsername || user.youtubeChannelId || stream.cloudflarePlaybackId ? (
                 <WackePlayer
                   playbackId={stream.cloudflarePlaybackId ?? "mock_playback_id"}
                   title={stream.title}
@@ -263,6 +268,8 @@ export default async function StreamPage({ params }: StreamPageProps) {
                   viewerCount={stream.viewerCount}
                   isLive={stream.status === "live"}
                   kickUsername={isKickUser ? user.username : undefined}
+                  twitchUsername={user.twitchUsername || undefined}
+                  youtubeChannelId={user.youtubeChannelId || undefined}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-black">
@@ -326,8 +333,8 @@ export default async function StreamPage({ params }: StreamPageProps) {
           </section>
       </main>
 
-      {/* Right Rail: Floating HUD Chat */}
-      <div className="w-full lg:w-[380px] shrink-0 h-[calc(100vh-84px)] sticky top-20">
+      {/* Left Rail: Floating HUD Chat */}
+      <div className="w-full lg:w-[320px] shrink-0 h-[calc(100vh-84px)] sticky top-20 order-2 lg:order-1">
         <GraffitiChat
           streamId={stream.id}
           initialMessages={initialMessages as any}

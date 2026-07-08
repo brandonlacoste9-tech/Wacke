@@ -12,6 +12,7 @@ interface WackePlayerProps {
   isLive: boolean;
   kickUsername?: string;
   twitchUsername?: string;
+  youtubeChannelId?: string;
 }
 
 /**
@@ -26,6 +27,7 @@ export default function WackePlayer({
   isLive,
   kickUsername,
   twitchUsername,
+  youtubeChannelId,
 }: WackePlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -47,7 +49,7 @@ export default function WackePlayer({
   }, []);
 
   useEffect(() => {
-    if (kickUsername || twitchUsername || !videoRef.current || !playbackId) return;
+    if (kickUsername || twitchUsername || youtubeChannelId || !videoRef.current || !playbackId) return;
 
     const video = videoRef.current;
 
@@ -195,6 +197,36 @@ export default function WackePlayer({
               <div className="flex items-center space-x-1.5 bg-purple-500/10 border border-purple-500/30 px-3 py-1.5 rounded-xl">
                 <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
                 <span className="text-[10px] font-bold text-purple-400">TWITCH LIVE</span>
+              </div>
+              <button onClick={() => setIsTheater(p => !p)} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors" title={t("theaterMode")}>
+                {isTheater ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── YouTube Embed ───────────────────────────────────────────────────────
+  if (youtubeChannelId) {
+    const youtubeSrc = `https://www.youtube.com/embed/live_stream?channel=${youtubeChannelId}&autoplay=1`;
+
+    return (
+      <div ref={containerRef} className={`relative w-full bg-black rounded-xl overflow-hidden neon-border ${isTheater ? "max-w-none" : ""}`}>
+        <div className="relative aspect-video">
+          <iframe src={youtubeSrc} className="w-full h-full border-0" allow="autoplay; fullscreen" allowFullScreen />
+        </div>
+        <div className="p-4 glass-hud border-t border-wacke-purple/20">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-bold text-white truncate max-w-xs">{title}</h2>
+              <p className="text-sm text-wacke-cyan font-medium">{streamerName}</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5 bg-red-500/10 border border-red-500/30 px-3 py-1.5 rounded-xl">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                <span className="text-[10px] font-bold text-red-400">YOUTUBE LIVE</span>
               </div>
               <button onClick={() => setIsTheater(p => !p)} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors" title={t("theaterMode")}>
                 {isTheater ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}

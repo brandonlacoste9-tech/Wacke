@@ -59,6 +59,7 @@ export const users = pgTable(
     // Linked accounts
     twitchUsername: text("twitch_username"),
     kickUsername: text("kick_username"),
+    youtubeChannelId: text("youtube_channel_id"),
     // Moderation
     isBanned: boolean("is_banned").notNull().default(false),
     isModerator: boolean("is_moderator").notNull().default(false),

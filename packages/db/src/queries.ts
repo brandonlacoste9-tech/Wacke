@@ -65,6 +65,7 @@ export function getMockDbState() {
         cloudflarePlaybackId: "mock_playback_id",
         twitchUsername: null,
         kickUsername: null,
+        youtubeChannelId: null,
         isBanned: false,
         isModerator: false,
         createdAt: new Date(),
@@ -83,6 +84,7 @@ export function getMockDbState() {
         cloudflarePlaybackId: "mock_playback_id",
         twitchUsername: null,
         kickUsername: null,
+        youtubeChannelId: null,
         isBanned: false,
         isModerator: false,
         createdAt: new Date(),
@@ -230,6 +232,7 @@ export async function getUserByUsername(username: string) {
         cloudflarePlaybackId: null,
       twitchUsername: null,
       kickUsername: cleanUsername,
+      youtubeChannelId: null,
       isBanned: false,
       isModerator: false,
       createdAt: new Date(),
@@ -675,6 +678,7 @@ export async function updateUserProfile({
   avatarUrl,
   twitchUsername,
   kickUsername,
+  youtubeChannelId,
 }: {
   userId: string;
   displayName?: string;
@@ -682,6 +686,7 @@ export async function updateUserProfile({
   avatarUrl?: string;
   twitchUsername?: string;
   kickUsername?: string;
+  youtubeChannelId?: string;
 }) {
   if (isDbMocked()) {
     const state = getMockDbState();
@@ -692,6 +697,7 @@ export async function updateUserProfile({
       if (avatarUrl !== undefined) user.avatarUrl = avatarUrl;
       if (twitchUsername !== undefined) user.twitchUsername = twitchUsername;
       if (kickUsername !== undefined) user.kickUsername = kickUsername;
+      if (youtubeChannelId !== undefined) user.youtubeChannelId = youtubeChannelId;
       user.updatedAt = new Date();
     }
     return user;
@@ -703,6 +709,7 @@ export async function updateUserProfile({
   if (avatarUrl !== undefined) updates.avatarUrl = avatarUrl;
   if (twitchUsername !== undefined) updates.twitchUsername = twitchUsername || null;
   if (kickUsername !== undefined) updates.kickUsername = kickUsername || null;
+  if (youtubeChannelId !== undefined) updates.youtubeChannelId = youtubeChannelId || null;
 
   const [updated] = await db
     .update(users)
