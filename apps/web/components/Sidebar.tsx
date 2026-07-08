@@ -109,7 +109,7 @@ export default function Sidebar() {
           })}
         </div>
 
-        <div className="mt-4 flex-1 -mx-1 px-1 pb-4 overflow-y-auto space-y-1 scrollbar-hide">
+        <div className="mt-4 flex-1 min-h-0 -mx-1 px-1 pb-4 overflow-y-auto space-y-1 scrollbar-hide">
           {!collapsed && (
             <h3 className="px-2 text-[10px] font-black text-gray-600 uppercase tracking-widest mb-2">
               {t("recommended")}
