@@ -88,8 +88,8 @@ export default function Sidebar() {
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   return (
-    <aside className={`fixed left-4 top-20 z-40 ${collapsed ? 'w-16' : 'w-[280px]'} transition-all duration-300 hover:scale-[1.01]`}>
-      <div className="glass rounded-2xl p-3 flex flex-col">
+    <aside className={`fixed left-4 top-20 bottom-4 z-40 ${collapsed ? 'w-16' : 'w-[280px]'} transition-all duration-300 hover:scale-[1.01]`}>
+      <div className="glass rounded-2xl p-3 flex flex-col h-full overflow-hidden">
         <div className="space-y-1">
           {navItems.map((item) => {
             const active = isActive(item.href);
@@ -109,7 +109,7 @@ export default function Sidebar() {
           })}
         </div>
 
-        <div className="mt-4 flex-1 -mx-1 px-1 overflow-y-auto space-y-1 scrollbar-hide">
+        <div className="mt-4 flex-1 -mx-1 px-1 pb-4 overflow-y-auto space-y-1 scrollbar-hide">
           {!collapsed && (
             <h3 className="px-2 text-[10px] font-black text-gray-600 uppercase tracking-widest mb-2">
               {t("recommended")}
