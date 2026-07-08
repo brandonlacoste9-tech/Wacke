@@ -54,14 +54,33 @@ export async function generateMetadata({ params }: StreamPageProps): Promise<Met
   if (!user) return { title: isEn ? "Stream not found — Wacké" : "Stream introuvable — Wacké" };
 
   const stream = await getStreamByUserId(user.id);
+  const title = stream ? `${stream.title} — ${user.displayName} | Wacké` : `${user.displayName} | Wacké`;
+  const description = stream?.description ?? (isEn ? `Watch ${user.displayName} on Wacké` : `Regarde ${user.displayName} sur Wacké`);
+  const image = stream?.cloudflarePlaybackId
+    ? `https://customer-${process.env.CLOUDFLARE_ACCOUNT_ID}.cloudflarestream.com/${stream.cloudflarePlaybackId}/thumbnails/thumbnail.jpg`
+    : "/hero_banner.jpg";
+
   return {
-    title: stream ? `${stream.title} — ${user.displayName} | Wacké` : `${user.displayName} | Wacké`,
-    description: stream?.description ?? (isEn ? `Watch ${user.displayName} on Wacké` : `Regarde ${user.displayName} sur Wacké`),
+    title,
+    description,
     openGraph: {
-      images: stream?.cloudflarePlaybackId
-        ? [`https://customer-${process.env.CLOUDFLARE_ACCOUNT_ID}.cloudflarestream.com/${stream.cloudflarePlaybackId}/thumbnails/thumbnail.jpg`]
-        : [],
+      title,
+      description,
+      type: stream?.status === "live" ? "video.other" : "website",
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+        }
+      ]
     },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image]
+    }
   };
 }
 
@@ -196,8 +215,28 @@ export default async function StreamPage({ params }: StreamPageProps) {
 
   const isOwner = viewer !== null && user !== null && viewer.id === user.id;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": stream.status === "live" ? "BroadcastEvent" : "VideoObject",
+    "name": stream.title || `Live stream de ${user.displayName}`,
+    "description": stream.description || `Regarde ${user.displayName} sur Wacké`,
+    "uploadDate": stream.createdAt,
+    "thumbnailUrl": stream.cloudflarePlaybackId
+      ? `https://customer-${process.env.CLOUDFLARE_ACCOUNT_ID}.cloudflarestream.com/${stream.cloudflarePlaybackId}/thumbnails/thumbnail.jpg`
+      : "https://wacke.ca/hero_banner.jpg",
+    "broadcaster": {
+      "@type": "Person",
+      "name": user.displayName,
+      "url": `https://wacke.ca/profile/${user.username}`
+    }
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="relative flex flex-col lg:flex-row gap-5 lg:gap-6 max-w-[1920px] mx-auto">
       {/* Left / Main Column */}
       <main className="flex-1 min-w-0 space-y-4">

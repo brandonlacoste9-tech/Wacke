@@ -14,9 +14,31 @@ interface ProfilePageProps {
 export async function generateMetadata({ params }: ProfilePageProps) {
   const user = await getUserByUsername(params.username);
   if (!user) return { title: "Profil introuvable — Wacké" };
+  const title = `${user.displayName} — Profil | Wacké`;
+  const description = user.bio ?? `Regarde le profil de ${user.displayName} sur Wacké`;
+  const image = user.avatarUrl ?? "/hero_banner.jpg";
+
   return {
-    title: `${user.displayName} — Profil | Wacké`,
-    description: user.bio ?? `Regarde le profil de ${user.displayName} sur Wacké`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "profile",
+      images: [
+        {
+          url: image,
+          width: 512,
+          height: 512,
+        }
+      ]
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+      images: [image]
+    }
   };
 }
 
@@ -34,8 +56,26 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const isLive = stream?.status === "live";
   const initials = user.displayName.substring(0, 2).toUpperCase();
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    "mainEntity": {
+      "@type": "Person",
+      "name": user.displayName,
+      "alternateName": user.username,
+      "description": user.bio ?? `Profil de ${user.displayName}`,
+      "image": user.avatarUrl ?? "https://wacke.ca/hero_banner.jpg",
+      "url": `https://wacke.ca/profile/${user.username}`
+    }
+  };
+
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12 min-h-screen">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="max-w-4xl mx-auto px-6 py-12 min-h-screen">
       {/* ── Profile Header ──────────────────────────────────────────────── */}
       <div className="glass-card rounded-3xl p-8 mb-8">
         <div className="flex items-center space-x-6">
@@ -148,5 +188,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         </Link>
       </div>
     </div>
+    </>
   );
 }

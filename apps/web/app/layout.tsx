@@ -41,11 +41,21 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: isEn ? "en_US" : "fr_CA",
       type: "website",
       siteName: "Wacké × Grok xAI",
+      images: [
+        {
+          url: "/hero_banner.jpg",
+          width: 1200,
+          height: 630,
+          alt: "Wacké Streaming",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: ["/hero_banner.jpg"],
+      creator: "@wacke_streaming",
     },
     metadataBase: new URL("https://wacke.ca"),
   };
@@ -60,6 +70,22 @@ export default function RootLayout({
     <html lang="fr-CA" translate="no">
       <head>
         <meta name="google" content="notranslate" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "Wacké",
+              "url": "https://wacke.ca",
+              "logo": "https://wacke.ca/logo_w.png",
+              "description": "Wacké is the ultimate streaming platform for Gen Z.",
+              "sameAs": [
+                "https://twitter.com/wacke_streaming"
+              ]
+            })
+          }}
+        />
       </head>
       <body
         className={`${inter.className} bg-wacke-dark text-white antialiased`}
