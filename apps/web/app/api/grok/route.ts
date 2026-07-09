@@ -7,7 +7,7 @@ const XAI_API_URL = "https://api.x.ai/v1/chat/completions";
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt, system, model = "grok-2-1212", maxTokens = 300 } = await req.json();
+    const { prompt, system, lang, model = "grok-2-1212", maxTokens = 300 } = await req.json();
 
     if (!prompt) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
     const apiKey = process.env.XAI_API_KEY;
     if (!apiKey) {
-      const fallbackLang = prompt.toLowerCase().includes(" sh") || prompt.toLowerCase().includes(" the ") ? "en" : "fr";
+      const fallbackLang = lang || (prompt.toLowerCase().includes(" sh") || prompt.toLowerCase().includes(" the ") ? "en" : "fr");
       return NextResponse.json({ content: getUltraChaosIntervention(fallbackLang), usage: { total_tokens: 0 } });
     }
 
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("[GROK API ERROR]", errorText);
-      const fallbackLang = prompt.toLowerCase().includes(" sh") || prompt.toLowerCase().includes(" the ") ? "en" : "fr";
+      const fallbackLang = lang || (prompt.toLowerCase().includes(" sh") || prompt.toLowerCase().includes(" the ") ? "en" : "fr");
       return NextResponse.json({ content: getUltraChaosIntervention(fallbackLang), usage: { total_tokens: 0 } });
     }
 
