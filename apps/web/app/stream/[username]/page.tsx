@@ -100,8 +100,8 @@ export default async function StreamPage({ params }: StreamPageProps) {
       : `🔴 Diffusion en direct de Twitch.tv`;
 
     return (
-      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-160px)] lg:h-[calc(100vh-64px)] relative">
-        <main className="flex-none lg:flex-1 w-full overflow-y-visible lg:overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6">
+      <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 min-h-[calc(100vh-160px)] lg:h-[calc(100vh-64px)] relative max-w-[1920px] mx-auto">
+        <main className="flex-none lg:flex-1 w-full overflow-y-visible lg:overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6 order-1 lg:order-2">
           <WackePlayer
             playbackId="mock_playback_id"
             title={fallbackTitle}
@@ -110,17 +110,21 @@ export default async function StreamPage({ params }: StreamPageProps) {
             isLive={true}
             twitchUsername={twitchUsername}
           />
-          <div className="bg-wacke-darker rounded-xl p-6 border border-wacke-purple/20">
-            <h1 className="text-2xl font-bold text-white">{fallbackTitle}</h1>
+          <div className="glass rounded-2xl p-5 border border-white/[0.07] shadow-2xl shadow-black/40">
+            <h1 className="text-2xl font-bold text-white font-display tracking-tight">{fallbackTitle}</h1>
             <p className="text-wacke-cyan font-semibold capitalize">{twitchUsername}</p>
           </div>
         </main>
-        <GraffitiChat
-          streamId={`twitch-mock-chat-${twitchUsername}`}
-          initialMessages={[]}
-          currentUserId={undefined}
-          twitchUsername={twitchUsername}
-        />
+
+        <div className="w-full lg:w-[320px] shrink-0 h-[calc(100vh-84px)] sticky top-20 order-2 lg:order-1">
+          <GraffitiChat
+            streamId={`twitch-mock-chat-${twitchUsername}`}
+            initialMessages={[]}
+            currentUserId={undefined}
+            twitchUsername={twitchUsername}
+          />
+        </div>
+
         <TokenBar
           initialBalance={500}
           streamerId={`twitch-mock-streamer-${twitchUsername}`}
@@ -186,8 +190,8 @@ export default async function StreamPage({ params }: StreamPageProps) {
             isLive={true}
             kickUsername={cleanUsername}
           />
-          <div className="bg-wacke-darker rounded-xl p-6 border border-wacke-purple/20">
-            <h1 className="text-2xl font-bold text-white">{fallbackTitle}</h1>
+          <div className="glass rounded-2xl p-5 border border-white/[0.07] shadow-2xl shadow-black/40">
+            <h1 className="text-2xl font-bold text-white font-display tracking-tight">{fallbackTitle}</h1>
             <p className="text-wacke-cyan font-semibold capitalize">{cleanUsername}</p>
           </div>
         </main>
@@ -247,7 +251,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
       <main className="flex-1 min-w-0 space-y-4 order-1 lg:order-2">
         {/* Player */}
         <section className="pt-2">
-          <div className="relative group rounded-2xl overflow-hidden bg-black shadow-2xl shadow-black/60 border border-wacke-purple/15">
+          <div className="relative group rounded-2xl overflow-hidden bg-black shadow-2xl shadow-black/60 border border-white/[0.07]">
             {stream.status === "live" && (
               <div className="absolute top-3 left-3 z-20 flex items-center gap-2">
                 <span className="px-2 py-1 rounded-lg bg-red-600/90 text-white text-[11px] font-black tracking-widest flex items-center gap-1.5 shadow-[0_0_18px_rgba(255,59,59,0.4)]">
@@ -284,17 +288,17 @@ export default async function StreamPage({ params }: StreamPageProps) {
         </section>
 
         {/* Creator info rail */}
-        <section className="glass rounded-2xl p-5 border border-wacke-purple/20 shadow-2xl shadow-black/40">
-          <div className="flex items-start justify-between border-b border-white/5 pb-5 mb-5">
+        <section className="glass rounded-2xl p-5 border border-white/[0.07] shadow-2xl shadow-black/40">
+          <div className="flex items-start justify-between border-b border-white/[0.07] pb-5 mb-5">
             <div className="flex items-center space-x-4">
               {/* Avatar */}
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-2xl font-bold">
                 {user.displayName[0].toUpperCase()}
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">{stream.title}</h1>
+                <h1 className="text-2xl font-bold text-white font-display tracking-tight leading-tight">{stream.title}</h1>
                 <p className="text-wacke-cyan font-semibold">{user.displayName}</p>
-                <p className="text-gray-400 text-sm capitalize mt-1">{stream.category}</p>
+                <p className="text-gray-300 text-sm capitalize mt-1">{stream.category}</p>
               </div>
             </div>
 

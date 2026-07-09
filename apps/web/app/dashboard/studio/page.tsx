@@ -277,8 +277,10 @@ export default function StudioPage() {
     <div className="max-w-5xl mx-auto p-4 lg:p-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-black text-white uppercase tracking-tight">{t("dashStudioTitle")}</h1>
-          <p className="text-gray-400 mt-1">{t("dashStudioSubtitle")}</p>
+          <h1 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight font-display">
+            <span className="gradient-text-cyber">{t("dashStudioTitle")}</span>
+          </h1>
+          <p className="text-gray-400 mt-1.5">{t("dashStudioSubtitle")}</p>
         </div>
         
         {isBroadcasting && (
@@ -303,7 +305,7 @@ export default function StudioPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Camera Preview */}
         <div className="lg:col-span-2">
-          <div className="relative glass-card rounded-2xl overflow-hidden aspect-video border border-wacke-pink/20 shadow-2xl shadow-wacke-pink/10 group bg-black/60">
+          <div className="relative glass-card rounded-2xl overflow-hidden aspect-video border border-white/[0.07] shadow-2xl shadow-black/40 group bg-black/60">
             {!stream && (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
                 <CameraOff className="w-16 h-16 mb-4 opacity-50" />
@@ -346,21 +348,21 @@ export default function StudioPage() {
         </div>
 
         {/* Control Panel */}
-        <div className="glass-card rounded-2xl p-6 flex flex-col border border-wacke-cyan/20">
-          <h2 className="text-xl font-bold text-white mb-6 uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-wacke-cyan to-wacke-pink">{t("dashStreamControls")}</h2>
+        <div className="glass-card rounded-2xl p-6 flex flex-col border border-white/[0.07] shadow-2xl shadow-black/30">
+          <h2 className="text-xl font-black text-white mb-6 uppercase tracking-wider font-display">{t("dashStreamControls")}</h2>
           
           <div className="space-y-5 flex-1">
-            <div className="bg-black/40 p-4 rounded-xl border border-white/5">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">{t("dashStreamTitleLabel")}</label>
-              <input 
-                type="text" 
+            <div className="bg-black/40 p-4 rounded-xl border border-white/[0.06]">
+              <label className="text-xs font-bold text-gray-300 uppercase tracking-wider block mb-2">{t("dashStreamTitleLabel")}</label>
+              <input
+                type="text"
                 defaultValue={t("dashDefaultTitle")}
                 className="w-full bg-transparent border-none p-0 text-white focus:ring-0 font-medium text-lg placeholder-gray-600"
               />
             </div>
-            
-            <div className="bg-black/40 p-4 rounded-xl border border-white/5">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">{t("dashCategoryLabel")}</label>
+
+            <div className="bg-black/40 p-4 rounded-xl border border-white/[0.06]">
+              <label className="text-xs font-bold text-gray-300 uppercase tracking-wider block mb-2">{t("dashCategoryLabel")}</label>
               <select className="w-full bg-transparent border-none p-0 text-white focus:ring-0 font-medium text-lg">
                 <option value="irl">{t("catIrl")}</option>
                 <option value="talk">{t("catTalk")}</option>
@@ -393,7 +395,7 @@ export default function StudioPage() {
 
       {/* Live Chat Panel (only visible when broadcasting) */}
       {isBroadcasting && (
-        <div className="mt-6 h-[500px] lg:h-[600px] w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black/50">
+        <div className="mt-6 h-[500px] lg:h-[600px] w-full rounded-2xl overflow-hidden border border-white/[0.07] shadow-2xl bg-black/50">
           <GraffitiChat streamId={user.id} />
         </div>
       )}

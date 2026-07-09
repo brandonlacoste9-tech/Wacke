@@ -105,6 +105,11 @@ export const translations = {
     paymentUrlMissing: "L'URL de paiement est introuvable",
     connectionError: "Erreur de connexion",
     popular: "POPULAIRE",
+    perkSpray: "Spray emotes",
+    perkSacres: "Débloque les sacres",
+    perkVIP: "Badge VIP",
+    perkBoss: "Boost de roasts Grok",
+    bestValue: "MEILLEURE VALEUR",
     securedByStripe: "Sécurisé par Stripe",
 
     // ── KickFeaturedCarousel ──────────────────────────────────────────
@@ -377,6 +382,11 @@ export const translations = {
     paymentUrlMissing: "Payment URL not found",
     connectionError: "Connection error",
     popular: "POPULAR",
+    perkSpray: "Spray emotes",
+    perkSacres: "Unlock the sacres",
+    perkVIP: "VIP badge",
+    perkBoss: "Grok roast boost",
+    bestValue: "BEST VALUE",
     securedByStripe: "Secured by Stripe",
 
     // ── KickFeaturedCarousel ──────────────────────────────────────────
