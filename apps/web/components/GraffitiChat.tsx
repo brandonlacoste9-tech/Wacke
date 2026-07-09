@@ -712,29 +712,29 @@ export default function GraffitiChat({
         )}
         {allMessages.map((msg: any) => (
           <div key={msg.id} className={`animate-spray-in group ${isGrokFuego ? 'fuego-msg' : ''}`}>
-            <div className="flex items-baseline space-x-1.5">
-              <span className="text-[10px] text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+            <div className="text-sm text-gray-300 break-words leading-snug py-0.5">
+              <span className="text-[10px] text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity mr-1.5 align-middle">
                 {formatTime(msg.createdAt)}
               </span>
               {/* Kick source badge - love kicks! */}
               {msg._source === "kick" && (
-                <span className="text-[8px] font-extrabold bg-[#53fc18]/15 text-[#53fc18] border border-[#53fc18]/30 px-1 py-0.5 rounded shrink-0 emoji">
+                <span className="text-[8px] font-extrabold bg-[#53fc18]/15 text-[#53fc18] border border-[#53fc18]/30 px-1 py-0.5 rounded mr-1.5 emoji align-middle">
                   🟢 KICK
                 </span>
               )}
               {/* Twitch source badge */}
               {msg._source === "twitch" && (
-                <span className="text-[8px] font-extrabold bg-[#9146FF]/15 text-[#9146FF] border border-[#9146FF]/30 px-1 py-0.5 rounded shrink-0 emoji">
+                <span className="text-[8px] font-extrabold bg-[#9146FF]/15 text-[#9146FF] border border-[#9146FF]/30 px-1 py-0.5 rounded mr-1.5 emoji align-middle">
                   🟣 TWITCH
                 </span>
               )}
               {/* Wacké source badge */}
               {msg._source === "wacke" && (
-                <span className="text-[8px] font-extrabold bg-wacke-pink/15 text-wacke-pink border border-wacke-pink/30 px-1 py-0.5 rounded shrink-0 emoji">
+                <span className="text-[8px] font-extrabold bg-wacke-pink/15 text-wacke-pink border border-wacke-pink/30 px-1 py-0.5 rounded mr-1.5 emoji align-middle">
                   🏪 WACKÉ
                 </span>
               )}
-              <p className={`text-xs font-bold ${msg._source === "kick" ? "text-[#53fc18]" : msg._source === "twitch" ? "text-[#9146FF]" : getUserColor(msg.userId)} shrink-0`}>
+              <span className={`text-xs font-bold ${msg._source === "kick" ? "text-[#53fc18]" : msg._source === "twitch" ? "text-[#9146FF]" : getUserColor(msg.userId)} mr-1.5 align-middle inline-flex items-center flex-wrap`}>
                 {/* Rich Kick-style badges (Broadcaster, Mod, VIP/OG, Verified, evolving Sub tiers) */}
                 {(() => {
                   let badges: ChatBadge[] = [];
@@ -757,13 +757,13 @@ export default function GraffitiChat({
                     badges = getDemoBadgesForUser(msg.user?.username || msg.user?.displayName || "", isBC);
                   }
                   return badges.slice(0, 3).map((b, i) => (
-                    <span key={i} title={getBadgeLabel(b)} className="mr-0.5 emoji align-middle text-[10px]">
+                    <span key={i} title={getBadgeLabel(b)} className="mr-0.5 emoji text-[10px]">
                       {getBadgeEmoji(b)}
                     </span>
                   ));
                 })()}
                 {msg._source === "wacke" && <span className="mr-1 emoji">🏪</span>}
-                {msg.user?.displayName ?? msg.user?.username ?? "Anonyme"}
+                <span className="ml-0.5">{msg.user?.displayName ?? msg.user?.username ?? "Anonyme"}</span>
                 {msg.isSacre && (
                   <Flame className="w-3 h-3 inline ml-0.5 text-red-500 fill-current drop-shadow-[0_0_4px_rgba(255,0,0,0.6)]" />
                 )}
@@ -771,8 +771,8 @@ export default function GraffitiChat({
                   <Mic className="w-3 h-3 inline ml-0.5 text-wacke-cyan drop-shadow-[0_0_4px_rgba(0,255,255,0.6)]" />
                 )}
                 {isGrokFuego && <span className="ml-1">🔥</span>}
-              </p>
-              <p className="text-sm text-gray-300 break-words min-w-0 emoji">{renderContent(msg.content)}</p>
+              </span>
+              <span className="emoji align-middle">{renderContent(msg.content)}</span>
             </div>
           </div>
         ))}

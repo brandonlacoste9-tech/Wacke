@@ -100,8 +100,8 @@ export default async function StreamPage({ params }: StreamPageProps) {
       : `🔴 Diffusion en direct de Twitch.tv`;
 
     return (
-      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-160px)] lg:h-[calc(100vh-64px)] relative">
-        <main className="flex-none lg:flex-1 w-full overflow-y-visible lg:overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6">
+      <div className="relative flex flex-col xl:flex-row gap-4 xl:gap-6 min-h-[calc(100vh-64px)] px-2 xl:px-6 py-4 max-w-[2000px] mx-auto">
+        <main className="flex-1 min-w-0 space-y-4 xl:space-y-6 order-1">
           <WackePlayer
             playbackId="mock_playback_id"
             title={fallbackTitle}
@@ -110,17 +110,19 @@ export default async function StreamPage({ params }: StreamPageProps) {
             isLive={true}
             twitchUsername={twitchUsername}
           />
-          <div className="bg-wacke-darker rounded-xl p-6 border border-wacke-purple/20">
-            <h1 className="text-2xl font-bold text-white">{fallbackTitle}</h1>
-            <p className="text-wacke-cyan font-semibold capitalize">{twitchUsername}</p>
+          <div className="glass rounded-2xl p-6 border border-wacke-purple/20 shadow-xl shadow-black/40">
+            <h1 className="text-2xl font-black text-white">{fallbackTitle}</h1>
+            <p className="text-wacke-cyan font-semibold capitalize mt-1">{twitchUsername}</p>
           </div>
         </main>
-        <GraffitiChat
-          streamId={`twitch-mock-chat-${twitchUsername}`}
-          initialMessages={[]}
-          currentUserId={undefined}
-          twitchUsername={twitchUsername}
-        />
+        <div className="w-full xl:w-[350px] shrink-0 xl:h-[calc(100vh-96px)] xl:sticky xl:top-20 order-2">
+          <GraffitiChat
+            streamId={`twitch-mock-chat-${twitchUsername}`}
+            initialMessages={[]}
+            currentUserId={undefined}
+            twitchUsername={twitchUsername}
+          />
+        </div>
         <TokenBar
           initialBalance={500}
           streamerId={`twitch-mock-streamer-${twitchUsername}`}
@@ -176,8 +178,8 @@ export default async function StreamPage({ params }: StreamPageProps) {
       : `🔴 Diffusion en direct de Kick.com`;
     
     return (
-      <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 min-h-[calc(100vh-160px)] lg:h-[calc(100vh-64px)] relative">
-        <main className="flex-none lg:flex-1 w-full overflow-y-visible lg:overflow-y-auto space-y-4 lg:space-y-6 order-1 lg:order-2">
+      <div className="relative flex flex-col xl:flex-row gap-4 xl:gap-6 min-h-[calc(100vh-64px)] px-2 xl:px-6 py-4 max-w-[2000px] mx-auto">
+        <main className="flex-1 min-w-0 space-y-4 xl:space-y-6 order-1">
           <WackePlayer
             playbackId="mock_playback_id"
             title={fallbackTitle}
@@ -186,14 +188,14 @@ export default async function StreamPage({ params }: StreamPageProps) {
             isLive={true}
             kickUsername={cleanUsername}
           />
-          <div className="bg-wacke-darker rounded-xl p-6 border border-wacke-purple/20">
-            <h1 className="text-2xl font-bold text-white">{fallbackTitle}</h1>
-            <p className="text-wacke-cyan font-semibold capitalize">{cleanUsername}</p>
+          <div className="glass rounded-2xl p-6 border border-wacke-purple/20 shadow-xl shadow-black/40">
+            <h1 className="text-2xl font-black text-white">{fallbackTitle}</h1>
+            <p className="text-wacke-cyan font-semibold capitalize mt-1">{cleanUsername}</p>
           </div>
         </main>
         
-        {/* Left Rail: Chat (Mobile bottom, Desktop left) */}
-        <div className="w-full lg:w-[320px] shrink-0 h-[calc(100vh-84px)] sticky top-20 order-2 lg:order-1">
+        {/* Right Rail: Chat */}
+        <div className="w-full xl:w-[350px] shrink-0 xl:h-[calc(100vh-96px)] xl:sticky xl:top-20 order-2">
           <GraffitiChat
             streamId={`kick-mock-chat-${cleanUsername}`}
             initialMessages={[]}
@@ -242,9 +244,9 @@ export default async function StreamPage({ params }: StreamPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="relative flex flex-col lg:flex-row gap-5 lg:gap-6 max-w-[1920px] mx-auto">
+      <div className="relative flex flex-col xl:flex-row gap-4 xl:gap-6 min-h-[calc(100vh-64px)] px-2 xl:px-6 py-4 max-w-[2000px] mx-auto">
       {/* Main Column */}
-      <main className="flex-1 min-w-0 space-y-4 order-1 lg:order-2">
+      <main className="flex-1 min-w-0 space-y-4 xl:space-y-6 order-1">
         {/* Player */}
         <section className="pt-2">
           <div className="relative group rounded-2xl overflow-hidden bg-black shadow-2xl shadow-black/60 border border-wacke-purple/15">
@@ -284,22 +286,22 @@ export default async function StreamPage({ params }: StreamPageProps) {
         </section>
 
         {/* Creator info rail */}
-        <section className="glass rounded-2xl p-5 border border-wacke-purple/20 shadow-2xl shadow-black/40">
-          <div className="flex items-start justify-between border-b border-white/5 pb-5 mb-5">
+        <section className="glass rounded-2xl p-5 border border-wacke-purple/20 shadow-2xl shadow-black/40 backdrop-blur-xl">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-white/5 pb-5 mb-5 gap-4">
             <div className="flex items-center space-x-4">
               {/* Avatar */}
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-2xl font-bold">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-2xl font-black text-white shadow-lg shadow-wacke-purple/30 ring-2 ring-white/10">
                 {user.displayName[0].toUpperCase()}
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">{stream.title}</h1>
-                <p className="text-wacke-cyan font-semibold">{user.displayName}</p>
-                <p className="text-gray-400 text-sm capitalize mt-1">{stream.category}</p>
+                <h1 className="text-2xl font-black text-white leading-tight">{stream.title}</h1>
+                <p className="text-wacke-cyan font-bold text-lg mt-0.5 tracking-tight">{user.displayName}</p>
+                <p className="text-gray-400 text-xs uppercase tracking-widest mt-1 font-semibold">{stream.category}</p>
               </div>
             </div>
 
             {/* Action buttons (client components) */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 shrink-0">
               <ReactionButton
                 streamerId={user.id}
                 streamId={stream.id}
@@ -318,23 +320,23 @@ export default async function StreamPage({ params }: StreamPageProps) {
           )}
 
           {/* Grok xAI Live Tools */}
-          <GrokStreamTools streamerName={user.displayName} />
-
-          {/* Grok xAI Co-Host - real Grok jumps into the stream */}
-          <GrokCoHost streamerName={user.displayName} streamId={stream.id} />
-
-          {/* Grok Roast Battle - pure chaos */}
-          <GrokRoastBattle streamerName={user.displayName} />
+          <div className="mt-6 grid grid-cols-1 gap-4">
+            <GrokStreamTools streamerName={user.displayName} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <GrokCoHost streamerName={user.displayName} streamId={stream.id} />
+              <GrokRoastBattle streamerName={user.displayName} />
+            </div>
+          </div>
 
           {/* LIGHT THE MATCH BOOM - GROK xAI FIRE IGNITED */}
           <div className="mt-4">
             <GrokFire />
           </div>
-          </section>
+        </section>
       </main>
 
-      {/* Left Rail: Floating HUD Chat */}
-      <div className="w-full lg:w-[320px] shrink-0 h-[calc(100vh-84px)] sticky top-20 order-2 lg:order-1">
+      {/* Right Rail: Graffiti Chat */}
+      <div className="w-full xl:w-[350px] shrink-0 xl:h-[calc(100vh-96px)] xl:sticky xl:top-20 order-2">
         <GraffitiChat
           streamId={stream.id}
           initialMessages={initialMessages as any}
