@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getUltraChaosIntervention } from "@/lib/grok-wit";
 
 export const runtime = "nodejs";
 
@@ -14,7 +15,8 @@ export async function POST(req: NextRequest) {
 
     const apiKey = process.env.XAI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: "XAI_API_KEY not configured" }, { status: 500 });
+      const fallbackLang = prompt.toLowerCase().includes(" sh") || prompt.toLowerCase().includes(" the ") ? "en" : "fr";
+      return NextResponse.json({ content: getUltraChaosIntervention(fallbackLang), usage: { total_tokens: 0 } });
     }
 
     const messages = [];
@@ -40,7 +42,8 @@ export async function POST(req: NextRequest) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("[GROK API ERROR]", errorText);
-      return NextResponse.json({ error: "Grok API request failed" }, { status: 502 });
+      const fallbackLang = prompt.toLowerCase().includes(" sh") || prompt.toLowerCase().includes(" the ") ? "en" : "fr";
+      return NextResponse.json({ content: getUltraChaosIntervention(fallbackLang), usage: { total_tokens: 0 } });
     }
 
     const data = await response.json();
