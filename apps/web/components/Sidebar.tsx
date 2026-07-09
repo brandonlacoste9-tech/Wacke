@@ -88,7 +88,7 @@ export default function Sidebar() {
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   return (
-    <aside className={`fixed left-4 top-20 bottom-4 z-40 ${collapsed ? 'w-16' : 'w-[280px]'} transition-all duration-300 hover:scale-[1.01]`}>
+    <aside className={`hidden md:block fixed left-4 top-20 bottom-4 z-40 ${collapsed ? 'w-16' : 'w-[280px]'} transition-all duration-300 hover:scale-[1.01]`}>
       <div className="glass rounded-2xl p-3 flex flex-col h-full overflow-hidden">
         <div className="space-y-1">
           {navItems.map((item) => {
