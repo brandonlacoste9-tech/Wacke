@@ -645,9 +645,9 @@ export default function GraffitiChat({
 
       {/* ── Chat Header ───────────────────────────────────────────────────── */}
       <div className="px-4 py-3 border-b border-white/[0.07] flex items-center justify-between bg-white/[0.02]">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 shrink-0">
           <span className="w-2 h-2 bg-wacke-cyan rounded-full shadow-[0_0_8px_#00F0FF]" />
-          <span className="text-[11px] font-black text-white/90 uppercase tracking-[0.15em] font-display">Graffiti HUD</span>
+          <span className="text-[11px] font-black text-white/90 uppercase tracking-[0.15em] font-display leading-none">Graffiti HUD</span>
           {/* Connection status */}
           <div className="flex items-center space-x-1">
             <span
@@ -698,7 +698,7 @@ export default function GraffitiChat({
             className={`text-[10px] px-2.5 py-1 rounded-full font-bold transition-all flex items-center space-x-1 ${
               sacreMode
                 ? "bg-red-600/80 text-white shadow-[0_0_8px_rgba(255,0,0,0.3)]"
-                : "bg-gray-700/50 text-gray-400"
+                : "bg-gray-700/50 text-gray-300"
             }`}
             title={sacreMode ? t("sacreActive") : t("sacreDisabled")}
           >

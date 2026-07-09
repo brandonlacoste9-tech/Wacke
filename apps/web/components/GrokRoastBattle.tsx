@@ -78,34 +78,34 @@ export default function GrokRoastBattle({ streamerName }: GrokRoastBattleProps) 
   };
 
   return (
-    <div className="glass p-4 rounded-xl border border-red-500/30">
+    <div className="glass p-4 rounded-xl border border-white/[0.07]">
       <div className="flex items-center gap-2 mb-3">
         <Sword className="text-red-500" />
-        <h3 className="font-bold text-sm">{language === "fr" ? "GROK ROAST BATTLE" : "GROK ROAST BATTLE"}</h3>
+        <h3 className="font-bold text-sm font-display tracking-wide">{language === "fr" ? "GROK ROAST BATTLE" : "GROK ROAST BATTLE"}</h3>
       </div>
       <button
         onClick={startBattle}
         disabled={loading}
-        className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded font-bold flex items-center justify-center gap-2 disabled:opacity-50"
+        className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition-all hover:scale-[1.01] active:scale-95"
       >
         <Flame /> {loading ? (language === "fr" ? "GROK JUGE..." : "GROK IS JUDGING...") : (language === "fr" ? "DÉMARRER LE ROAST BATTLE" : "START ROAST BATTLE")}
       </button>
-      
+
       {battle && (
         <div className="mt-3 space-y-2 text-xs">
-          <div className="p-2 bg-black/40 rounded border-l-2 border-red-500 flex justify-between items-start">
+          <div className="p-2 bg-black/40 rounded border-l-2 border-red-500/70 flex justify-between items-start gap-2">
             <div><strong>Roast 1:</strong> {battle.roast1}</div>
-            <button onClick={() => speakRoast(battle.roast1)} className="p-1"><Volume2 size={12} /></button>
+            <button onClick={() => speakRoast(battle.roast1)} className="p-1 text-gray-400 hover:text-white transition-colors shrink-0"><Volume2 size={12} /></button>
           </div>
-          <div className="p-2 bg-black/40 rounded border-l-2 border-red-500 flex justify-between items-start">
+          <div className="p-2 bg-black/40 rounded border-l-2 border-red-500/70 flex justify-between items-start gap-2">
             <div><strong>Roast 2:</strong> {battle.roast2}</div>
-            <button onClick={() => speakRoast(battle.roast2)} className="p-1"><Volume2 size={12} /></button>
+            <button onClick={() => speakRoast(battle.roast2)} className="p-1 text-gray-400 hover:text-white transition-colors shrink-0"><Volume2 size={12} /></button>
           </div>
-          <div className="p-2 bg-wacke-cyan/10 rounded text-wacke-cyan font-bold flex justify-between items-start">
+          <div className="p-2 bg-wacke-cyan/10 rounded border-l-2 border-wacke-cyan/60 text-wacke-cyan font-bold flex justify-between items-start gap-2">
             <div>WINNER: {battle.winner}</div>
-            <button onClick={() => speakRoast(battle.winner)} className="p-1"><Volume2 size={12} /></button>
+            <button onClick={() => speakRoast(battle.winner)} className="p-1 hover:text-white transition-colors shrink-0"><Volume2 size={12} /></button>
           </div>
-          <div className="text-[10px] text-center text-gray-500">
+          <div className="text-[10px] text-center text-gray-400">
             {language === "fr" ? "Jugé par Grok xAI • Maximum wacké" : "Judged by Grok xAI • Maximum wacké"}
           </div>
         </div>

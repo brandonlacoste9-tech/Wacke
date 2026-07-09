@@ -110,10 +110,40 @@ export default async function StreamPage({ params }: StreamPageProps) {
             isLive={true}
             twitchUsername={twitchUsername}
           />
-          <div className="glass rounded-2xl p-5 border border-white/[0.07] shadow-2xl shadow-black/40">
-            <h1 className="text-2xl font-bold text-white font-display tracking-tight">{fallbackTitle}</h1>
-            <p className="text-wacke-cyan font-semibold capitalize">{twitchUsername}</p>
-          </div>
+          <section className="glass rounded-2xl p-5 border border-white/[0.07] shadow-2xl shadow-black/40">
+            <div className="flex items-start justify-between gap-4 border-b border-white/[0.07] pb-5 mb-5">
+              <div className="flex items-center gap-4 min-w-0">
+                {/* Avatar */}
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-2xl font-bold ring-2 ring-white/10 shrink-0">
+                  {displayName[0].toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <h1 className="text-2xl font-bold text-white font-display tracking-tight leading-tight line-clamp-2">{fallbackTitle}</h1>
+                  <p className="text-wacke-cyan font-semibold capitalize">{twitchUsername}</p>
+                  <p className="text-gray-300 text-sm mt-1">Twitch</p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400 mb-2 font-display">
+                {isEn ? 'About this stream' : 'À propos du stream'}
+              </p>
+              <p className="text-gray-300 text-sm leading-relaxed">
+                {isEn
+                  ? displayName + ' broadcasting live on Twitch, simulcast on Wacké as an exclusive VIP Lounge for loyal viewers.'
+                  : displayName + ' diffuse en direct sur Twitch, simultané sur Wacké comme salon VIP exclusif pour les viewers fidèles.'}
+              </p>
+            </div>
+
+            {/* Grok xAI suite */}
+            <div className="mt-5 space-y-3">
+              <GrokStreamTools streamerName={displayName} />
+              <GrokCoHost streamerName={displayName} streamId={`twitch-mock-chat-${twitchUsername}`} />
+              <GrokRoastBattle streamerName={displayName} />
+              <GrokFire />
+            </div>
+          </section>
         </main>
 
         <div className="w-full lg:w-[320px] shrink-0 h-[60vh] lg:h-[calc(100vh-84px)] lg:sticky lg:top-20 order-2 lg:order-1">
@@ -190,10 +220,28 @@ export default async function StreamPage({ params }: StreamPageProps) {
             isLive={true}
             kickUsername={cleanUsername}
           />
-          <div className="glass rounded-2xl p-5 border border-white/[0.07] shadow-2xl shadow-black/40">
-            <h1 className="text-2xl font-bold text-white font-display tracking-tight">{fallbackTitle}</h1>
-            <p className="text-wacke-cyan font-semibold capitalize">{cleanUsername}</p>
-          </div>
+          <section className="glass rounded-2xl p-5 border border-white/[0.07] shadow-2xl shadow-black/40">
+            <div className="flex items-start justify-between gap-4 border-b border-white/[0.07] pb-5 mb-5">
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-2xl font-bold ring-2 ring-white/10 shrink-0">{cleanUsername.charAt(0).toUpperCase()}</div>
+                <div className="min-w-0">
+                  <h1 className="text-2xl font-bold text-white font-display tracking-tight leading-tight line-clamp-2">{fallbackTitle}</h1>
+                  <p className="text-wacke-cyan font-semibold capitalize">{cleanUsername}</p>
+                  <p className="text-gray-300 text-sm mt-1">Kick</p>
+                </div>
+              </div>
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400 mb-2 font-display">{isEn ? 'About this stream' : 'À propos du stream'}</p>
+              <p className="text-gray-300 text-sm leading-relaxed">{isEn ? cleanUsername + ' broadcasting live on Kick, simulcast on Wacké.' : cleanUsername + ' diffuse en direct sur Kick, simultané sur Wacké.'}</p>
+            </div>
+            <div className="mt-5 space-y-3">
+              <GrokStreamTools streamerName={cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1)} />
+              <GrokCoHost streamerName={cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1)} streamId={`kick-mock-chat-${cleanUsername}`} />
+              <GrokRoastBattle streamerName={cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1)} />
+              <GrokFire />
+            </div>
+          </section>
         </main>
         
         {/* Left Rail: Chat (Mobile bottom, Desktop left) */}
@@ -289,21 +337,21 @@ export default async function StreamPage({ params }: StreamPageProps) {
 
         {/* Creator info rail */}
         <section className="glass rounded-2xl p-5 border border-white/[0.07] shadow-2xl shadow-black/40">
-          <div className="flex items-start justify-between border-b border-white/[0.07] pb-5 mb-5">
-            <div className="flex items-center space-x-4">
+          <div className="flex items-start justify-between gap-4 border-b border-white/[0.07] pb-5 mb-5">
+            <div className="flex items-center gap-4 min-w-0">
               {/* Avatar */}
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-2xl font-bold">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-2xl font-bold ring-2 ring-white/10 shrink-0">
                 {user.displayName[0].toUpperCase()}
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white font-display tracking-tight leading-tight">{stream.title}</h1>
+              <div className="min-w-0">
+                <h1 className="text-2xl font-bold text-white font-display tracking-tight leading-tight line-clamp-2">{stream.title}</h1>
                 <p className="text-wacke-cyan font-semibold">{user.displayName}</p>
                 <p className="text-gray-300 text-sm capitalize mt-1">{stream.category}</p>
               </div>
             </div>
 
             {/* Action buttons (client components) */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 shrink-0">
               <ReactionButton
                 streamerId={user.id}
                 streamId={stream.id}
@@ -318,23 +366,22 @@ export default async function StreamPage({ params }: StreamPageProps) {
           </div>
 
           {stream.description && (
-            <p className="text-gray-300 mt-4 text-sm leading-relaxed">{stream.description}</p>
+            <div className="mt-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400 mb-2 font-display">
+                {isEn ? 'About this stream' : 'À propos du stream'}
+              </p>
+              <p className="text-gray-300 text-sm leading-relaxed">{stream.description}</p>
+            </div>
           )}
 
-          {/* Grok xAI Live Tools */}
-          <GrokStreamTools streamerName={user.displayName} />
-
-          {/* Grok xAI Co-Host - real Grok jumps into the stream */}
-          <GrokCoHost streamerName={user.displayName} streamId={stream.id} />
-
-          {/* Grok Roast Battle - pure chaos */}
-          <GrokRoastBattle streamerName={user.displayName} />
-
-          {/* LIGHT THE MATCH BOOM - GROK xAI FIRE IGNITED */}
-          <div className="mt-4">
+          {/* Grok xAI suite */}
+          <div className="mt-5 space-y-3">
+            <GrokStreamTools streamerName={user.displayName} />
+            <GrokCoHost streamerName={user.displayName} streamId={stream.id} />
+            <GrokRoastBattle streamerName={user.displayName} />
             <GrokFire />
           </div>
-          </section>
+        </section>
       </main>
 
       {/* Left Rail: Floating HUD Chat */}

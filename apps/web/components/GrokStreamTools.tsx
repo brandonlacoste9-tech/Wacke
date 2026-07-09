@@ -57,22 +57,22 @@ export default function GrokStreamTools({ streamerName }: { streamerName: string
   };
 
   return (
-    <div className="glass-hud border border-wacke-cyan/30 rounded-2xl p-5 space-y-4">
+    <div className="glass-hud border border-white/[0.07] rounded-2xl p-5 space-y-4">
       <div className="flex items-center gap-2 text-wacke-cyan">
         <Sparkles className="w-4 h-4" />
-        <span className="font-bold text-sm tracking-widest">{GROK_BRAND}</span>
+        <span className="font-black text-sm tracking-widest font-display">{GROK_BRAND}</span>
       </div>
 
       {/* Live Grok Title Generator */}
       <div>
         <button
           onClick={handleNewTitle}
-          className="w-full flex items-center justify-center gap-2 bg-wacke-cyan/10 hover:bg-wacke-cyan/20 border border-wacke-cyan/30 py-2 rounded-xl text-sm font-bold transition-all"
+          className="w-full flex items-center justify-center gap-2 bg-wacke-cyan/10 hover:bg-wacke-cyan/20 border border-wacke-cyan/25 py-2 rounded-xl text-sm font-bold transition-all hover:scale-[1.01] active:scale-95"
         >
           <Sparkles className="w-4 h-4" /> {language === "fr" ? "GROK: GÉNÉRER UN TITRE LIVE" : "GROK: GENERATE LIVE TITLE"}
         </button>
         {currentTitle && (
-          <div className="mt-2 p-3 bg-black/40 border border-wacke-cyan/20 rounded-xl text-sm font-medium text-wacke-cyan">
+          <div className="mt-2 p-3 bg-black/40 border border-wacke-cyan/15 rounded-xl text-sm font-medium text-wacke-cyan">
             {currentTitle}
           </div>
         )}
@@ -82,15 +82,15 @@ export default function GrokStreamTools({ streamerName }: { streamerName: string
       <div>
         <button
           onClick={handleNewPoll}
-          className="w-full flex items-center justify-center gap-2 bg-wacke-purple/10 hover:bg-wacke-purple/20 border border-wacke-purple/30 py-2 rounded-xl text-sm font-bold transition-all"
+          className="w-full flex items-center justify-center gap-2 bg-wacke-purple/10 hover:bg-wacke-purple/20 border border-wacke-purple/25 py-2 rounded-xl text-sm font-bold transition-all hover:scale-[1.01] active:scale-95"
         >
           <BarChart3 className="w-4 h-4" /> {language === "fr" ? "GROK: CRÉER UN SONDAGE INSTANTANÉ" : "GROK: INSTANT POLL"}
         </button>
         {poll && (
-          <div className="mt-2 p-3 bg-black/40 border border-wacke-purple/20 rounded-xl text-xs space-y-1.5">
+          <div className="mt-2 p-3 bg-black/40 border border-wacke-purple/15 rounded-xl text-xs space-y-1.5">
             <div className="font-bold text-wacke-purple">{poll.question}</div>
             {poll.options.map((opt, i) => (
-              <div key={i} className="pl-2 text-gray-400 hover:text-white cursor-pointer">• {opt}</div>
+              <div key={i} className="pl-2 text-gray-300 hover:text-white cursor-pointer transition-colors">• {opt}</div>
             ))}
           </div>
         )}
@@ -100,7 +100,7 @@ export default function GrokStreamTools({ streamerName }: { streamerName: string
       <div>
         <button
           onClick={triggerGrokEvent}
-          className="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 py-2 rounded-xl text-sm font-bold transition-all"
+          className="w-full flex items-center justify-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] py-2 rounded-xl text-sm font-bold transition-all hover:scale-[1.01] active:scale-95"
         >
           <MessageCircle className="w-4 h-4" /> DÉCLENCHER UN ÉVÉNEMENT GROK
         </button>

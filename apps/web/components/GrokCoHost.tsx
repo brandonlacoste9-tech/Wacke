@@ -40,25 +40,25 @@ export default function GrokCoHost({ streamerName, streamId }: GrokCoHostProps) 
   };
 
   return (
-    <div className="glass p-4 rounded-xl border border-wacke-cyan/30 flex flex-col gap-2">
+    <div className="glass p-4 rounded-xl border border-white/[0.07] flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-wacke-cyan text-sm font-bold">
+        <div className="flex items-center gap-2 text-wacke-cyan text-sm font-bold font-display tracking-wide">
           <Bot /> {t("grokCohostTitle")}
         </div>
-        <button 
+        <button
           onClick={summonGrok}
           disabled={isActive}
-          className="text-xs px-2 py-1 bg-wacke-cyan text-black rounded font-bold"
+          className="text-xs px-2.5 py-1 bg-wacke-cyan text-black rounded-lg font-bold hover:brightness-110 active:scale-95 transition-all disabled:opacity-50"
         >
           {isActive ? t("grokSpeaking") : t("grokSummon")}
         </button>
       </div>
       {comment && (
-        <div className="text-xs bg-black/30 p-2 rounded border-l-2 border-wacke-cyan text-gray-200 flex items-start gap-2">
+        <div className="text-xs bg-black/30 p-2 rounded border-l-2 border-wacke-cyan/60 text-gray-200 flex items-start gap-2">
           <div className="flex-1">{comment} <span className="text-wacke-cyan/60">— Grok xAI</span></div>
         </div>
       )}
-      <div className="text-[9px] text-gray-500">
+      <div className="text-[10px] text-gray-400">
         {t("grokHint")}
       </div>
     </div>
