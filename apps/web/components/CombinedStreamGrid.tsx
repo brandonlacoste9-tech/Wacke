@@ -16,6 +16,7 @@ export interface UnifiedStream {
   thumbnailUrl: string | null;
   avatarUrl: string | null;
   isLive: boolean;
+  isFallback?: boolean;
 }
 
 function formatViewers(n: number): string {
@@ -50,6 +51,7 @@ function StreamCard({ stream, index }: { stream: UnifiedStream; index: number })
     : `/stream/${stream.username}`;
 
   const isMock = stream.id.includes("fallback") || stream.id.includes("mock-stream");
+  void isMock;
 
   return (
     <Link
@@ -71,10 +73,10 @@ function StreamCard({ stream, index }: { stream: UnifiedStream; index: number })
           </div>
         )}
 
-        {isMock ? (
-          <div className="absolute top-2 left-2 flex items-center space-x-1 bg-purple-600/90 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-md shadow-md backdrop-blur-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
-            <span>{language === "fr" ? "REDIF" : "PAST SHOW"}</span>
+        {stream.isFallback ? (
+          <div className="absolute top-2 left-2 flex items-center space-x-1 bg-wacke-cyan/85 text-wacke-darker text-[10px] font-extrabold px-2 py-0.5 rounded-md shadow-md backdrop-blur-sm tracking-wide">
+            <span className="w-1.5 h-1.5 rounded-full bg-wacke-darker/70" />
+            <span>{language === "fr" ? "À DÉCOUVRIR" : "FEATURED"}</span>
           </div>
         ) : (
           <div className="absolute top-2 left-2 flex items-center space-x-1 bg-red-600/90 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-md shadow-md backdrop-blur-sm">
@@ -158,6 +160,7 @@ export default function CombinedStreamGrid({
     fetch(`/api/kick/livestreams?limit=${limit}`)
       .then((r) => r.json())
       .then((data) => {
+        const isFallbackSource = data.source === "fallback";
         const unified: UnifiedStream[] = (data.streams ?? []).map((s: any) => {
           const username = s.channel?.user?.username ?? s.slug ?? "user";
           const displayName = username.charAt(0).toUpperCase() + username.slice(1);
@@ -176,7 +179,8 @@ export default function CombinedStreamGrid({
             viewerCount: s.viewer_count ?? 0,
             thumbnailUrl,
             avatarUrl,
-            isLive: true,
+            isLive: !isFallbackSource,
+            isFallback: isFallbackSource,
           };
         });
         setKickStreams(unified);
@@ -223,11 +227,17 @@ export default function CombinedStreamGrid({
   const visibleStreams = displayed.slice(0, showCount);
   const hasMore = displayed.length > showCount;
 
+  // If nothing is genuinely live, show a discovery heading instead of "Live Now"
+  const anyLive = displayed.some((s) => !s.isFallback);
+  const heading = !anyLive && displayed.length > 0
+    ? (t("discover") ?? (t("liveNow") === "Live Now" ? "Discover" : "À découvrir"))
+    : displayTitle;
+
   return (
     <section>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <h2 className="text-2xl font-black tracking-tight">
-          <span className="neon-pink graffiti-text">{displayTitle}</span>
+        <h2 className="text-2xl font-black tracking-tight font-display text-white">
+          <span className="gradient-text-cyber">{heading}</span>
         </h2>
 
         <div className="flex items-center space-x-2">

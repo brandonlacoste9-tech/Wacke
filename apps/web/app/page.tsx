@@ -33,8 +33,8 @@ export default function HomePage() {
         <ParticleBackground count={25} />
 
         <div className="relative z-20 text-center px-4 mt-6">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black graffiti-text neon-pink mb-4 tracking-wider uppercase drop-shadow-[0_0_20px_rgba(255,0,255,0.7)]">
-            {t("welcome")}
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black font-display mb-4 tracking-tight uppercase drop-shadow-[0_0_24px_rgba(255,42,133,0.45)]">
+            <span className="gradient-text-cyber">{t("welcome")}</span>
           </h1>
           <p className="text-base md:text-lg text-gray-200 font-medium max-w-xl mx-auto drop-shadow-md mb-6">
             {t("heroSubtitle")} <span className="text-wacke-cyan font-bold">+ Grok chaos</span>
@@ -97,7 +97,7 @@ export default function HomePage() {
       <section className="px-6 lg:px-8 pb-12 max-w-7xl mx-auto">
         <h2 className="text-2xl font-bold mb-6 flex items-center space-x-2">
           <Palette className="w-6 h-6 text-wacke-cyan drop-shadow-[0_0_5px_rgba(0,255,255,0.6)]" />
-          <span className="neon-cyan graffiti-text">{t("browseByCategory")}</span>
+          <span className="font-display tracking-tight text-white">{t("browseByCategory")}</span>
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 stagger-children">
           {categories.map((cat) => (
@@ -114,12 +114,12 @@ export default function HomePage() {
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 z-0"
               />
               {/* Glass overlay */}
-              <div className="absolute inset-0 bg-black/50 group-hover:bg-black/35 transition-colors duration-300 z-10" />
+              <div className="absolute inset-0 bg-black/65 group-hover:bg-black/45 transition-colors duration-300 z-10 backdrop-blur-[1px]" />
 
               {/* Text / Icon content */}
               <div className="absolute inset-0 flex flex-col items-center justify-center p-4 z-20">
-                <div className="text-3xl mb-2 group-hover:scale-110 transition-transform duration-300">{cat.icon}</div>
-                <p className="text-sm font-black text-white uppercase tracking-tight drop-shadow-md">{cat.name}</p>
+                <div className="text-3xl mb-2 group-hover:scale-110 transition-transform duration-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">{cat.icon}</div>
+                <p className="text-sm font-black text-white uppercase tracking-tight drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">{cat.name}</p>
               </div>
             </Link>
           ))}

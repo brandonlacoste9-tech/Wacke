@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -110,40 +110,48 @@
 /* ─── Base ─────────────────────────────────────────────────────────────────── */
 
 body {
-  background-color: #0A0A0F;
-  color: white;
+  background-color: #08080C;
+  color: #ECECEE;
   transition: background-color 0.3s ease, color 0.3s ease;
+  font-feature-settings: "ss01", "cv01", "cv03";
 }
 
+/* Neutral text scale — semantic, not decorative */
+.text-muted { color: #9A9AA2; }
+.text-faint { color: #6B6B73; }
+
 /* ─── Glassmorphism Utilities ──────────────────────────────────────────────── */
+/* Neutral glass — the default surface. Borders are neutral white, not purple, */
+/* so the eye rests and the pink/cyan accents actually pop.                    */
 
 .glass {
   background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .glass-dark {
-  background: rgba(5, 5, 10, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--wacke-border);
+  background: rgba(8, 8, 14, 0.72);
+  backdrop-filter: blur(22px) saturate(1.2);
+  -webkit-backdrop-filter: blur(22px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   transition: border-color 0.3s ease;
 }
 
 .glass-card {
-  background: rgba(10, 10, 15, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--wacke-border);
+  background: rgba(14, 14, 20, 0.6);
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
-  background: rgba(15, 15, 25, 0.8);
-  border-color: rgba(var(--wacke-primary), 0.25);
-  box-shadow: 0 8px 32px rgba(var(--wacke-primary), 0.08);
+  background: rgba(20, 18, 28, 0.78);
+  border-color: rgba(255, 42, 133, 0.28);
+  box-shadow: 0 12px 36px rgba(255, 42, 133, 0.1), 0 0 0 1px rgba(255, 42, 133, 0.06);
 }
 
 /* ─── Neon Glow Effects ────────────────────────────────────────────────────── */
@@ -536,31 +544,40 @@ img.emoji:hover {
 }
 
 /* WACKE_PREMIUM_UTILS_BEGIN */
-/* Premium Glassmorphism Utilities */
-.glass {
-  background: rgba(255,255,255,0.03);
-  backdrop-filter: blur(18px) saturate(1.25);
-  -webkit-backdrop-filter: blur(18px) saturate(1.25);
-  border: 1px solid rgba(138,43,226,0.18);
-  box-shadow: 0 8px 28px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.04);
-}
-.glass-dark {
-  background: rgba(5,5,10,0.65);
-  backdrop-filter: blur(22px) saturate(1.2);
-  -webkit-backdrop-filter: blur(22px) saturate(1.2);
-  border: 1px solid rgba(138,43,226,0.18);
-}
+/* Premium Glassmorphism Utilities — neutral borders, accent reserved for state */
 .glass-hud {
-  background: linear-gradient(180deg, rgba(10,10,15,0.6), rgba(5,5,10,0.85));
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border-left: 1px solid rgba(0,240,255,0.18);
-  border-top: 1px solid rgba(255,255,255,0.04);
-  box-shadow: 0 0 32px rgba(0,240,255,0.06);
+  background: linear-gradient(180deg, rgba(12,12,18,0.72), rgba(6,6,12,0.88));
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 1px 0 rgba(255,42,133,0.05), 0 8px 24px rgba(0,0,0,0.4);
 }
 .neon-ring {
-  box-shadow: 0 0 0 2px #00F0FF, 0 0 14px rgba(0,240,255,0.4), inset 0 0 10px rgba(0,240,255,0.08);
+  box-shadow: 0 0 0 2px rgba(0,240,255,0.7), 0 0 14px rgba(0,240,255,0.35), inset 0 0 10px rgba(0,240,255,0.06);
 }
 .neon-pink-border {
-  box-shadow: 0 0 10px rgba(255,42,133,0.35), 0 0 22px rgba(255,42,133,0.12);
+  box-shadow: 0 0 0 1px rgba(255,42,133,0.4), 0 0 14px rgba(255,42,133,0.18);
+}
+
+/* ─── Display type ─────────────────────────────────────────────────────────── */
+.font-display {
+  font-family: 'Space Grotesk', 'Outfit', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* ─── Accessibility: motion ─────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── Focus visibility ──────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid rgba(0, 240, 255, 0.6);
+  outline-offset: 2px;
+  border-radius: 4px;
 }

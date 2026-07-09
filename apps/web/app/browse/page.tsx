@@ -70,14 +70,16 @@ function BrowseContent() {
       {/* ── Header ────────────────────────────────────────────────────── */}
       <div className="mb-8 flex items-baseline justify-between border-b border-wacke-purple/15 pb-5">
         <div>
-          <h1 className="text-3xl md:text-4xl font-black mb-2 graffiti-text neon-pink">
+          <h1 className="text-3xl md:text-4xl font-black mb-2 font-display tracking-tight">
+            <span className="gradient-text-cyber">
             {searchQuery
               ? `${t("searchLabel")} : "${searchQuery}" 🔍`
               : selectedCategory
               ? `${selectedCategory.name.toUpperCase()}`
               : t("browsePage")}
+            </span>
           </h1>
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-400 text-sm">
             {searchQuery
               ? t("searchResults")
               : selectedCategory

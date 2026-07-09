@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import LiveStatsTicker from "@/components/LiveStatsTicker";
@@ -9,8 +8,6 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { LanguageProvider } from "@/components/LanguageProvider";
 
 import MainLayoutWrapper from "@/components/MainLayoutWrapper";
-
-const inter = Inter({ subsets: ["latin"] });
 
 import { cookies } from "next/headers";
 
@@ -88,7 +85,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.className} bg-wacke-dark text-white antialiased`}
+        className={`font-outfit bg-wacke-dark text-white antialiased`}
         style={{
           backgroundImage: `url('/bg_texture.jpg')`,
           backgroundRepeat: 'repeat',

@@ -41,7 +41,7 @@ export default function MainLayoutWrapper({ children }: MainLayoutWrapperProps) 
       <Header />
       <div className="flex">
         <Sidebar />
-        <main className="flex-1 min-h-[calc(100vh-64px)] overflow-x-hidden pb-16 md:pb-0">
+        <main className="flex-1 min-h-[calc(100vh-64px)] overflow-x-hidden pb-16 md:pb-0 lg:ml-[296px]">
           {children}
         </main>
       </div>

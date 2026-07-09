@@ -88,7 +88,7 @@ export default function Sidebar() {
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   return (
-    <aside className={`fixed left-4 top-20 bottom-4 z-40 ${collapsed ? 'w-16' : 'w-[280px]'} transition-all duration-300 hover:scale-[1.01]`}>
+    <aside className={`hidden lg:block fixed left-4 top-20 bottom-4 z-40 ${collapsed ? 'w-16' : 'w-[280px]'} transition-all duration-300 hover:scale-[1.01]`}>
       <div className="glass rounded-2xl p-3 flex flex-col h-full overflow-hidden">
         <div className="space-y-1">
           {navItems.map((item) => {
@@ -124,10 +124,10 @@ export default function Sidebar() {
                 title={collapsed ? channel.displayName : undefined}
               >
                 <div className="relative shrink-0">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-xs font-black text-white transition-all duration-300 border-2 bg-clip-padding neon-ring">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-wacke-pink to-wacke-purple flex items-center justify-center text-xs font-black text-white transition-all duration-300 border-2 border-wacke-darker group-hover:shadow-[0_0_12px_rgba(255,42,133,0.45)]">
                     {channel.displayName[0].toUpperCase()}
                   </div>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-red-500 rounded-full border-2 border-wacke-darker animate-pulse-fast" />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-red-500 rounded-full border-2 border-wacke-darker" />
                 </div>
                 {!collapsed && (
                   <div className="min-w-0">

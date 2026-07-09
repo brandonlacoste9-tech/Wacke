@@ -52,10 +52,10 @@ export default function FeatureShowcase() {
   return (
     <section className="px-8 py-16 max-w-7xl mx-auto">
       <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-black font-outfit uppercase tracking-tight mb-3">
+        <h2 className="text-3xl md:text-4xl font-black font-display uppercase tracking-tight mb-3 text-white">
           <span className="gradient-text-cyber">{t("whyWacke")}</span>
         </h2>
-        <p className="text-gray-400 text-sm max-w-lg mx-auto">
+        <p className="text-gray-300 text-sm max-w-lg mx-auto">
           {t("whyWackeSub")}
         </p>
       </div>
@@ -78,7 +78,7 @@ export default function FeatureShowcase() {
             </div>
 
             {/* Title */}
-            <h3 className="text-xl font-bold text-white mb-1 font-outfit">
+            <h3 className="text-xl font-bold text-white mb-1 font-display tracking-tight">
               {feature.title}
             </h3>
             <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
@@ -86,7 +86,7 @@ export default function FeatureShowcase() {
             </p>
 
             {/* Description */}
-            <p className="text-sm text-gray-400 leading-relaxed flex-1">
+            <p className="text-sm text-gray-300 leading-relaxed flex-1">
               {feature.description}
             </p>
 

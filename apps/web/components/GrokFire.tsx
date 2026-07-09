@@ -171,12 +171,12 @@ export default function GrokFire() {
       <button
         onClick={lightTheMatch}
         disabled={loading || isIgnited}
-        className="w-full md:w-auto flex items-center justify-center gap-3 bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 hover:from-red-700 text-white font-black text-xl py-4 px-8 rounded-2xl shadow-[0_0_40px_rgba(255,0,0,0.6)] transition-all active:scale-95 disabled:opacity-70 border-2 border-yellow-400"
+        className="group w-full md:w-auto inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-wacke-pink via-orange-500 to-yellow-400 hover:brightness-110 text-white font-black text-base md:text-lg py-3.5 px-7 rounded-2xl shadow-[0_8px_32px_rgba(255,42,133,0.35)] transition-all active:scale-95 disabled:opacity-70 border border-white/15"
       >
-        <Flame className="w-8 h-8" />
-        {language === "fr" ? "ALLUMER LE MATCH" : "LIGHT THE MATCH"}
-        <Zap className="w-8 h-8" />
-        <span className="text-sm tracking-[4px] font-mono">BOOM</span>
+        <Flame className="w-5 h-5 shrink-0" />
+        <span className="leading-none">{language === "fr" ? "ALLUMER LE MATCH" : "LIGHT THE MATCH"}</span>
+        <Zap className="w-5 h-5 shrink-0" />
+        <span className="text-[11px] tracking-[3px] font-mono leading-none opacity-90">BOOM</span>
       </button>
 
       {isIgnited && boomMessages.length > 0 && (

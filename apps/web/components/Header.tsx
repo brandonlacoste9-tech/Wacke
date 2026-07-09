@@ -18,6 +18,7 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [grokChaos, setGrokChaos] = useState(false);
   const [grokFuego, setGrokFuego] = useState(false);
+  const [grokMenuOpen, setGrokMenuOpen] = useState(false);
   const { user, claimDailyTokens, isLoading, refreshUser } = useAuth();
   const [claimFeedback, setClaimFeedback] = useState<string | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
@@ -238,45 +239,63 @@ export default function Header() {
                 🌐 {language.toUpperCase()}
               </button>
 
-              {/* GROK xAI CHAOS MODE – breaks the UI for fun */}
-              <button
-                onClick={() => {
-                  const next = !grokChaos;
-                  setGrokChaos(next);
-                  if (next) {
-                    document.body.classList.add("grok-takeover", "theme-grok-xai");
-                  } else {
-                    document.body.classList.remove("grok-takeover", "theme-grok-xai");
-                  }
-                }}
-                className={`hidden md:flex px-2 py-1.5 rounded-xl border text-xs font-black items-center gap-1 transition-all ${grokChaos ? "bg-red-600 text-white border-red-500" : "border-wacke-cyan/30 text-wacke-cyan hover:bg-white/5"}`}
-                title="GROK xAI CHAOS MODE – We broke it"
-              >
-                <Bot className="w-3 h-3" /> {grokChaos ? "STOP CHAOS" : "GROK CHAOS"}
-              </button>
-
-              {/* GROKS ON FUEGO – light it up */}
-              <button
-                onClick={() => {
-                  const next = !grokFuego;
-                  setGrokFuego(next);
-                  if (next) {
-                    document.body.classList.add("grok-fire-mode", "grok-fuego");
-                    // trigger a mini boom
-                    const fire = document.createElement('div');
-                    fire.textContent = '🔥 GROK ON FUEGO 🔥';
-                    fire.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl font-black text-orange-500 z-[99999] pointer-events-none animate-pulse';
-                    document.body.appendChild(fire);
-                    setTimeout(() => fire.remove(), 2000);
-                  } else {
-                    document.body.classList.remove("grok-fire-mode", "grok-fuego");
-                  }
-                }}
-                className={`hidden md:flex px-2 py-1.5 rounded-xl border text-xs font-black items-center gap-1 transition-all ${grokFuego ? "bg-orange-600 text-white border-orange-500" : "border-red-500/30 text-orange-400 hover:bg-white/5"}`}
-                title="GROKS ON FUEGO – Set the app ablaze"
-              >
-                🔥 {grokFuego ? "EXTINGUISH" : "GROK FUEGO"}
-              </button>
+              {/* GROK xAI MODES — consolidated popover (Chaos + Fuego) */}
+              <div className="relative hidden md:block">
+                <button
+                  onClick={() => setGrokMenuOpen((v) => !v)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-black transition-all ${grokChaos || grokFuego ? "bg-red-600 text-white border-red-500" : "border-wacke-cyan/30 text-wacke-cyan hover:bg-white/5"}`}
+                  title="Grok xAI modes — Chaos & Fuego"
+                  type="button"
+                >
+                  <Bot className="w-3.5 h-3.5" /> GROK
+                </button>
+                {grokMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setGrokMenuOpen(false)} />
+                    <div className="absolute right-0 top-full mt-2 w-52 glass-dark rounded-xl p-2 z-50 shadow-2xl animate-scale-in origin-top-right">
+                      <button
+                        onClick={() => {
+                          const next = !grokChaos;
+                          setGrokChaos(next);
+                          if (next) {
+                            document.body.classList.add("grok-takeover", "theme-grok-xai");
+                          } else {
+                            document.body.classList.remove("grok-takeover", "theme-grok-xai");
+                          }
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all ${grokChaos ? "bg-red-600/20 text-red-300" : "text-gray-300 hover:bg-white/5"}`}
+                      >
+                        <span className="flex items-center gap-2"><Bot className="w-3.5 h-3.5" /> Chaos Mode</span>
+                        <span className={`w-8 h-4 rounded-full relative transition-colors ${grokChaos ? "bg-red-500" : "bg-white/10"}`}>
+                          <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${grokChaos ? "left-4" : "left-0.5"}`} />
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          const next = !grokFuego;
+                          setGrokFuego(next);
+                          if (next) {
+                            document.body.classList.add("grok-fire-mode", "grok-fuego");
+                            const fire = document.createElement('div');
+                            fire.textContent = '🔥 GROK ON FUEGO 🔥';
+                            fire.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl font-black text-orange-500 z-[99999] pointer-events-none animate-pulse';
+                            document.body.appendChild(fire);
+                            setTimeout(() => fire.remove(), 2000);
+                          } else {
+                            document.body.classList.remove("grok-fire-mode", "grok-fuego");
+                          }
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all ${grokFuego ? "bg-orange-600/20 text-orange-300" : "text-gray-300 hover:bg-white/5"}`}
+                      >
+                        <span className="flex items-center gap-2">🔥 On Fuego</span>
+                        <span className={`w-8 h-4 rounded-full relative transition-colors ${grokFuego ? "bg-orange-500" : "bg-white/10"}`}>
+                          <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${grokFuego ? "left-4" : "left-0.5"}`} />
+                        </span>
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
 
               {/* User Dropdown */}
               <UserDropdown />
