@@ -100,7 +100,7 @@ export default function TokenBar({
                 key={preset}
                 onClick={() => handleGift(preset)}
                 disabled={isLoading || balance < preset}
-                className="bg-wacke-purple/20 hover:bg-wacke-purple/40 border border-wacke-purple/30
+                className="bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.08]
                            px-3 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105
                            disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
@@ -119,7 +119,7 @@ export default function TokenBar({
               onChange={(e) => setCustomAmount(e.target.value)}
               min={10}
               max={10000}
-              className="flex-1 bg-white/3 border border-wacke-purple/20 rounded-xl px-3 py-2
+              className="flex-1 bg-white/[0.03] border border-white/[0.08] rounded-xl px-3 py-2
                          text-xs focus:border-wacke-cyan/40 transition-all"
             />
             <button
@@ -135,7 +135,7 @@ export default function TokenBar({
       )}
 
       {/* ── Main Token Bar ─────────────────────────────────────────────── */}
-      <div className="flex items-center space-x-2 glass-dark rounded-2xl px-4 py-3 animate-glow-pulse">
+      <div className="flex items-center space-x-2 glass-dark rounded-2xl px-4 py-3 shadow-2xl shadow-black/40 border border-white/[0.07]">
         {/* Balance */}
         <div 
           onClick={() => setIsShopOpen(true)}
@@ -175,12 +175,12 @@ export default function TokenBar({
         {/* Gift */}
         <button
           onClick={() => setShowGiftPanel((prev) => !prev)}
-          className="bg-wacke-purple/30 hover:bg-wacke-purple/50 border border-wacke-purple/30
+          className="bg-wacke-pink/15 hover:bg-wacke-pink/30 border border-wacke-pink/30
                      px-3.5 py-2 rounded-xl font-bold text-xs flex items-center space-x-1
                      transition-all hover:scale-105 active:scale-95"
           title={language === "fr" ? "Envoyer des tokens" : "Send tokens"}
         >
-          <Heart className="w-3.5 h-3.5 text-wacke-purple fill-current" />
+          <Heart className="w-3.5 h-3.5 text-wacke-pink fill-current" />
           <span>DONATION</span>
           <ChevronUp className={`w-3 h-3 transition-transform ${showGiftPanel ? "rotate-180" : ""}`} />
         </button>

@@ -149,10 +149,10 @@ export default function WackePlayer({
             allowFullScreen
           />
         </div>
-        <div className="p-4 glass-hud border-t border-wacke-purple/20">
+        <div className="p-4 glass-hud border-t border-white/[0.07]">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="font-bold text-white truncate max-w-xs">{title}</h2>
+              <h2 className="font-bold text-white truncate max-w-xs font-display tracking-tight">{title}</h2>
               <p className="text-sm text-wacke-cyan font-medium">{streamerName}</p>
             </div>
             <div className="flex items-center space-x-2">
@@ -187,10 +187,10 @@ export default function WackePlayer({
             </div>
           )}
         </div>
-        <div className="p-4 glass-hud border-t border-wacke-purple/20">
+        <div className="p-4 glass-hud border-t border-white/[0.07]">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="font-bold text-white truncate max-w-xs">{title}</h2>
+              <h2 className="font-bold text-white truncate max-w-xs font-display tracking-tight">{title}</h2>
               <p className="text-sm text-wacke-cyan font-medium">{streamerName}</p>
             </div>
             <div className="flex items-center space-x-2">
@@ -217,10 +217,10 @@ export default function WackePlayer({
         <div className="relative aspect-video">
           <iframe src={youtubeSrc} className="w-full h-full border-0" allow="autoplay; fullscreen" allowFullScreen />
         </div>
-        <div className="p-4 glass-hud border-t border-wacke-purple/20">
+        <div className="p-4 glass-hud border-t border-white/[0.07]">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="font-bold text-white truncate max-w-xs">{title}</h2>
+              <h2 className="font-bold text-white truncate max-w-xs font-display tracking-tight">{title}</h2>
               <p className="text-sm text-wacke-cyan font-medium">{streamerName}</p>
             </div>
             <div className="flex items-center space-x-2">
@@ -279,7 +279,7 @@ export default function WackePlayer({
         )}
 
         {/* Player Controls overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 opacity-0 hover:opacity-100 transition-opacity">
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 opacity-0 hover:opacity-100 transition-opacity duration-300">
           <div className="flex items-center justify-end space-x-2">
             <button onClick={handlePiP} className="p-1.5 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors" title="Picture-in-Picture">
               <PictureInPicture2 className="w-4 h-4" />
@@ -292,10 +292,10 @@ export default function WackePlayer({
       </div>
 
       {/* ── Player Controls Bar ────────────────────────────────────────────── */}
-      <div className="p-4 glass-hud border-t border-wacke-purple/20">
+      <div className="p-4 glass-hud border-t border-white/[0.07]">
         <div className="flex items-center justify-between">
           <div className="min-w-0">
-            <h2 className="font-bold text-white truncate">{title}</h2>
+            <h2 className="font-bold text-white truncate font-display tracking-tight">{title}</h2>
             <p className="text-sm text-wacke-cyan font-medium">{streamerName}</p>
           </div>
 

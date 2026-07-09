@@ -641,13 +641,13 @@ export default function GraffitiChat({
   };
 
   return (
-    <div className={`glass-hud flex-1 flex flex-col h-full rounded-2xl overflow-hidden border border-wacke-cyan/15 shadow-2xl shadow-black/50 ${isGrokTakeover ? 'grok-takeover theme-grok-xai' : ''}`}>
+    <div className={`glass-hud flex-1 flex flex-col h-full rounded-2xl overflow-hidden border border-white/[0.07] shadow-2xl shadow-black/50 ${isGrokTakeover ? 'grok-takeover theme-grok-xai' : ''}`}>
 
       {/* ── Chat Header ───────────────────────────────────────────────────── */}
-      <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+      <div className="px-4 py-3 border-b border-white/[0.07] flex items-center justify-between bg-white/[0.02]">
         <div className="flex items-center space-x-2">
           <span className="w-2 h-2 bg-wacke-cyan rounded-full shadow-[0_0_8px_#00F0FF]" />
-          <span className="text-[11px] font-black text-white/90 uppercase tracking-[0.15em]">Graffiti HUD</span>
+          <span className="text-[11px] font-black text-white/90 uppercase tracking-[0.15em] font-display">Graffiti HUD</span>
           {/* Connection status */}
           <div className="flex items-center space-x-1">
             <span
@@ -716,8 +716,8 @@ export default function GraffitiChat({
       <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-hide">
         {allMessages.length === 0 && (
           <div className="text-center mt-12 space-y-3">
-            <img src="/spray_can.png" alt="Spray" className="w-10 h-10 mx-auto opacity-30" />
-            <p className="text-gray-600 text-xs font-medium">
+            <img src="/spray_can.png" alt="Spray" className="w-10 h-10 mx-auto opacity-40" />
+            <p className="text-gray-400 text-xs font-medium">
               {t("chatEmpty")}
             </p>
           </div>
@@ -746,7 +746,7 @@ export default function GraffitiChat({
                   🏪 WACKÉ
                 </span>
               )}
-              <p className={`text-xs font-bold ${msg._source === "kick" ? "text-[#53fc18]" : msg._source === "twitch" ? "text-[#9146FF]" : getUserColor(msg.userId)} shrink-0`}>
+              <p className={`text-xs font-bold ${msg._source === "kick" ? "text-[#53fc18]" : msg._source === "twitch" ? "text-[#9146FF]" : getUserColor(msg.userId)} shrink-0 max-w-[70%] truncate`}>
                 {/* Rich Kick-style badges (Broadcaster, Mod, VIP/OG, Verified, evolving Sub tiers) */}
                 {(() => {
                   let badges: ChatBadge[] = [];
@@ -784,8 +784,8 @@ export default function GraffitiChat({
                 )}
                 {isGrokFuego && <span className="ml-1">🔥</span>}
               </p>
-              <p className="text-sm text-gray-300 break-words min-w-0 emoji">{renderContent(msg.content)}</p>
             </div>
+            <p className="text-sm text-gray-300 break-words min-w-0 emoji mt-0.5">{renderContent(msg.content)}</p>
           </div>
         ))}
         <div ref={messagesEndRef} />
@@ -800,14 +800,14 @@ export default function GraffitiChat({
 
       {/* ── Emoji Picker ──────────────────────────────────────────────────── */}
       {showEmojis && (
-        <div className="px-2 py-1 border-t border-wacke-purple/10 animate-fade-in bg-wacke-darker/50">
+        <div className="px-2 py-1 border-t border-white/[0.07] animate-fade-in bg-black/30">
           <EmojiPicker onSelect={handleEmojiSelect} />
         </div>
       )}
 
       {/* ── AI Spray Panel ───────────────────────────────────────────────── */}
       {showSprayPanel && (
-        <div className="p-3 border-t border-wacke-purple/20 bg-wacke-purple/5 space-y-2 animate-scale-in">
+        <div className="p-3 border-t border-white/[0.07] bg-white/[0.02] space-y-2 animate-scale-in">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-wacke-cyan flex items-center space-x-1">
               <Sparkles className="w-3.5 h-3.5" />
@@ -856,7 +856,7 @@ export default function GraffitiChat({
 
       {/* ── Soundboard Panel ───────────────────────────────────────────── */}
       {showSoundboard && (
-        <div className="p-3.5 border-t border-wacke-purple/20 bg-wacke-purple/5 space-y-2.5 animate-scale-in">
+        <div className="p-3.5 border-t border-white/[0.07] bg-white/[0.02] space-y-2.5 animate-scale-in">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-yellow-400 flex items-center space-x-1">
               <Volume2 className="w-3.5 h-3.5" />
@@ -893,7 +893,7 @@ export default function GraffitiChat({
 
       {/* ── Swears Generator Panel ──────────────────────────────────────── */}
       {showSacres && (
-        <div className="p-3.5 border-t border-wacke-purple/20 bg-wacke-purple/5 space-y-3 animate-scale-in">
+        <div className="p-3.5 border-t border-white/[0.07] bg-white/[0.02] space-y-3 animate-scale-in">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-red-400 flex items-center space-x-1">
               <span>🤬</span>
@@ -943,7 +943,7 @@ export default function GraffitiChat({
             </div>
           </div>
 
-          <div className="flex items-center justify-end pt-1 border-t border-wacke-purple/10">
+          <div className="flex items-center justify-end pt-1 border-t border-white/[0.07]">
             <button
               onClick={handleSacreSubmit}
               disabled={isSendingSacre}
@@ -1029,7 +1029,7 @@ export default function GraffitiChat({
       )}
 
       {/* ── Chat Input ────────────────────────────────────────────────────── */}
-      <div className="p-3 border-t border-wacke-purple/20">
+      <div className="p-3 border-t border-white/[0.07]">
         <div className="flex space-x-2">
           {/* Emoji toggle */}
           <button
@@ -1112,7 +1112,7 @@ export default function GraffitiChat({
           >
             🤖
           </button>
-          <div className="relative flex-1 flex items-center gap-2 rounded-2xl border border-wacke-cyan/20 bg-black/40 px-3 py-2 transition-all focus-within:border-wacke-cyan/60 focus-within:shadow-[0_0_22px_rgba(0,240,255,0.18)]">
+          <div className="relative flex-1 flex items-center gap-2 rounded-2xl border border-white/[0.08] bg-black/40 px-3 py-2 transition-all focus-within:border-wacke-cyan/50 focus-within:shadow-[0_0_22px_rgba(0,240,255,0.18)]">
             <input
               ref={inputRef}
               type="text"

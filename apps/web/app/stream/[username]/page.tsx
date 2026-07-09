@@ -116,7 +116,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
           </div>
         </main>
 
-        <div className="w-full lg:w-[320px] shrink-0 h-[calc(100vh-84px)] sticky top-20 order-2 lg:order-1">
+        <div className="w-full lg:w-[320px] shrink-0 h-[60vh] lg:h-[calc(100vh-84px)] lg:sticky lg:top-20 order-2 lg:order-1">
           <GraffitiChat
             streamId={`twitch-mock-chat-${twitchUsername}`}
             initialMessages={[]}
@@ -197,7 +197,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
         </main>
         
         {/* Left Rail: Chat (Mobile bottom, Desktop left) */}
-        <div className="w-full lg:w-[320px] shrink-0 h-[calc(100vh-84px)] sticky top-20 order-2 lg:order-1">
+        <div className="w-full lg:w-[320px] shrink-0 h-[60vh] lg:h-[calc(100vh-84px)] lg:sticky lg:top-20 order-2 lg:order-1">
           <GraffitiChat
             streamId={`kick-mock-chat-${cleanUsername}`}
             initialMessages={[]}
@@ -338,7 +338,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
       </main>
 
       {/* Left Rail: Floating HUD Chat */}
-      <div className="w-full lg:w-[320px] shrink-0 h-[calc(100vh-84px)] sticky top-20 order-2 lg:order-1">
+      <div className="w-full lg:w-[320px] shrink-0 h-[60vh] lg:h-[calc(100vh-84px)] lg:sticky lg:top-20 order-2 lg:order-1">
         <GraffitiChat
           streamId={stream.id}
           initialMessages={initialMessages as any}
