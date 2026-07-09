@@ -378,33 +378,21 @@ export default function GraffitiChat({
     if (!isGrokFuego || !isConnected) return;
 
     const fuegoInterval = setInterval(async () => {
-      try {
-        const res = await fetch("/api/grok", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            prompt: language === "fr" 
-              ? "Crie un commentaire fuego ultra wacké avec sacres pour le chat en direct. Court et en feu !"
-              : "Shout a fiery ultra wacké comment with sacres for the live chat. Short and on fire!",
-            maxTokens: 40,
-          }),
-        });
-        const data = await res.json();
-        if (data.content) {
+        const content = getUltraChaosIntervention(language);
+        if (content) {
           const fuegoMsg: ChatMessage = {
             id: `grok-fuego-${Date.now()}`,
             streamId,
             userId: "grok-fuego",
-            content: `🔥 ${data.content}`,
+            content: `🔥 ${content}`,
             isSacre: true,
             createdAt: new Date().toISOString(),
             user: { id: "grok-fuego", username: "grok", displayName: "GROK ON FUEGO", avatarUrl: null },
           };
           setGrokMessages(prev => [...prev, fuegoMsg].slice(-5));
           // Grok FUEGO — use real cloud Grok voice
-          speakWithCloudGrokVoice(`🔥 ${data.content}`, language);
+          speakWithCloudGrokVoice(`🔥 ${content}`, language);
         }
-      } catch {}
     }, 15000); // fuego every 15s
 
     return () => clearInterval(fuegoInterval);
