@@ -160,6 +160,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
           streamerId={`twitch-mock-streamer-${twitchUsername}`}
           streamId={`twitch-mock-chat-${twitchUsername}`}
           authToken={undefined}
+          viewerCount={15400}
         />
       </div>
     );
@@ -259,6 +260,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
           streamerId={`kick-mock-streamer-${cleanUsername}`}
           streamId={`kick-mock-chat-${cleanUsername}`}
           authToken={undefined}
+          viewerCount={12400}
         />
       </div>
     );
@@ -402,6 +404,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
       streamerId={user.id}
       streamId={stream.id}
       authToken={token}
+      viewerCount={stream.viewerCount}
       />
     </>
   );
