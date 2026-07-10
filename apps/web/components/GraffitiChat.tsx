@@ -715,7 +715,7 @@ export default function GraffitiChat({
             }`}
             title={sacreMode ? t("sacreActive") : t("sacreDisabled")}
           >
-            <span>SACRÉ</span>
+            <span>{t("sacreLabel").toUpperCase()}</span>
             {sacreMode ? (
               <Flame className="w-3 h-3 fill-current" />
             ) : (
@@ -1006,7 +1006,7 @@ export default function GraffitiChat({
                   handleGrokConsult();
                 }
               }}
-              placeholder="roast my setup / idée de contenu / sacre fun..."
+              placeholder={language === "fr" ? "roast mon setup / idée de contenu / sacre fun..." : "roast my setup / content idea / fun chaos..."}
               className="flex-1 bg-white/3 border border-wacke-cyan/20 rounded-xl px-3 py-1.5 text-xs focus:border-wacke-cyan transition-all placeholder:text-gray-600"
             />
             <button
