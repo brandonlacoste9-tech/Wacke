@@ -49,6 +49,7 @@ export const translations = {
 
     // ── Combined Stream Grid ──────────────────────────────────────────
     liveNow: "🔴 LIVE MAINTENANT",
+    discover: "À découvrir",
     loadMore: "Charger plus",
     all: "Tout",
     noLiveStreams: "Aucun stream en direct pour le moment",
@@ -326,6 +327,7 @@ export const translations = {
 
     // ── Combined Stream Grid ──────────────────────────────────────────
     liveNow: "🔴 LIVE NOW",
+    discover: "Discover",
     loadMore: "Load more",
     all: "All",
     noLiveStreams: "No live streams currently",
