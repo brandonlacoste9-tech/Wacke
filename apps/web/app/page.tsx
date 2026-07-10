@@ -34,7 +34,7 @@ export default function HomePage() {
 
         <div className="relative z-20 text-center px-4 mt-6">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black font-display mb-4 tracking-tight uppercase drop-shadow-[0_0_24px_rgba(255,42,133,0.45)]">
-            <span className="gradient-text-cyber">{t("welcome")}</span>
+            <span className="gradient-text-cyber graffiti-text">WACKE</span>
           </h1>
           <p className="text-base md:text-lg text-gray-200 font-medium max-w-xl mx-auto drop-shadow-md mb-6">
             {t("heroSubtitle")} <span className="text-wacke-cyan font-bold">+ Grok chaos</span>

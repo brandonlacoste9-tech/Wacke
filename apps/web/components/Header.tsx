@@ -87,7 +87,7 @@ export default function Header() {
             className="h-8 w-8 object-contain rounded-md shadow-[0_0_12px_rgba(255,0,255,0.4)] group-hover:shadow-[0_0_20px_rgba(255,0,255,0.6)] transition-shadow"
           />
           <span className="text-2xl font-bold graffiti-text neon-pink group-hover:opacity-80 transition-opacity hidden sm:block">
-            WACKÉ
+            WACKE
           </span>
           <span className="hidden md:inline text-[10px] font-mono tracking-widest text-wacke-cyan/70 border border-wacke-cyan/30 px-1.5 py-0.5 rounded ml-1.5">POWERED BY GROK xAI</span>
         </Link>
