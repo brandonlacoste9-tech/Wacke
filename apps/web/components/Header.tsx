@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useAuth } from "./AuthProvider";
 import { useRouter } from "next/navigation";
-import { Search, Palette, Bot } from "lucide-react";
+import { Search, Bot } from "lucide-react";
 import NotificationBell from "./NotificationBell";
 import UserDropdown from "./UserDropdown";
 import { useLanguage } from "./LanguageProvider";
@@ -26,7 +26,6 @@ export default function Header() {
   const router = useRouter();
 
   const { language, setLanguage, t } = useLanguage();
-  const [theme, setTheme] = useState<"cyber" | "graffiti" | "gold">("cyber");
   
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [showGoldRain, setShowGoldRain] = useState(false);
@@ -52,33 +51,6 @@ export default function Header() {
     }
   }, [refreshUser]);
 
-  // Load theme from localStorage on mount
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("wacke-theme") as any;
-    if (savedTheme && ["cyber", "graffiti", "gold"].includes(savedTheme)) {
-      setTheme(savedTheme);
-      applyTheme(savedTheme);
-    }
-  }, []);
-
-  const applyTheme = (t: "cyber" | "graffiti" | "gold") => {
-    const root = document.documentElement;
-    root.classList.remove("theme-cyber", "theme-graffiti", "theme-gold");
-    if (t !== "cyber") {
-      root.classList.add(`theme-${t}`);
-    }
-  };
-
-  const cycleTheme = () => {
-    let next: "cyber" | "graffiti" | "gold" = "cyber";
-    if (theme === "cyber") next = "graffiti";
-    else if (theme === "graffiti") next = "gold";
-    else next = "cyber";
-
-    setTheme(next);
-    localStorage.setItem("wacke-theme", next);
-    applyTheme(next);
-  };
 
   const handleClaim = async () => {
     setIsClaiming(true);
@@ -217,17 +189,6 @@ export default function Header() {
               {/* Notification Bell */}
               <NotificationBell />
 
-              {/* Theme Cycle Button */}
-              <button
-                onClick={cycleTheme}
-                className="hidden sm:block p-2 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white"
-                title={`${t("themeLabel")} : ${theme.toUpperCase()} (${t("nightMode")})`}
-                type="button"
-              >
-                <Palette className={`w-4 h-4 transition-colors ${
-                  theme === "cyber" ? "text-wacke-pink" : theme === "graffiti" ? "text-green-400" : "text-yellow-400"
-                }`} />
-              </button>
 
               {/* Language Switch Button */}
               <button
