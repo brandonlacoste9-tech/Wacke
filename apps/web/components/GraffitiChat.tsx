@@ -301,6 +301,7 @@ export default function GraffitiChat({
     isConnected: isKickConnected,
     hasKickAuth,
     sendToKick,
+    isQuiet: isKickQuiet,
   } = useKickChat({ kickUsername, enabled: !!kickUsername });
 
   // ── Twitch real-time chat integration ────────────────────────────────────
@@ -727,7 +728,11 @@ export default function GraffitiChat({
           <div className="text-center mt-12 space-y-3">
             <img src="/spray_can.png" alt="Spray" className="w-10 h-10 mx-auto opacity-40" />
             <p className="text-gray-400 text-xs font-medium">
-              {t("chatEmpty")}
+              {isKickQuiet && kickUsername
+                ? (language === "fr"
+                    ? "Connecté au chat Kick — en attente d'activité. Le streamer est peut-être hors ligne."
+                    : "Connected to Kick chat — waiting for activity. The streamer may be offline.")
+                : t("chatEmpty")}
             </p>
           </div>
         )}

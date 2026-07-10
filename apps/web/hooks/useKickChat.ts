@@ -33,6 +33,7 @@ interface UseKickChatReturn {
   isConnected: boolean;
   chatroomId: number | null;
   hasKickAuth: boolean;
+  isQuiet: boolean;
   sendToKick: (content: string) => Promise<{ success: boolean; error?: string }>;
 }
 
@@ -52,6 +53,9 @@ export function useKickChat({
   const [isConnected, setIsConnected] = useState(false);
   const [chatroomId, setChatroomId] = useState<number | null>(null);
   const [hasKickAuth, setHasKickAuth] = useState(false);
+  // True once we've been connected for a while with zero messages — usually means
+  // the streamer is offline, so their Pusher chatroom is silent.
+  const [isQuiet, setIsQuiet] = useState(false);
   const pusherRef = useRef<any>(null);
   const channelRef = useRef<any>(null);
 
@@ -103,6 +107,11 @@ export function useKickChat({
 
         pusher.connection.bind("connected", () => {
           if (!cancelled) setIsConnected(true);
+          // If no messages arrive within 12s of connecting, flag the chat as quiet
+          // so the UI can hint the streamer may be offline.
+          quietTimer = window.setTimeout(() => {
+            if (!cancelled) setIsQuiet(true);
+          }, 12000);
         });
 
         pusher.connection.bind("disconnected", () => {
@@ -123,12 +132,23 @@ export function useKickChat({
           if (!cancelled) setIsConnected(true);
         });
 
-        // 4. Listen for chat messages
-        channel.bind("App\\Events\\ChatMessageSent", (data: any) => {
+        // 4. Listen for chat messages.
+        // Kick renamed their event from "ChatMessageSent" to "ChatMessageEvent".
+        // Bind to both so we keep working if they roll back or use either.
+        const handleChatMessage = (payload: any) => {
           if (cancelled) return;
 
-          const msg = data?.data ?? data;
-          if (!msg) return;
+          // A real message arrived — not quiet anymore
+          setIsQuiet(false);
+          if (quietTimer) { clearTimeout(quietTimer); quietTimer = null; }
+
+          // Kick's Pusher payload nests the message as a JSON string in `data`.
+          // Normalize it into an object.
+          let msg = payload?.data ?? payload;
+          if (typeof msg === "string") {
+            try { msg = JSON.parse(msg); } catch { return; }
+          }
+          if (!msg || typeof msg !== "object") return;
 
           const sender = msg.sender ?? {};
           const identity = msg.broadcaster ?? sender;
@@ -149,7 +169,7 @@ export function useKickChat({
               // full for badge renderer (supports sub tiers etc)
               rawBadges,
             } as any,
-            createdAt: new Date().toISOString(),
+            createdAt: msg.created_at ? new Date(msg.created_at).toISOString() : new Date().toISOString(),
           };
 
           setMessages((prev) => {
@@ -157,16 +177,22 @@ export function useKickChat({
             const next = [...prev, kickMsg];
             return next.slice(-150);
           });
-        });
+        };
+
+        channel.bind("App\\Events\\ChatMessageEvent", handleChatMessage);
+        channel.bind("App\\Events\\ChatMessageSent", handleChatMessage);
       } catch (err) {
         console.error("[useKickChat] Connection failed:", err);
       }
     }
 
+    let quietTimer: number | null = null;
+
     connect();
 
     return () => {
       cancelled = true;
+      if (quietTimer) { clearTimeout(quietTimer); quietTimer = null; }
       if (channelRef.current) {
         try {
           pusherRef.current?.unsubscribe(channelRef.current.name);
@@ -209,5 +235,5 @@ export function useKickChat({
     [chatroomId]
   );
 
-  return { messages, isConnected, chatroomId, hasKickAuth, sendToKick };
+  return { messages, isConnected, chatroomId, hasKickAuth, sendToKick, isQuiet };
 }

@@ -27,11 +27,19 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  // Fallback for demo/testing due to Kick's Cloudflare blocking backend fetch
+  // Kick's Cloudflare blocks server-side (Node) fetches to kick.com/api/v2 with a 403,
+  // so we keep a verified chatroom-ID map for our curated streamers. These IDs are
+  // stable (they don't change), fetched once from Kick's public channel API.
+  // Without this, Pusher never receives a chatroom_id and the chat stays empty.
   const FALLBACK_CHATROOMS: Record<string, number> = {
     "xqc": 668,
-    "adinross": 11,
-    "trainwreckstv": 1,
+    "adinross": 875062,
+    "trainwreckstv": 715,
+    "amouranth": 7022952,
+    "roshtein": 4598,
+    "odablock": 2393554,
+    "westcol": 669512,
+    "billybrown": 74091102,
     "kissablipicasso": 115346469,
   };
 
