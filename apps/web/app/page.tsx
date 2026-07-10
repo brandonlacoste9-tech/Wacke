@@ -4,9 +4,7 @@ import Link from "next/link";
 import KickFeaturedCarousel from "@/components/KickFeaturedCarousel";
 import CombinedStreamGrid from "@/components/CombinedStreamGrid";
 import TrendingGames from "@/components/TrendingGames";
-import FeatureShowcase from "@/components/FeatureShowcase";
 import ParticleBackground from "@/components/ParticleBackground";
-import GrokHotTakes from "@/components/GrokHotTakes";
 import GrokFire from "@/components/GrokFire";
 import GrokBuildInstall from "@/components/GrokBuildInstall";
 import { useLanguage } from "@/components/LanguageProvider";
@@ -84,14 +82,6 @@ export default function HomePage() {
         <CombinedStreamGrid
           limit={20}
         />
-      </section>
-
-      {/* ── Feature Showcase ───────────────────────────────────────────── */}
-      <FeatureShowcase />
-
-      {/* Grok xAI Hot Takes - fresh roasts powered by real Grok */}
-      <section className="px-6 lg:px-8 pb-12 max-w-4xl mx-auto">
-        <GrokHotTakes />
       </section>
 
       {/* ── Category Quick Links ───────────────────────────────────────── */}
