@@ -13,7 +13,7 @@ const MOCK_NOTIFICATIONS_FR = [
 
 const MOCK_NOTIFICATIONS_EN = [
   { id: "1", type: "follow", message: "Sophie 🎮 followed you!", time: "2 min ago", read: false },
-  { id: "2", type: "boum", message: "Gabriel 🏪 sent a BOUM! 🔥", time: "15 min ago", read: false },
+  { id: "2", type: "boum", message: "Gabriel 🏪 sent a BOOM! 🔥", time: "15 min ago", read: false },
   { id: "3", type: "gift", message: "Ti-Coune gifted you 100 tokens 💰", time: "1h ago", read: true },
   { id: "4", type: "live", message: "xQc is live! 🔴", time: "2h ago", read: true },
 ];

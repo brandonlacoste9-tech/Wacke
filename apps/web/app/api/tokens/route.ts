@@ -62,12 +62,14 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { action, toUserId, streamId, amount } = body as {
+    const { action, toUserId, streamId, amount, lang } = body as {
       action: "gift" | "boum";
       toUserId: string;
       streamId?: string;
       amount: number;
+      lang?: "fr" | "en";
     };
+    const isEn = lang !== "fr";
 
     // ─── Validation ───────────────────────────────────────────────────────
     if (!["gift", "boum"].includes(action)) {
@@ -96,8 +98,8 @@ export async function POST(req: NextRequest) {
 
     const reason =
       action === "boum"
-        ? "Réaction Boum! 🔥"
-        : `Don de ${txAmount} tokens 💜`;
+        ? isEn ? "Boom! reaction 🔥" : "Réaction Boum! 🔥"
+        : isEn ? `Gift of ${txAmount} tokens 💜` : `Don de ${txAmount} tokens 💜`;
 
     // ─── Execute Transfer ─────────────────────────────────────────────────
     await transferTokens({
@@ -113,7 +115,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       newBalance,
-      message: action === "boum" ? "BOUM! 🔥" : `${txAmount} tokens envoyés! 💜`,
+      message: action === "boum"
+        ? (isEn ? "BOOM! 🔥" : "BOUM! 🔥")
+        : (isEn ? `${txAmount} tokens sent! 💜` : `${txAmount} tokens envoyés! 💜`),
     });
   } catch (error) {
     console.error("[TOKENS_POST_ERROR]", error);

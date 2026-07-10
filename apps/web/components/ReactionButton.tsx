@@ -52,6 +52,7 @@ export default function ReactionButton({
           toUserId: streamerId,
           streamId,
           amount: 5,
+          lang: language,
         }),
       });
 
@@ -72,7 +73,7 @@ export default function ReactionButton({
           body: JSON.stringify({
             prompt: language === "fr" 
               ? `Réponds en une phrase drôle et wackée à un viewer qui vient de faire un BOUM! sur ${streamerId}. Utilise sacre si ça fit.`
-              : `Respond in one funny wacké sentence to a viewer who just Boum!'d on ${streamerId}. Use sacre if it fits.`,
+              : `Respond in one funny wacké sentence to a viewer who just Boom!'d on ${streamerId}. Use sacre if it fits.`,
             maxTokens: 40,
           }),
         });
@@ -112,7 +113,7 @@ export default function ReactionButton({
         className="bg-gradient-to-r from-red-600 to-orange-500 hover:opacity-90 active:scale-95 border border-red-500/40 px-5 py-2 rounded-lg font-bold flex items-center space-x-2 transition-all hover:scale-105"
       >
         <Flame className="w-5 h-5 text-white fill-current animate-pulse" />
-        <span>BOUM!</span>
+        <span>{language === "fr" ? "BOUM!" : "BOOM!"}</span>
       </button>
 
       {toastMsg && (

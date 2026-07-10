@@ -220,7 +220,7 @@ export default function TokenBar({
                 title={language === "fr" ? "Envoyer un Boum! (5 tokens)" : "Send a Boom! (5 tokens)"}
               >
                 <Flame className="w-3.5 h-3.5 text-white fill-current animate-pulse" />
-                <span className="hidden sm:inline">BOUM!</span>
+                <span className="hidden sm:inline">{language === "fr" ? "BOUM!" : "BOOM!"}</span>
               </button>
 
               {/* Grok xAI Mini-Game */}
