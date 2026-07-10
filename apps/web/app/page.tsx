@@ -8,6 +8,7 @@ import FeatureShowcase from "@/components/FeatureShowcase";
 import ParticleBackground from "@/components/ParticleBackground";
 import GrokHotTakes from "@/components/GrokHotTakes";
 import GrokFire from "@/components/GrokFire";
+import GrokBuildInstall from "@/components/GrokBuildInstall";
 import { useLanguage } from "@/components/LanguageProvider";
 import { Gamepad2, Music, Dices, Glasses, Snowflake, Palette, TrendingUp, Users, Zap } from "lucide-react";
 
@@ -128,6 +129,9 @@ export default function HomePage() {
           <TrendingGames />
         </div>
       </section>
+
+      {/* ── Grok Build — CLI install banner ─────────────────────────────── */}
+      <GrokBuildInstall />
     </main>
   );
 }
