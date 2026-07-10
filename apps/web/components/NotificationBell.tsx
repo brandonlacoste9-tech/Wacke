@@ -4,11 +4,18 @@ import { useState, useRef, useEffect } from "react";
 import { Bell } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
 
-const MOCK_NOTIFICATIONS = [
+const MOCK_NOTIFICATIONS_FR = [
   { id: "1", type: "follow", message: "Sophie 🎮 t'a suivi!", time: "il y a 2 min", read: false },
   { id: "2", type: "boum", message: "Gabriel 🏪 a envoyé un BOUM! 🔥", time: "il y a 15 min", read: false },
   { id: "3", type: "gift", message: "Ti-Coune t'a offert 100 jetons 💰", time: "il y a 1h", read: true },
   { id: "4", type: "live", message: "xQc est en live! 🔴", time: "il y a 2h", read: true },
+];
+
+const MOCK_NOTIFICATIONS_EN = [
+  { id: "1", type: "follow", message: "Sophie 🎮 followed you!", time: "2 min ago", read: false },
+  { id: "2", type: "boum", message: "Gabriel 🏪 sent a BOUM! 🔥", time: "15 min ago", read: false },
+  { id: "3", type: "gift", message: "Ti-Coune gifted you 100 tokens 💰", time: "1h ago", read: true },
+  { id: "4", type: "live", message: "xQc is live! 🔴", time: "2h ago", read: true },
 ];
 
 /**
@@ -16,8 +23,8 @@ const MOCK_NOTIFICATIONS = [
  */
 export default function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
-  const { t } = useLanguage();
-  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+  const { t, language } = useLanguage();
+  const [notifications, setNotifications] = useState(language === "fr" ? MOCK_NOTIFICATIONS_FR : MOCK_NOTIFICATIONS_EN);
   const [hasRung, setHasRung] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 

@@ -69,7 +69,7 @@ export default function TokenBar({
     const tip = getRandomGrokTip(language);
     setTimeout(() => {
       const bonus = Math.floor(Math.random() * 150) + 50;
-      showFeedback(`${GROK_BRAND}: ${tip} +${bonus} jetons!`);
+      showFeedback(`${GROK_BRAND}: ${tip} +${bonus} ${language === "fr" ? "jetons" : "tokens"}!`);
       setGrokChallengeActive(false);
     }, 850);
   };

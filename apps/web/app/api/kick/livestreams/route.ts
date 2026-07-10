@@ -89,7 +89,7 @@ function getFallbackTitle(slug: string): string {
     amouranth: "💜 LIVE STREAM",
     roshtein: "🎲 SLOTS - HIGH LIMIT SESSION",
     trainwreckstv: "🎤 TALK SHOW LIVE",
-    westcol: "🕹️ GAMING AVEC LES ABONNÉS",
+    westcol: "🕹️ GAMING WITH THE HOMIES",
     billybrown: "🔴 LIVE STREAM",
   };
   return titles[slug] ?? "🔴 LIVE STREAM FROM KICK.COM";

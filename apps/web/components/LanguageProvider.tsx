@@ -40,8 +40,12 @@ function persistLang(lang: Language) {
   let domainStr = "";
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
-    // Basic root domain extraction (wacke.live, wacke.ca) - skip for localhost/IPs
-    if (hostname.includes(".")) {
+    // Skip IP addresses (e.g. 127.0.0.1) and bare hostnames. Setting a domain
+    // attribute on an IP host produces a malformed cookie (.0.1) that browsers
+    // reject, so the language preference silently fails to persist in dev/IP access.
+    const isIPv4 = /^\d{1,3}(\.\d{1,3}){3}$/.test(hostname);
+    const isIPv6 = hostname.includes(":");
+    if (hostname.includes(".") && !isIPv4 && !isIPv6) {
       const parts = hostname.split(".");
       if (parts.length > 2) {
         // e.g. www.wacke.live -> .wacke.live

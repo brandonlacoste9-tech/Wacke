@@ -20,7 +20,9 @@ export default function GrokStreamTools({ streamerName }: { streamerName: string
   const [betAmount, setBetAmount] = useState(50);
 
   const handleNewTitle = async () => {
-    const prompt = `Génère un titre de stream hilarant, wacké et créatif pour le streamer ${streamerName}. Utilise de l'humour et du slang décontracté.`;
+    const prompt = language === "fr"
+      ? `Génère un titre de stream hilarant, wacké et créatif pour le streamer ${streamerName}. Utilise de l'humour et du slang décontracté.`
+      : `Generate a hilarious, wacké and creative stream title for streamer ${streamerName}. Use humor and casual slang.`;
     const newTitle = await generateGrokResponse(prompt, language);
     setCurrentTitle(newTitle);
   };
@@ -35,7 +37,9 @@ export default function GrokStreamTools({ streamerName }: { streamerName: string
   };
 
   const handleGrokPrediction = async () => {
-    const prompt = `Crée une prédiction drôle et précise pour le stream de ${streamerName}. Inclus des odds et un niveau de confiance. Réponds en format court.`;
+    const prompt = language === "fr"
+      ? `Crée une prédiction drôle et précise pour le stream de ${streamerName}. Inclus des odds et un niveau de confiance. Réponds en format court.`
+      : `Create a funny and precise prediction for ${streamerName}'s stream. Include odds and a confidence level. Reply in a short format.`;
     const raw = await generateGrokResponse(prompt, language);
     // Parse a bit or use as is
     setPrediction({
@@ -102,7 +106,7 @@ export default function GrokStreamTools({ streamerName }: { streamerName: string
           onClick={triggerGrokEvent}
           className="w-full flex items-center justify-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] py-2 rounded-xl text-sm font-bold transition-all hover:scale-[1.01] active:scale-95"
         >
-          <MessageCircle className="w-4 h-4" /> DÉCLENCHER UN ÉVÉNEMENT GROK
+          <MessageCircle className="w-4 h-4" /> {language === "fr" ? "DÉCLENCHER UN ÉVÉNEMENT GROK" : "TRIGGER GROK EVENT"}
         </button>
         {grokEvents.length > 0 && (
           <div className="mt-2 space-y-1 text-[10px]">

@@ -485,9 +485,12 @@ export default function GraffitiChat({
   // Grok touch: instant witty chaotic AI response (Grok's special sauce)
   const handleGrokConsult = async () => {
     if (!grokPrompt.trim()) {
-      setGrokPrompt("Donne-moi une idée de contenu wacké");
+      setGrokPrompt(language === "fr" ? "Donne-moi une idée de contenu wacké" : "Give me a wacké content idea");
     }
-    const response = await generateGrokResponse(grokPrompt.trim() || "idées fun pour stream", language);
+    const response = await generateGrokResponse(
+      grokPrompt.trim() || (language === "fr" ? "idées fun pour stream" : "fun stream ideas"),
+      language
+    );
     const grokMessage: ChatMessage = {
       id: `grok-${Date.now()}`,
       streamId,

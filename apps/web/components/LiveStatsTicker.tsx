@@ -20,7 +20,7 @@ export default function LiveStatsTicker() {
   });
   const [pulse, setPulse] = useState(false);
   const [displayViewers, setDisplayViewers] = useState(0);
-  const [grokFact, setGrokFact] = useState("Grok xAI dit: Le chaos gagne toujours.");
+  const [grokFact, setGrokFact] = useState("");
   const [factLoading, setFactLoading] = useState(false);
 
   const fetchGrokFact = async () => {
@@ -45,6 +45,13 @@ export default function LiveStatsTicker() {
     } catch {}
     setFactLoading(false);
   };
+
+  // Fetch a fresh Grok fact on mount + whenever the language changes,
+  // so the ticker never sits on a stale (or French-when-English) default.
+  useEffect(() => {
+    fetchGrokFact();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -140,7 +147,7 @@ export default function LiveStatsTicker() {
             <span className="flex items-center space-x-1 text-wacke-cyan cursor-pointer" onClick={fetchGrokFact}>
               <Bot className="w-3 h-3" />
               <span className="font-bold">GROK:</span>
-              <span className="text-gray-300 hover:text-white">{factLoading ? "..." : grokFact}</span>
+              <span className="text-gray-300 hover:text-white">{factLoading ? "..." : (grokFact || (language === "fr" ? "Clique pour un fait Grok..." : "Click for a Grok fact..."))}</span>
               <Volume2 className="w-3 h-3 hover:text-white" onClick={(e) => { e.stopPropagation(); speakWithCloudGrokVoice(grokFact, language); }} />
             </span>
             <span className="flex items-center space-x-1">
