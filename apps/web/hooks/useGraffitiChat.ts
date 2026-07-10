@@ -199,12 +199,19 @@ export function useGraffitiChat({
         return { error: modResult.reason };
       }
 
+      if (!authToken) {
+        return { error: "Tu dois être connecté pour chatter" };
+      }
+
       setIsSending(true);
 
       try {
         const response = await fetch("/api/chat", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
           body: JSON.stringify({
             streamId,
             content: modResult.sanitized,
@@ -214,6 +221,10 @@ export function useGraffitiChat({
 
         if (!response.ok) {
           const data = await response.json();
+          // Friendlier message for the common 401 case
+          if (response.status === 401) {
+            return { error: "Tu dois être connecté pour chatter" };
+          }
           return { error: data.error ?? "Erreur d'envoi" };
         }
 
@@ -224,7 +235,7 @@ export function useGraffitiChat({
         setIsSending(false);
       }
     },
-    [streamId, currentUserId, sacreModeEnabled, isSending]
+    [streamId, currentUserId, authToken, sacreModeEnabled, isSending]
   );
 
   // ─── Send TTS Message ──────────────────────────────────────────────────────

@@ -1030,8 +1030,10 @@ export default function GraffitiChat({
       )}
 
       {/* ── Chat Input ────────────────────────────────────────────────────── */}
-      <div className="p-3 border-t border-white/[0.07]">
-        <div className="flex space-x-2">
+      <div className="p-3 border-t border-white/[0.07] space-y-2">
+        {/* Tool toggles — own row so the input keeps full width */}
+        <div className="flex items-center justify-between gap-1">
+          <div className="flex items-center gap-1">
           {/* Emoji toggle */}
           <button
             onClick={() => {
@@ -1040,7 +1042,7 @@ export default function GraffitiChat({
               setShowSoundboard(false);
               setShowSacres(false);
             }}
-            className={`px-2 py-2 rounded-lg text-xl emoji transition-all shrink-0 ${
+            className={`p-1.5 rounded-lg text-lg emoji transition-all shrink-0 ${
               showEmojis ? "bg-wacke-purple/20 text-wacke-pink" : "text-gray-500 hover:text-white hover:bg-white/5"
             }`}
             title="Emojis"
@@ -1056,7 +1058,7 @@ export default function GraffitiChat({
               setShowSoundboard(false);
               setShowSacres(false);
             }}
-            className={`px-2 py-2 rounded-lg text-xl emoji transition-all shrink-0 ${
+            className={`p-1.5 rounded-lg text-lg emoji transition-all shrink-0 ${
               showSprayPanel ? "bg-wacke-purple/20 text-wacke-cyan" : "text-gray-500 hover:text-white hover:bg-white/5"
             }`}
              title={t("stickerTooltip")}
@@ -1072,7 +1074,7 @@ export default function GraffitiChat({
               setShowSprayPanel(false);
               setShowSacres(false);
             }}
-            className={`px-2 py-2 rounded-lg text-xl emoji transition-all shrink-0 ${
+            className={`p-1.5 rounded-lg text-lg emoji transition-all shrink-0 ${
               showSoundboard ? "bg-wacke-purple/20 text-yellow-400" : "text-gray-500 hover:text-white hover:bg-white/5"
             }`}
             title={t("soundTooltip")}
@@ -1088,7 +1090,7 @@ export default function GraffitiChat({
               setShowSprayPanel(false);
               setShowSoundboard(false);
             }}
-            className={`px-2 py-2 rounded-lg text-xl emoji transition-all shrink-0 ${
+            className={`p-1.5 rounded-lg text-lg emoji transition-all shrink-0 ${
               showSacres ? "bg-wacke-purple/20 text-red-400" : "text-gray-500 hover:text-white hover:bg-white/5"
             }`}
             title={t("sacreTooltip")}
@@ -1105,7 +1107,7 @@ export default function GraffitiChat({
               setShowSoundboard(false);
               setShowSacres(false);
             }}
-            className={`px-2 py-2 rounded-lg text-xl emoji transition-all shrink-0 ${
+            className={`p-1.5 rounded-lg text-lg emoji transition-all shrink-0 ${
               showGrokPanel ? "bg-wacke-cyan/20 text-wacke-cyan" : "text-gray-500 hover:text-white hover:bg-white/5"
             }`}
             title="Talk to Groké — type a prompt and hear real Grok xAI voice!"
@@ -1113,41 +1115,43 @@ export default function GraffitiChat({
           >
             🤖
           </button>
-          <div className="relative flex-1 flex items-center gap-2 rounded-2xl border border-white/[0.08] bg-black/40 px-3 py-2 transition-all focus-within:border-wacke-cyan/50 focus-within:shadow-[0_0_22px_rgba(0,240,255,0.18)]">
-            <input
-              ref={inputRef}
-              type="text"
-              value={inputValue}
-              onChange={(e) => {
-                let val = e.target.value;
-                val = val.replace(/:(\w+):/g, (match, code) => {
-                  const lower = code.toLowerCase();
-                  if (EMOTE_IMAGES[lower]) return match;
-                  return EMOTE_MAP[lower] || match;
-                });
-                setInputValue(val);
-              }}
-              onKeyDown={handleKeyDown}
-               placeholder={
-                 currentUserId ? "Write something wacké..." : t("loginToChat")
-              }
-              disabled={!currentUserId || isSending || isSendingTts}
-              maxLength={500}
-              className="flex-1 bg-transparent text-sm text-white placeholder-gray-600 outline-none disabled:opacity-40"
-            />
-            <button
-              onClick={handleSend}
-              disabled={!currentUserId || isSending || isSendingTts || !inputValue.trim()}
-              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-wacke-pink to-wacke-purple text-[11px] font-black text-white hover:scale-[1.04] active:scale-95 transition-all shadow-[0_0_14px_rgba(255,42,133,0.25)] disabled:opacity-30 disabled:shadow-none"
-               aria-label={t("sendLabel")}
-            >
-              {isSending ? "..." : "SEND"}
-            </button>
           </div>
         </div>
+        {/* Input + send — full width */}
+        <div className="relative flex items-center gap-2 rounded-2xl border border-white/[0.08] bg-black/40 px-3 py-2 transition-all focus-within:border-wacke-cyan/50 focus-within:shadow-[0_0_22px_rgba(0,240,255,0.18)]">
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={(e) => {
+              let val = e.target.value;
+              val = val.replace(/:(\w+):/g, (match, code) => {
+                const lower = code.toLowerCase();
+                if (EMOTE_IMAGES[lower]) return match;
+                return EMOTE_MAP[lower] || match;
+              });
+              setInputValue(val);
+            }}
+            onKeyDown={handleKeyDown}
+             placeholder={
+               currentUserId ? "Write something wacké..." : t("loginToChat")
+            }
+            disabled={!currentUserId || isSending || isSendingTts}
+            maxLength={500}
+            className="flex-1 min-w-0 bg-transparent text-sm text-white placeholder-gray-600 outline-none disabled:opacity-40"
+          />
+          <button
+            onClick={handleSend}
+            disabled={!currentUserId || isSending || isSendingTts || !inputValue.trim()}
+            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-wacke-pink to-wacke-purple text-[11px] font-black text-white hover:scale-[1.04] active:scale-95 transition-all shadow-[0_0_14px_rgba(255,42,133,0.25)] disabled:opacity-30 disabled:shadow-none shrink-0"
+             aria-label={t("sendLabel")}
+          >
+            {isSending ? "..." : "SEND"}
+          </button>
+        </div>
+      </div>
 
         {/* TTS Button Removed per user request */}
-      </div>
     </div>
   );
 }
