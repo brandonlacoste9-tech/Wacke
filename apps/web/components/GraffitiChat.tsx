@@ -454,6 +454,7 @@ export default function GraffitiChat({
           prompt: language === "fr" 
             ? "Génère un sacre québécois original, long et créatif avec préfixe, cœur et suffixe. Ex: 'Saint tabarnak de ciboire en calvaire'. Juste le sacre, rien d'autre."
             : "Generate an original creative Quebec sacre with prefix, core and suffix. E.g. 'Saint tabarnak de ciboire en calvaire'. Only the sacre, nothing else.",
+          lang: language
         }),
       });
       const data = await res.json();

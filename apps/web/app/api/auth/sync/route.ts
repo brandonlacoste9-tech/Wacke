@@ -17,7 +17,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Authorization manquante" }, { status: 401 });
     }
 
-    const token = authHeader.replace("Bearer ", "");
+    const rawToken = authHeader.replace("Bearer ", "");
+    const token = decodeURIComponent(rawToken);
     
     let user: any = null;
 
@@ -31,6 +32,11 @@ export async function POST(req: NextRequest) {
       const supabaseId = parts[2];
       
       const dbUser = await getUserBySupabaseId(supabaseId);
+      console.log("[AUTH_SYNC_DEBUG] token:", token);
+      console.log("[AUTH_SYNC_DEBUG] parsed username:", username);
+      console.log("[AUTH_SYNC_DEBUG] parsed supabaseId:", supabaseId);
+      console.log("[AUTH_SYNC_DEBUG] dbUser:", dbUser);
+
       if (!dbUser || dbUser.username !== username) {
         return NextResponse.json({ error: "Session invalide" }, { status: 401 });
       }

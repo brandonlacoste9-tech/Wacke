@@ -81,6 +81,7 @@ export async function generateGrokResponse(prompt: string, lang: "fr" | "en" = "
       body: JSON.stringify({
         prompt,
         system,
+        lang,
         maxTokens: 280,
       }),
     });
