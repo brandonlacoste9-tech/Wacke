@@ -7,7 +7,7 @@ import { useLanguage } from "./LanguageProvider";
 
 export interface UnifiedStream {
   id: string;
-  source: "kick" | "twitch";
+  source: "kick" | "twitch" | "wacké";
   username: string;
   displayName: string;
   title: string;
@@ -28,6 +28,7 @@ function formatViewers(n: number): string {
 const SOURCE_STYLES = {
   kick:   { bg: "bg-wacke-green/10 border-wacke-green/25 text-wacke-green", label: "KICK",   dot: "bg-wacke-green" },
   twitch: { bg: "bg-[#9146ff]/10 border-[#9146ff]/25 text-[#9146ff]", label: "TWITCH", dot: "bg-[#9146ff]" },
+  "wacké": { bg: "bg-wacke-pink/10 border-wacke-pink/25 text-wacke-pink", label: "WACKÉ", dot: "bg-wacke-pink" },
 };
 
 function SkeletonCard() {
@@ -151,9 +152,11 @@ export default function CombinedStreamGrid({
   const displayTitle = title || t("liveNow");
   const [kickStreams, setKickStreams] = useState<UnifiedStream[]>([]);
   const [twitchStreams, setTwitchStreams] = useState<UnifiedStream[]>([]);
+  const [wackeStreams, setWackeStreams] = useState<UnifiedStream[]>([]);
   const [loadingKick, setLoadingKick] = useState(true);
   const [loadingTwitch, setLoadingTwitch] = useState(true);
-  const [activeTab, setActiveTab] = useState<"all" | "kick" | "twitch">("all");
+  const [loadingWacke, setLoadingWacke] = useState(true);
+  const [activeTab, setActiveTab] = useState<"all" | "wacké" | "kick" | "twitch">("all");
   const [showCount, setShowCount] = useState(12);
 
   useEffect(() => {
@@ -206,20 +209,63 @@ export default function CombinedStreamGrid({
       .finally(() => setLoadingTwitch(false));
   }, [limit]);
 
+  // Wacké-native streams (broadcast live from Wacké Studio via Cloudflare WHIP).
+  // Only surface real broadcasts — skip the Kick fallback rows the DB returns
+  // when no Wacké streamer is live (those already appear under the Kick tab).
+  useEffect(() => {
+    fetch(`/api/streams?limit=${limit}`)
+      .then((r) => r.json())
+      .then((data) => {
+        const cfAcct = (process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_ID ?? "");
+        const unified: UnifiedStream[] = (data.streams ?? [])
+          .filter((s: any) => !String(s.id ?? "").startsWith("kick-mock-stream-"))
+          .filter((s: any) => s.user && (s.user.username || s.user.displayName))
+          .map((s: any) => {
+            const username = s.user.username ?? s.user.displayName ?? "user";
+            const displayName = s.user.displayName ?? username;
+            const playbackId = s.cloudflarePlaybackId && s.cloudflarePlaybackId !== "mock_playback_id"
+              ? s.cloudflarePlaybackId : null;
+            const thumbnailUrl = playbackId && cfAcct
+              ? `https://customer-${cfAcct}.cloudflarestream.com/${playbackId}/thumbnails/thumbnail.jpg`
+              : null;
+            return {
+              id: `wacke-${s.id ?? username}`,
+              source: "wacké" as const,
+              username,
+              displayName,
+              title: s.title ?? "Live from Wacké Studio",
+              category: s.category ?? "Live",
+              viewerCount: s.viewerCount ?? 0,
+              thumbnailUrl,
+              avatarUrl: s.user.avatarUrl ?? null,
+              isLive: s.status === "live",
+            };
+          });
+        setWackeStreams(unified);
+      })
+      .catch((err) => {
+        // DB may be unreachable in some environments — fail silently, grid still shows Kick/Twitch
+        console.warn("[Wacké streams] could not load native streams", err);
+      })
+      .finally(() => setLoadingWacke(false));
+  }, [limit]);
+
   const loading = loadingKick && loadingTwitch;
 
   const allStreams = useMemo(
-    () => [...kickStreams, ...twitchStreams].sort((a, b) => b.viewerCount - a.viewerCount),
-    [kickStreams, twitchStreams]
+    () => [...wackeStreams, ...kickStreams, ...twitchStreams].sort((a, b) => b.viewerCount - a.viewerCount),
+    [wackeStreams, kickStreams, twitchStreams]
   );
 
   const displayed = useMemo(() => {
+    if (activeTab === "wacké") return wackeStreams;
     if (activeTab === "kick") return kickStreams;
     if (activeTab === "twitch") return twitchStreams;
     return allStreams;
-  }, [activeTab, kickStreams, twitchStreams, allStreams]);
+  }, [activeTab, wackeStreams, kickStreams, twitchStreams, allStreams]);
 
   const tabLoading =
+    (activeTab === "wacké" && loadingWacke) ||
     (activeTab === "kick" && loadingKick) ||
     (activeTab === "twitch" && loadingTwitch) ||
     (activeTab === "all" && loading);
@@ -243,6 +289,9 @@ export default function CombinedStreamGrid({
         <div className="flex items-center space-x-2">
           <Tab active={activeTab === "all"} onClick={() => setActiveTab("all")}>
             🌐 {t("all")} ({allStreams.length})
+          </Tab>
+          <Tab active={activeTab === "wacké"} onClick={() => setActiveTab("wacké")}>
+            <span className="text-wacke-pink">●</span> Wacké ({wackeStreams.length})
           </Tab>
           <Tab active={activeTab === "kick"} onClick={() => setActiveTab("kick")}>
             <span className="text-wacke-green">●</span> Kick ({kickStreams.length})
