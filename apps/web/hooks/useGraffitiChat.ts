@@ -27,6 +27,7 @@ interface UseGraffitiChatOptions {
   sacreModeEnabled: boolean;
   initialMessages?: ChatMessage[];
   authToken?: string;
+  currentUser?: { username: string; displayName: string; avatarUrl?: string | null };
 }
 
 interface UseGraffitiChatReturn {
@@ -57,6 +58,7 @@ export function useGraffitiChat({
   sacreModeEnabled,
   initialMessages = [],
   authToken,
+  currentUser,
 }: UseGraffitiChatOptions): UseGraffitiChatReturn {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [isConnected, setIsConnected] = useState(false);
@@ -190,7 +192,6 @@ export function useGraffitiChat({
   // ─── Send Message ──────────────────────────────────────────────────────────
   const sendMessage = useCallback(
     async (content: string): Promise<{ error?: string }> => {
-      if (!currentUserId) return { error: "Tu dois être connecté pour chatter" };
       if (isSending) return { error: "Attends un peu..." };
 
       // Client-side moderation pre-check
@@ -199,6 +200,33 @@ export function useGraffitiChat({
         return { error: modResult.reason };
       }
 
+      // Demo/mock streams (Twitch & Kick embed fallbacks) have no DB stream row.
+      // Echo the message locally so the chat feels alive instead of 404-ing.
+      const isMockStream =
+        streamId.startsWith("twitch-mock-chat-") ||
+        streamId.startsWith("kick-mock-chat-");
+      if (isMockStream) {
+        const echo: ChatMessage = {
+          id: `local-${Date.now()}`,
+          streamId,
+          userId: currentUserId ?? "guest",
+          content: modResult.sanitized,
+          isSacre: modResult.isSacre,
+          createdAt: new Date().toISOString(),
+          user: {
+            id: currentUserId ?? "guest",
+            username: currentUser?.username ?? "invite",
+            displayName: currentUser?.displayName ?? "Invité",
+            avatarUrl: currentUser?.avatarUrl ?? null,
+          },
+        };
+        setMessages((prev) =>
+          prev.some((m) => m.id === echo.id) ? prev : [...prev, echo].slice(-100)
+        );
+        return {};
+      }
+
+      if (!currentUserId) return { error: "Tu dois être connecté pour chatter" };
       if (!authToken) {
         return { error: "Tu dois être connecté pour chatter" };
       }
@@ -235,7 +263,7 @@ export function useGraffitiChat({
         setIsSending(false);
       }
     },
-    [streamId, currentUserId, authToken, sacreModeEnabled, isSending]
+    [streamId, currentUserId, currentUser, authToken, sacreModeEnabled, isSending]
   );
 
   // ─── Send TTS Message ──────────────────────────────────────────────────────

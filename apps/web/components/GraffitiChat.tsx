@@ -285,7 +285,15 @@ export default function GraffitiChat({
     sacreModeEnabled: sacreMode,
     initialMessages,
     authToken: token || undefined,
+    currentUser: authUser
+      ? { username: authUser.username, displayName: authUser.displayName, avatarUrl: authUser.avatarUrl }
+      : undefined,
   });
+
+  // Demo/mock streams (Twitch/Kick embed fallbacks): chat echoes locally only.
+  const isMockStream =
+    streamId.startsWith("twitch-mock-chat-") ||
+    streamId.startsWith("kick-mock-chat-");
 
   // ── Kick real-time chat integration ──────────────────────────────────────
   const {
@@ -1134,15 +1142,15 @@ export default function GraffitiChat({
             }}
             onKeyDown={handleKeyDown}
              placeholder={
-               currentUserId ? "Write something wacké..." : t("loginToChat")
+               (currentUserId || isMockStream) ? "Write something wacké..." : t("loginToChat")
             }
-            disabled={!currentUserId || isSending || isSendingTts}
+            disabled={(!currentUserId && !isMockStream) || isSending || isSendingTts}
             maxLength={500}
             className="flex-1 min-w-0 bg-transparent text-sm text-white placeholder-gray-600 outline-none disabled:opacity-40"
           />
           <button
             onClick={handleSend}
-            disabled={!currentUserId || isSending || isSendingTts || !inputValue.trim()}
+            disabled={(!currentUserId && !isMockStream) || isSending || isSendingTts || !inputValue.trim()}
             className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-wacke-pink to-wacke-purple text-[11px] font-black text-white hover:scale-[1.04] active:scale-95 transition-all shadow-[0_0_14px_rgba(255,42,133,0.25)] disabled:opacity-30 disabled:shadow-none shrink-0"
              aria-label={t("sendLabel")}
           >
