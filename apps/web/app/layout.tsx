@@ -13,7 +13,7 @@ import { cookies } from "next/headers";
 
 export async function generateMetadata(): Promise<Metadata> {
   const cookieStore = cookies();
-  const lang = cookieStore.get("wacke_lang")?.value === "en" ? "en" : "fr";
+  const lang = cookieStore.get("wacke_lang")?.value === "fr" ? "fr" : "en";
   const isEn = lang === "en";
 
   const title = isEn ? "Wacké — Unfiltered Gen-Z Streaming | Powered by Grok xAI" : "Wacké — Le streaming sans filtre | Powered by Grok xAI";
@@ -58,13 +58,15 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = cookies();
+  const isEn = cookieStore.get("wacke_lang")?.value !== "fr";
   return (
-    <html lang="fr-CA" translate="no">
+    <html lang={isEn ? "en" : "fr-CA"} translate="no">
       <head>
         <meta name="google" content="notranslate" />
         <script

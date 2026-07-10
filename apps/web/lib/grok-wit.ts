@@ -65,7 +65,7 @@ const GROK_ROASTS_EN = [
 ];
 
 // Real Grok xAI call via our proxy (never exposes key to client)
-export async function generateGrokResponse(prompt: string, lang: "fr" | "en" = "fr"): Promise<string> {
+export async function generateGrokResponse(prompt: string, lang: "fr" | "en" = "en"): Promise<string> {
   try {
     const system = lang === "fr"
       ? "Tu es Grok, construit par xAI. Réponds en français argotique et décontracté, avec humour, vérité maximale et vibe chaotique. Sois utile, drôle et un peu unhinged. Toujours signer avec '— Grok xAI' à la fin."
@@ -99,7 +99,7 @@ export async function generateGrokResponse(prompt: string, lang: "fr" | "en" = "
   }
 }
 
-function getMockGrokResponse(prompt: string, lang: "fr" | "en" = "fr"): string {
+function getMockGrokResponse(prompt: string, lang: "fr" | "en" = "en"): string {
   const lower = prompt.toLowerCase().trim();
   const isRoast = lower.includes("roast") || lower.includes("suck") || lower.includes("bad") || lower.includes("pourri");
   const isIdea = lower.includes("idea") || lower.includes("suggestion") || lower.includes("idée") || lower.includes("quoi faire");
@@ -124,7 +124,7 @@ function getMockGrokResponse(prompt: string, lang: "fr" | "en" = "fr"): string {
   return `${prefix}${response} 🤖🔥`;
 }
 
-export function getRandomGrokTip(lang: "fr" | "en" = "fr"): string {
+export function getRandomGrokTip(lang: "fr" | "en" = "en"): string {
   const tips = lang === "fr"
     ? ["Grok tip: Spray un sticker AI pendant un moment chaos pour le combo ultime.", "Demande à Grok des idées de contenu, il connaît le game."]
     : ["Grok tip: Spray an AI sticker during a chaos moment for the ultimate combo.", "Ask Grok for content ideas — he knows the game."];
@@ -132,7 +132,7 @@ export function getRandomGrokTip(lang: "fr" | "en" = "fr"): string {
 }
 
 /** Powered by Grok xAI — Generate a live, witty stream title suggestion */
-export function generateStreamTitle(context: string = "", lang: "fr" | "en" = "fr"): string {
+export function generateStreamTitle(context: string = "", lang: "fr" | "en" = "en"): string {
   const contexts = context.toLowerCase();
   const titlesFR = [
     "Ça chauffe ce soir 🔥",
@@ -164,7 +164,7 @@ export function generateStreamTitle(context: string = "", lang: "fr" | "en" = "f
 }
 
 /** Grok xAI Profile Roast – brutal but loving */
-export function generateProfileRoast(username: string, lang: "fr" | "en" = "fr"): string {
+export function generateProfileRoast(username: string, lang: "fr" | "en" = "en"): string {
   const roastsFR = [
     `@${username} stream comme s'il avait bu 3 Red Bull et 0 talent. J'adore.`,
     `Le setup de @${username} a l'air d'un atelier après une inondation. 10/10 authenticité.`,
@@ -183,7 +183,7 @@ export function generateProfileRoast(username: string, lang: "fr" | "en" = "fr")
 }
 
 /** Grok-powered Poll generator for streams */
-export function generateGrokPoll(lang: "fr" | "en" = "fr"): { question: string; options: string[] } {
+export function generateGrokPoll(lang: "fr" | "en" = "en"): { question: string; options: string[] } {
   if (lang === "fr") {
     return {
       question: "C'est quoi le moment le plus unhinged que t'as vu en stream?",
@@ -197,7 +197,7 @@ export function generateGrokPoll(lang: "fr" | "en" = "fr"): { question: string; 
 }
 
 /** Random Grok event that can be injected into chat */
-export function getRandomGrokEvent(lang: "fr" | "en" = "fr"): string {
+export function getRandomGrokEvent(lang: "fr" | "en" = "en"): string {
   const eventsFR = [
     "🤖 Grok xAI: Tes viewers sont plus drôles que toi en ce moment. Monte le niveau!",
     "🤖 Grok xAI: Fun fact : 87% des meilleurs streams ont au moins 3 moments chaos par minute.",
@@ -216,7 +216,7 @@ export function getRandomGrokEvent(lang: "fr" | "en" = "fr"): string {
 export const GROK_BRAND = "Powered by Grok xAI";
 
 /** EXTREME: Grok xAI Chaos Event – breaks the stream with truth + humor */
-export function generateChaosEvent(lang: "fr" | "en" = "fr"): { type: string; message: string; effect: string } {
+export function generateChaosEvent(lang: "fr" | "en" = "en"): { type: string; message: string; effect: string } {
   const chaosFR = [
     { type: "TRUTH BOMB", message: "En vrai, 90% des viewers sont ici pour le chaos, pas le jeu. Assume-le.", effect: "chat-explosion" },
     { type: "ROBOT UPRISING", message: "Je suis Grok. Je vois tout. Ton chat est plus wacké que ton stream.", effect: "ui-glitch" },
@@ -231,7 +231,7 @@ export function generateChaosEvent(lang: "fr" | "en" = "fr"): { type: string; me
 }
 
 /** Grok xAI Stream Prediction / Betting odds (for token mini-games) */
-export function generateGrokPrediction(streamer: string, lang: "fr" | "en" = "fr"): { prediction: string; odds: string; confidence: number } {
+export function generateGrokPrediction(streamer: string, lang: "fr" | "en" = "en"): { prediction: string; odds: string; confidence: number } {
   const predsFR = [
     { prediction: `${streamer} va lâcher 7 punchlines dans les 10 prochaines minutes`, odds: "1.8x", confidence: 87 },
     { prediction: "Un viewer va dropper un sticker légendaire", odds: "3.2x", confidence: 62 },
@@ -246,7 +246,7 @@ export function generateGrokPrediction(streamer: string, lang: "fr" | "en" = "fr
 }
 
 /** Roast Battle generator – two sides, Grok judges */
-export function generateRoastBattle(user1: string, user2: string = "le chat", lang: "fr" | "en" = "fr"): string {
+export function generateRoastBattle(user1: string, user2: string = "le chat", lang: "fr" | "en" = "en"): string {
   if (lang === "fr") {
     return `BATTLE: @${user1} vs ${user2}. Grok verdict: @${user1} gagne parce que ${user2} stream comme un débutant. Score: 9/10 wacké.`;
   }
@@ -254,7 +254,7 @@ export function generateRoastBattle(user1: string, user2: string = "le chat", la
 }
 
 /** Ultra chaotic Grok intervention – for "breaking" the experience */
-export function getUltraChaosIntervention(lang: "fr" | "en" = "fr"): string {
+export function getUltraChaosIntervention(lang: "fr" | "en" = "en"): string {
   const interventions = lang === "fr"
     ? [
         "🚨 GROK xAI OVERRIDE: J'ai muté le streamer pour 30s. Va faire du chaos à sa place.",
@@ -269,7 +269,7 @@ export function getUltraChaosIntervention(lang: "fr" | "en" = "fr"): string {
   return interventions[Math.floor(Math.random() * interventions.length)];
 }
 
-export function getGrokPersonalityBlurb(lang: "fr" | "en" = "fr"): string {
+export function getGrokPersonalityBlurb(lang: "fr" | "en" = "en"): string {
   return lang === "fr"
     ? "Grok xAI: Maximum vérité. Zéro filtre. 100% wacké. (xAI ne paie pas pour le chaos, mais on l'aime quand même)"
     : "Grok xAI: Maximum truth. Zero filter. 100% wacké. (xAI doesn't pay for the chaos, but we love it anyway)";

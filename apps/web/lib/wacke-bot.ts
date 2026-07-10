@@ -233,7 +233,7 @@ export class WackeBotManager {
       const activeStreamsMap = new Map<string, string>();
       for (const s of data.streams || []) {
         const userLogin = s.user_login.toLowerCase();
-        const lang = s.language || "fr";
+        const lang = s.language || "en";
         activeStreamsMap.set(userLogin, lang);
         this.channelLanguages.set(userLogin, lang);
       }
@@ -287,7 +287,7 @@ export class WackeBotManager {
    * then triggers the join connection.
    */
   private async assignAndJoinChannel(channel: string) {
-    const lang = this.channelLanguages.get(channel) || "fr";
+    const lang = this.channelLanguages.get(channel) || "en";
     const isEn = lang.toLowerCase() === "en" || lang.toLowerCase() === "english";
 
     // Select candidate bots from fleet
@@ -353,7 +353,7 @@ export class WackeBotManager {
 
   private postAnnouncement(bot: BotPersona, client: tmi.Client | null, channel: string) {
     const streamer = channel.charAt(0).toUpperCase() + channel.slice(1);
-    const lang = this.channelLanguages.get(channel) || "fr";
+    const lang = this.channelLanguages.get(channel) || "en";
     const isEn = lang.toLowerCase() === "en" || lang.toLowerCase() === "english";
 
     const greetingTemplates = isEn ? bot.greetings.en : bot.greetings.fr;
@@ -380,7 +380,7 @@ export class WackeBotManager {
     
     if (formattedMsg.startsWith("!wacke") || formattedMsg.startsWith("!tokens")) {
       const channelClean = channel.replace("#", "");
-      const lang = this.channelLanguages.get(channelClean) || "fr";
+      const lang = this.channelLanguages.get(channelClean) || "en";
       const isEn = lang.toLowerCase() === "en" || lang.toLowerCase() === "english";
 
       const reply = isEn

@@ -24,7 +24,7 @@ interface StreamPageProps {
 export async function generateMetadata({ params }: StreamPageProps): Promise<Metadata> {
   const cleanUsername = params.username.toLowerCase();
   const cookieStore = cookies();
-  const lang = (cookieStore.get("wacke_lang")?.value || "fr") as "fr" | "en";
+  const lang = (cookieStore.get("wacke_lang")?.value || "en") as "fr" | "en";
   const isEn = lang === "en";
 
   if (cleanUsername.startsWith("twitch-")) {
@@ -89,7 +89,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
   const isTwitchStream = cleanUsername.startsWith("twitch-");
 
   const cookieStore = cookies();
-  const lang = (cookieStore.get("wacke_lang")?.value || "fr") as "fr" | "en";
+  const lang = (cookieStore.get("wacke_lang")?.value || "en") as "fr" | "en";
   const isEn = lang === "en";
 
   if (isTwitchStream) {

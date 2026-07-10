@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
     const apiKey = process.env.XAI_API_KEY;
     if (!apiKey) {
-      const fallbackLang = lang || (prompt.toLowerCase().includes(" sh") || prompt.toLowerCase().includes(" the ") ? "en" : "fr");
+      const fallbackLang = lang || (prompt.toLowerCase().includes(" le ") || prompt.toLowerCase().includes(" la ") ? "fr" : "en");
       return NextResponse.json({ content: getUltraChaosIntervention(fallbackLang), usage: { total_tokens: 0 } });
     }
 
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("[GROK API ERROR]", errorText);
-      const fallbackLang = lang || (prompt.toLowerCase().includes(" sh") || prompt.toLowerCase().includes(" the ") ? "en" : "fr");
+      const fallbackLang = lang || (prompt.toLowerCase().includes(" le ") || prompt.toLowerCase().includes(" la ") ? "fr" : "en");
       return NextResponse.json({ content: getUltraChaosIntervention(fallbackLang), usage: { total_tokens: 0 } });
     }
 

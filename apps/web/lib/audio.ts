@@ -155,7 +155,7 @@ export function stopGrokVoice() {
  * Calls /api/tts/system (no user tokens deducted). Falls back to browser synth on failure.
  * Use for premium "Grok is really speaking" feel on key AI moments.
  */
-export async function speakWithCloudGrokVoice(text: string, lang: "fr" | "en" = "fr") {
+export async function speakWithCloudGrokVoice(text: string, lang: "fr" | "en" = "en") {
   if (typeof window === "undefined") return;
 
   try {

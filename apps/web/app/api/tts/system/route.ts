@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
  */
 export async function POST(req: NextRequest) {
   try {
-    const { text, lang = "fr" } = await req.json();
+    const { text, lang = "en" } = await req.json();
 
     if (!text || typeof text !== "string") {
       return NextResponse.json({ error: "Text is required" }, { status: 400 });
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Map lang to xAI supported
-    const language = lang === "en" ? "en" : "fr";
+    const language = lang === "fr" ? "fr" : "en";
 
     const ttsResponse = await fetch("https://api.x.ai/v1/tts", {
       method: "POST",

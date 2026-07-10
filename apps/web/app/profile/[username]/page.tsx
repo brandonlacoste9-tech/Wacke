@@ -48,7 +48,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   const cookieStore = cookies();
   const langCookie = cookieStore.get("wacke_lang")?.value as Language | undefined;
-  const lang = (langCookie === "fr" || langCookie === "en") ? langCookie : "fr";
+  const lang = (langCookie === "fr" || langCookie === "en") ? langCookie : "en";
   const t = (key: TranslationKey) => translations[lang][key] ?? translations["fr"][key] ?? key;
 
   const stream = await getStreamByUserId(user.id);

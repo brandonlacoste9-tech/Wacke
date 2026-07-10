@@ -75,12 +75,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
    * would flash "fr" → "en" → then the click would show "fr" for one frame
    * before the hydration correction snapped it back to "en".
    */
-  const [language, setLanguageState] = useState<Language>("fr");
+  const [language, setLanguageState] = useState<Language>("en");
 
   // Read saved preference exactly once, after the component mounts on the client.
   useEffect(() => {
     const saved = readSavedLang();
-    if (saved && saved !== "fr") {
+    if (saved && saved !== "en") {
       setLanguageState(saved);
     }
   }, []); // empty deps → runs once on mount, never again
