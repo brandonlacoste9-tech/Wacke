@@ -98,7 +98,7 @@ export default function RootLayout({
             <MainLayoutWrapper>
               {children}
             </MainLayoutWrapper>
-            <div className="fixed bottom-1 right-2 text-[9px] font-mono text-wacke-cyan/40 z-[999] pointer-events-none">POWERED BY GROK xAI</div>
+            <div className="hidden md:block fixed bottom-1 right-2 text-[9px] font-mono text-wacke-cyan/40 z-[999] pointer-events-none">POWERED BY GROK xAI</div>
             <div className="fixed top-0 left-1/2 -translate-x-1/2 text-[10px] font-black tracking-[3px] text-orange-500/70 z-[999] pointer-events-none hidden grok-fuego:block">🔥 GROKS ON FUEGO 🔥</div>
           </LanguageProvider>
         </AuthProvider>

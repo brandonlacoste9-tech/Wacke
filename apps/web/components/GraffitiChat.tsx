@@ -794,7 +794,7 @@ export default function GraffitiChat({
                 {isGrokFuego && <span className="ml-1">🔥</span>}
               </p>
             </div>
-            <p className="text-sm text-gray-300 break-words min-w-0 emoji mt-0.5">{renderContent(msg.content)}</p>
+            <p className="text-sm text-gray-300 break-words min-w-0 mt-0.5">{renderContent(msg.content)}</p>
           </div>
         ))}
         <div ref={messagesEndRef} />
