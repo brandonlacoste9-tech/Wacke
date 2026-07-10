@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prompt: `Améliore ce prompt pour générer un sticker graffiti québécois wacké : "${prompt}". Retourne juste le prompt amélioré, court et descriptif.`,
+          prompt: `Améliore ce prompt pour générer un sticker graffiti wacké : "${prompt}". Retourne juste le prompt amélioré, court et descriptif.`,
           maxTokens: 60,
         }),
       });

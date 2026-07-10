@@ -19,8 +19,8 @@ export default function GrokRoastBattle({ streamerName }: GrokRoastBattleProps) 
     try {
       // Call Grok twice for two roasts, then decide winner
       const promptBase = language === "fr" 
-        ? `Roast ${streamerName} de manière hilarante et wackée en argot québécois. Maximum sacres et humour dépanneur. Court.`
-        : `Roast ${streamerName} hilariously in Quebec slang. Maximum sacres and dep humor. Short.`;
+        ? `Roast ${streamerName} de manière hilarante et wackée en argot décontracté. Maximum humour et punchlines. Court.`
+        : `Roast ${streamerName} hilariously in casual slang. Maximum punchlines and humor. Short.`;
 
       const [res1, res2] = await Promise.all([
         fetch("/api/grok", {
@@ -37,8 +37,8 @@ export default function GrokRoastBattle({ streamerName }: GrokRoastBattleProps) 
 
       const [data1, data2] = await Promise.all([res1.json(), res2.json()]);
       
-      const roast1 = data1.content || "Osti que c'est mauvais!";
-      const roast2 = data2.content || "Tabarnak, pire que ça!";
+      const roast1 = data1.content || "Ouh là que c'est mauvais!";
+      const roast2 = data2.content || "Pire que ça, impossible!";
       
       // Grok decides winner
       const judgePrompt = `Entre ces deux roasts de ${streamerName}: 1. "${roast1}" 2. "${roast2}". Lequel est le plus wacké et drôle ? Dis juste "1" ou "2" et pourquoi en une phrase.`;

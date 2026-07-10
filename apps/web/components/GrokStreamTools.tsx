@@ -20,7 +20,7 @@ export default function GrokStreamTools({ streamerName }: { streamerName: string
   const [betAmount, setBetAmount] = useState(50);
 
   const handleNewTitle = async () => {
-    const prompt = `Génère un titre de stream hilarant, wacké et québécois pour le streamer ${streamerName}. Utilise des sacres et de l'humour dépanneur.`;
+    const prompt = `Génère un titre de stream hilarant, wacké et créatif pour le streamer ${streamerName}. Utilise de l'humour et du slang décontracté.`;
     const newTitle = await generateGrokResponse(prompt, language);
     setCurrentTitle(newTitle);
   };

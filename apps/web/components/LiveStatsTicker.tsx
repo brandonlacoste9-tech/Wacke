@@ -20,7 +20,7 @@ export default function LiveStatsTicker() {
   });
   const [pulse, setPulse] = useState(false);
   const [displayViewers, setDisplayViewers] = useState(0);
-  const [grokFact, setGrokFact] = useState("Grok xAI dit: Le dépanneur gagne toujours.");
+  const [grokFact, setGrokFact] = useState("Grok xAI dit: Le chaos gagne toujours.");
   const [factLoading, setFactLoading] = useState(false);
 
   const fetchGrokFact = async () => {
@@ -31,8 +31,8 @@ export default function LiveStatsTicker() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: language === "fr" 
-            ? "Donne un fait court, drôle et wacké sur le streaming ou le Québec en argot. Maximum 15 mots."
-            : "Give a short funny wacké fact about streaming or Quebec in slang. Max 15 words.",
+            ? "Donne un fait court, drôle et wacké sur le streaming en argot. Maximum 15 mots."
+            : "Give a short funny wacké fact about streaming in slang. Max 15 words.",
           maxTokens: 40,
         }),
       });

@@ -246,9 +246,9 @@ export default function GraffitiChat({
   const [isGrokTakeover, setIsGrokTakeover] = useState(false);
   const [isGrokFuego, setIsGrokFuego] = useState(false);
 
-  const SACRE_PREFIXES = ["Saint-ciboire de", "Calvaire de", "Ostie de", "Jésus de", "Maudit", "Tabarnouche de", "Crisse de", "Baptême de"];
-  const SACRE_CORES = ["tabarnak", "câlisse", "ciboire", "crisse", "osti", "viarge", "sacrament", "batince"];
-  const SACRE_SUFFIXES = ["de marde", "sale", "d'enfer", "d'épais", "du diable", "en calvaire", "raide", "à marde"];
+  const SACRE_PREFIXES = ["Ultra", "Méga", "Super", "Hyper", "Total", "Maxi", "Turbo", "Méga"];
+  const SACRE_CORES = ["chaos", "mayhem", "hype", "feu", "fury", "rampage", "insane", "bruit"];
+  const SACRE_SUFFIXES = ["max", "suprême", "éternel", "à fond", "de folie", "légendaire", "raide", "total"];
 
   const [sacrePrefix, setSacrePrefix] = useState(SACRE_PREFIXES[0]);
   const [sacreCore, setSacreCore] = useState(SACRE_CORES[0]);
@@ -460,8 +460,8 @@ export default function GraffitiChat({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: language === "fr" 
-            ? "Génère un sacre québécois original, long et créatif avec préfixe, cœur et suffixe. Ex: 'Saint tabarnak de ciboire en calvaire'. Juste le sacre, rien d'autre."
-            : "Generate an original creative Quebec sacre with prefix, core and suffix. E.g. 'Saint tabarnak de ciboire en calvaire'. Only the sacre, nothing else.",
+            ? "Génère une phrase de chaos/hype originale, courte et créative avec préfixe, cœur et suffixe. Ex: 'Ultra chaos de folie'. Juste la phrase, rien d'autre."
+            : "Generate an original creative chaos/hype phrase with prefix, core and suffix. E.g. 'Ultra chaos of legend'. Only the phrase, nothing else.",
           lang: language
         }),
       });
@@ -471,17 +471,17 @@ export default function GraffitiChat({
         const parts = data.content.replace(/['"]/g, '').trim().split(/\s+/);
         if (parts.length >= 3) {
           setSacrePrefix(parts[0] + " " + parts[1]);
-          setSacreCore(parts[2] || "tabarnak");
-          setSacreSuffix(parts.slice(3).join(" ") || "de marde");
+          setSacreCore(parts[2] || "chaos");
+          setSacreSuffix(parts.slice(3).join(" ") || "max");
         }
       }
     } catch (e) {
-      setErrorMsg("Grok n'a pas pu sacrer cette fois.");
+      setErrorMsg("Grok n'a pas pu cuisiner du chaos cette fois.");
     }
     setIsGrokSacre(false);
   };
 
-  // Grok touch: instant witty Quebec-flavored AI response (Grok's special sauce)
+  // Grok touch: instant witty chaotic AI response (Grok's special sauce)
   const handleGrokConsult = async () => {
     if (!grokPrompt.trim()) {
       setGrokPrompt("Donne-moi une idée de contenu wacké");

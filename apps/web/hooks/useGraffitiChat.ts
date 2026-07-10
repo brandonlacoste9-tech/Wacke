@@ -150,7 +150,7 @@ export function useGraffitiChat({
         "💡 Astuce : Réclame ton bonus de +500 jetons dans le Header pour débloquer les stickers AI !",
         "🔥 Hype : Ce stream est actuellement classé dans les tendances Wacké !",
         "📢 Info : Tu peux jouer des sons rétro (Sirène, Laser, Cling) directement sur le stream !",
-        "🗣️ TTS : Fais lire ton message par Mathieu le québécois en cochant l'option TTS (50 🪙) !",
+        "🗣️ TTS : Fais lire ton message par la voix wackée de Mathieu en cochant l'option TTS (50 🪙) !",
       ],
       en: [
         "💡 Tip: Claim your daily +500 tokens bonus in the Header to unlock AI stickers!",

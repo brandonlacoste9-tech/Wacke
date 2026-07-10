@@ -42,7 +42,7 @@ export default function FeatureShowcase() {
       icon: <Bot className="w-8 h-8" />,
       title: "GROKÉ AI",
       subtitle: "Maximum Wit. Maximum Chaos.",
-      description: "Ask Groké (powered by xAI energy) for roasts, stream ideas, wild sacre suggestions & unfiltered advice. The only AI that speaks fluent dépanneur.",
+      description: "Ask Groké (powered by xAI energy) for roasts, stream ideas, wild chaos suggestions & unfiltered advice. The only AI that speaks fluent wacké.",
       gradient: "from-cyan-400 to-purple-500",
       glow: "rgba(0, 255, 255, 0.3)",
       borderColor: "border-wacke-cyan/30",

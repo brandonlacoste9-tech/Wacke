@@ -184,7 +184,7 @@ export default function SignupPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="chum@wacke.ca"
+                  placeholder="you@wacke.live"
                   className="w-full bg-white/3 border border-wacke-purple/20 rounded-xl px-4 py-3
                              text-sm focus:border-wacke-cyan/40 transition-all"
                   disabled={isLoading}

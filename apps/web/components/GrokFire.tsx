@@ -33,7 +33,7 @@ export default function GrokFire() {
         ? data.content.split('\n').filter((l: string) => l.trim()).slice(0, 5) 
         : [
             "BOOM! Grok a allumé le feu!",
-            "TABARNAK LE DÉPANNEUR EST EN FLAMMES!",
+            "LE CHAOS EST EN FLAMMES!",
           ];
 
       setBoomMessages(lines);
@@ -161,7 +161,7 @@ export default function GrokFire() {
       }, 14000);
 
     } catch (e) {
-      setBoomMessages(["BOOM! Grok a mis le feu quand même!", "LE DÉPANNEUR BRÛLE!"]);
+      setBoomMessages(["BOOM! Grok a mis le feu quand même!", "TOUT BRÛLE!"]);
     }
     setLoading(false);
   };

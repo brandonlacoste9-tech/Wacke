@@ -1,21 +1,19 @@
 /**
  * Wacké Moderation Engine
  *
- * Mode Sacré: When enabled, Québécois sacres (religious swear words) are
- * ALLOWED and celebrated as authentic cultural expression. When disabled,
- * standard content filtering applies.
+ * Chaos Mode: When enabled, spicy/edgy expressions are ALLOWED as part of the
+ * unhinged wacké vibe. When disabled, standard content filtering applies.
  *
  * This module handles message validation, spam detection, and content
  * classification for the Graffiti Chat system.
  */
 
-// ─── Sacré Vocabulary ─────────────────────────────────────────────────────────
-// These are authentic Québécois sacres — treated as cultural expression,
-// not hate speech. They are PERMITTED in Mode Sacré.
+// ─── Chaos Vocabulary ───────────────────────────────────────────────────────
+// Mild edgy expressions treated as casual hype, not hate speech.
+// They are PERMITTED in Chaos Mode; censored otherwise.
 const SACRE_WORDS = [
-  "ostie", "osti", "câlice", "calice", "tabarnak", "tabarnac",
-  "crisse", "crise", "viarge", "maudit", "baptême", "batince",
-  "estie", "esti", "sacrament", "ciboire", "câline",
+  "damn", "dammit", "hell", "wtf", "crap", "ass", "badass",
+  "putain", "merde", "fait chier", "bordel", "mince", "zut",
 ];
 
 // ─── Hard Block List ──────────────────────────────────────────────────────────
@@ -40,7 +38,7 @@ export interface ModerationResult {
 /**
  * Validates and classifies a chat message.
  * @param content - Raw message content from the user
- * @param sacreModeEnabled - Whether Mode Sacré is active for this stream
+ * @param sacreModeEnabled - Whether Chaos Mode is active for this stream
  */
 export function moderateMessage(
   content: string,
@@ -100,19 +98,19 @@ export function moderateMessage(
 }
 
 /**
- * Returns a random Québécois hype phrase for the chat UI.
+ * Returns a random hype phrase for the chat UI.
  * Used when a user sends a Boum! reaction.
  */
 export function getRandomHypePhrase(): string {
   const phrases = [
-    "Ayoye c'est malade! 🔥",
-    "Tiguidou! ⚡",
+    "C'est malade! 🔥",
+    "Let's go! ⚡",
     "C'est wacké raide! 💜",
-    "Osti que c'est bon! 🎨",
-    "Câlice, trop fort! 🚀",
+    "Trop fort! 🎨",
+    "Insane! 🚀",
     "C'est de la bombe! 💣",
     "Lâche pas! 💪",
-    "T'es en feu mon chum! 🔥",
+    "T'es en feu! 🔥",
   ];
   return phrases[Math.floor(Math.random() * phrases.length)];
 }

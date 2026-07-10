@@ -75,8 +75,8 @@ export default function Sidebar() {
     { title: "Gérant de nuit", icon: "👑" },
     { title: "Habitué", icon: "🏪" },
     { title: "Livreur", icon: "🍕" },
-    { title: "Chum", icon: "🛴" },
-    { title: "Chum", icon: "🛴" },
+    { title: "Rookie", icon: "🛴" },
+    { title: "Rookie", icon: "🛴" },
   ];
 
   const navItems = [
@@ -152,7 +152,7 @@ export default function Sidebar() {
             </div>
             {[
               { displayName: "Grok Override", username: "grok-xai", viewerCount: 42069 },
-              { displayName: "Tabarnak AI", username: "tabarnak-ai", viewerCount: 1337 },
+              { displayName: "Grok xAI", username: "grok-xai-live", viewerCount: 1337 },
             ].map((ch, i) => (
               <Link key={i} href={`/stream/${ch.username}`} className="block text-[10px] text-wacke-cyan/80 hover:text-white py-0.5">
                 {ch.displayName} <span className="font-mono text-[8px]">{formatViewers(ch.viewerCount)}</span>

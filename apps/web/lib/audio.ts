@@ -97,7 +97,7 @@ export function playSyntheticSound(type: string) {
  * Browser-native speech synthesis for Grok voice output.
  * Uses device voices (great French support on modern OS).
  * Complements the paid Grok xAI cloud TTS for user messages.
- * Auto-loads voices and prefers French/Quebec voices.
+ * Auto-loads voices and prefers French voices.
  */
 export function speakWithGrokVoice(text: string, lang = "fr-FR") {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
@@ -112,7 +112,7 @@ export function speakWithGrokVoice(text: string, lang = "fr-FR") {
       utterance.pitch = 1.08;
       utterance.volume = 0.95;
 
-      // Prefer French / Quebec-ish voice
+      // Prefer French voice
       const voices = window.speechSynthesis.getVoices();
       const preferred = voices.find(
         (v) =>

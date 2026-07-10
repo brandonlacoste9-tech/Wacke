@@ -32,10 +32,10 @@ export default function MainContent() {
             
             {/* Stream Details */}
             <div>
-              <h2 className="text-2xl font-bold mb-1">Kevin_du_450</h2>
-              <p className="text-gray-300 mb-2">SPEEDRUN DU MÉTRO LIGNE VERTE (FAIL POSSIBLE)</p>
+              <h2 className="text-2xl font-bold mb-1">Kevin_plays</h2>
+              <p className="text-gray-300 mb-2">SPEEDRUN ANY% (CHAOS RUN, FAIL INCOMING)</p>
               <div className="flex space-x-2">
-                <span className="bg-wacke-purple/40 px-3 py-1 rounded text-sm">#Quebec</span>
+                <span className="bg-wacke-purple/40 px-3 py-1 rounded text-sm">#Speedrun</span>
                 <span className="bg-wacke-pink/40 px-3 py-1 rounded text-sm">#Rage</span>
                 <span className="bg-wacke-cyan/40 px-3 py-1 rounded text-sm">#Wacké</span>
               </div>

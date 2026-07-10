@@ -249,10 +249,10 @@ export default function SettingsPage() {
             <div>
               <p className="text-sm font-bold text-white flex items-center space-x-1">
                 <Shield className="w-4 h-4 text-red-500" />
-                <span>{isEn ? "Sacre Mode Enabled" : "Mode Sacré par défaut"}</span>
+                <span>{isEn ? "Chaos Mode Enabled" : "Mode Chaos par défaut"}</span>
               </p>
               <p className="text-[10px] text-gray-500 mt-0.5">
-                {isEn ? "Allows spicy Quebecois swear words in your chat" : "Permet les sacres québécois dans ton chat"}
+                {isEn ? "Enables Chaos Mode (unhinged AI) in your chat" : "Active le Mode Chaos (IA unhinged) dans ton chat"}
               </p>
             </div>
             <button

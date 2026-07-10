@@ -33,8 +33,8 @@ export class WackeBotManager {
   }
 
   private initializeBotFleet() {
-    // 1. Bot 1: Quebec Specialist
-    const qcUsername = process.env.TWITCH_BOT_QC_USERNAME || "WackeHypeQC";
+    // 1. Bot 1: French Specialist
+    const qcUsername = process.env.TWITCH_BOT_QC_USERNAME || "WackeHypeFR";
     const qcOauth = process.env.TWITCH_BOT_QC_OAUTH || "";
     
     // 2. Bot 2: English / Global Specialist
@@ -56,12 +56,12 @@ export class WackeBotManager {
         type: "qc",
         greetings: {
           fr: [
-            "Allô @{streamer}! Ton live est en vedette sur Wacké (wacke.live). Tes spectateurs peuvent t'envoyer des sacres, des TTS criés et des stickers custom! Bon stream, chauffe le chat! 🚀🔥",
-            "Hey @{streamer}! T'es live sur Wacké.live en ce moment. Viens réclamer ton profil, tes viewers t'attendent avec la soundboard et le spray chat! Tabarnak que ça va être chaud! 🎙️⚡",
+            "Allô @{streamer}! Ton live est en vedette sur Wacké (wacke.live). Tes spectateurs peuvent t'envoyer du chaos, des TTS criés et des stickers custom! Bon stream, chauffe le chat! 🚀🔥",
+            "Hey @{streamer}! T'es live sur Wacké.live en ce moment. Viens réclamer ton profil, tes viewers t'attendent avec la soundboard et le spray chat! Ça va être chaud! 🎙️⚡",
             "Salut @{streamer}! Ton stream est mis en avant sur Wacké.live. Tes viewers peuvent utiliser notre Spray Chat en direct et nos jetons d'interaction! Bon live! 🎮"
           ],
           en: [
-            "Hey @{streamer}! You are featured on Wacké (wacke.live) right now. Your viewers can trigger funny Quebec swears and interactive sound effects live! Have a wacké stream! 🪙🎸"
+            "Hey @{streamer}! You are featured on Wacké (wacke.live) right now. Your viewers can trigger funny chaos lines and interactive sound effects live! Have a wacké stream! 🪙🎸"
           ]
         }
       },
@@ -99,7 +99,7 @@ export class WackeBotManager {
         type: "community",
         greetings: {
           fr: [
-            "Allô @{streamer}! Ton live est sur Wacké (wacke.live). Rejoins la plus grande communauté de créateurs québécois et fais grimper tes viewers! Bon stream! 🥳🍺",
+            "Allô @{streamer}! Ton live est sur Wacké (wacke.live). Rejoins la plus grande communauté de créateurs et fais grimper tes viewers! Bon stream! 🥳🍺",
             "Hey @{streamer}! Tu es en vedette sur Wacké.live. Rejoins le serveur Discord Wacké pour connecter avec d'autres streamers et viewers passionnés! 🎉🚀"
           ],
           en: [
@@ -296,7 +296,7 @@ export class WackeBotManager {
       // English channel -> prefer English, Alert, or Community bots
       candidates = this.bots.filter(b => b.type === "en" || b.type === "alert" || b.type === "community");
     } else {
-      // French channel -> prefer Quebec, Alert, or Community bots
+      // French channel -> prefer French, Alert, or Community bots
       candidates = this.bots.filter(b => b.type === "qc" || b.type === "alert" || b.type === "community");
     }
 
@@ -385,7 +385,7 @@ export class WackeBotManager {
 
       const reply = isEn
         ? `@${userstate.username}, Wacké is the streaming hub. Come tip tokens and trigger real-time TTS voices at https://wacke.live/stream/${channelClean} !`
-        : `@${userstate.username}, Wacké est le hub québécois de streaming. Viens tip des jetons et déclencher le TTS en temps réel sur https://wacke.live/stream/${channelClean} !`;
+        : `@${userstate.username}, Wacké est le hub de streaming. Viens tip des jetons et déclencher le TTS en temps réel sur https://wacke.live/stream/${channelClean} !`;
 
       client.say(channel, reply).catch((err) => {
         console.error(`[WackeBot] Bot @${botUsername} failed to reply in #${channel}:`, err);

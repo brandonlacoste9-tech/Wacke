@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           text: content,
           voice_id: voiceId, // e.g. "leo", "eve", "ara", "rex", "sal"
-          language: lang === "en" ? "en" : "fr",  // pass through from UI lang toggle (Quebec French default)
+          language: lang === "en" ? "en" : "fr",  // pass through from UI lang toggle (French default)
           output_format: {
             codec: "mp3",
             sample_rate: 44100,

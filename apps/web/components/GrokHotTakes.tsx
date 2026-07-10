@@ -18,8 +18,8 @@ export default function GrokHotTakes() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: language === "fr" 
-            ? "Génère 3 hot takes hilarants et un peu cruels sur le streaming québécois actuel, en argot dépanneur. Maximum vérité, maximum wacké."
-            : "Generate 3 hilarious and slightly savage hot takes on current Quebec streaming, in depanneur slang. Maximum truth, maximum wacké.",
+            ? "Génère 3 hot takes hilarants et un peu cruels sur le streamer actuel, en argot wacké décontracté. Maximum vérité, maximum wacké."
+            : "Generate 3 hilarious and slightly savage hot takes on the current streamer, in casual wacké slang. Maximum truth, maximum wacké.",
           maxTokens: 250,
         }),
       });

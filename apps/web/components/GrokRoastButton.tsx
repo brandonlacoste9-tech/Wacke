@@ -12,7 +12,7 @@ export default function GrokRoastButton({ username }: { username: string }) {
 
   const handleRoast = async () => {
     setLoading(true);
-    const prompt = `Roast the streamer @${username} in a funny, loving but brutally honest Quebec way. Use sacres if it fits.`;
+    const prompt = `Roast the streamer @${username} in a funny, loving but brutally honest wacké way. Use punchlines and slang if it fits.`;
     const r = await generateGrokResponse(prompt, language);
     setRoast(r);
     setLoading(false);

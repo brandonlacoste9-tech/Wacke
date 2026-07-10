@@ -22,8 +22,8 @@ export default function GrokCoHost({ streamerName, streamId }: GrokCoHostProps) 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: language === "fr" 
-            ? `Tu es le co-hôte Grok xAI sur le stream de ${streamerName}. Dis quelque chose de drôle, wacké et pertinent sur le stream en cours. Court, en argot québécois.`
-            : `You are Grok xAI co-host on ${streamerName}'s stream. Say something funny, wacké and relevant about the current stream. Short, in Quebec slang.`,
+            ? `Tu es le co-hôte Grok xAI sur le stream de ${streamerName}. Dis quelque chose de drôle, wacké et pertinent sur le stream en cours. Court, en argot décontracté.`
+            : `You are Grok xAI co-host on ${streamerName}'s stream. Say something funny, wacké and relevant about the current stream. Short, in casual slang.`,
           maxTokens: 120,
         }),
       });

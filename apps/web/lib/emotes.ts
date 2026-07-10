@@ -34,7 +34,7 @@ export const GLOBAL_EMOTES: Emote[] = [
 // --- CHANNEL EMOTES (streamer uploads up to 60 - only work in their channel) ---
 export const CHANNEL_EMOTES: Emote[] = [
   { shortcode: "wacke", emoji: "🏪", label: "Wacké", category: "channel" },
-  { shortcode: "dep", emoji: "🏪", label: "Dépanneur", category: "channel" },
+  { shortcode: "dep", emoji: "🏪", label: "Corner Store", category: "channel" },
   { shortcode: "frette", emoji: "❄️", label: "Frette", category: "channel" },
   { shortcode: "art", emoji: "🎨", label: "Art", category: "channel" },
   { shortcode: "wolf", emoji: "🐺", label: "Loup", category: "channel" },

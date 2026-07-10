@@ -16,10 +16,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const lang = cookieStore.get("wacke_lang")?.value === "en" ? "en" : "fr";
   const isEn = lang === "en";
 
-  const title = isEn ? "Wacké — Unfiltered Gen-Z Streaming | Powered by Grok xAI" : "Wacké — Le streaming québécois | Powered by Grok xAI";
+  const title = isEn ? "Wacké — Unfiltered Gen-Z Streaming | Powered by Grok xAI" : "Wacké — Le streaming sans filtre | Powered by Grok xAI";
   const description = isEn
     ? "Wacké is the ultimate streaming platform for Gen Z. AI Graffiti Chat, Roast Battles, and unfiltered chaos. Kick meets AI. Powered by Grok xAI."
-    : "Wacké est la plateforme de streaming française pour la Gen Z québécoise. Culture de rue, Graffiti Chat, Mode Sacré. Kick meets dépanneur drama. Powered by Grok xAI.";
+    : "Wacké est la plateforme de streaming pour la Gen Z. Culture de rue, Graffiti Chat, Mode Chaos. Kick meets AI chaos. Powered by Grok xAI.";
 
   return {
     title: {
