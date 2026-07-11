@@ -38,8 +38,8 @@ export default function HomePage() {
               alt="WACKE Graffiti Logo" 
               className="w-full h-full object-cover"
               style={{ 
-                maskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%)', 
-                WebkitMaskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%)' 
+                maskImage: 'radial-gradient(ellipse 50% 50% at 50% 50%, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%)', 
+                WebkitMaskImage: 'radial-gradient(ellipse 50% 50% at 50% 50%, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%)' 
               }} 
             />
           </div>
