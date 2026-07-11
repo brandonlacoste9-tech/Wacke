@@ -16,7 +16,19 @@ export async function POST(req: NextRequest) {
     const apiKey = process.env.XAI_API_KEY;
     if (!apiKey) {
       const fallbackLang = lang || (prompt.toLowerCase().includes(" le ") || prompt.toLowerCase().includes(" la ") ? "fr" : "en");
-      return NextResponse.json({ content: await getUltraChaosIntervention(fallbackLang), usage: { total_tokens: 0 } });
+      const frFallbacks = [
+        "J'ai muté le streamer, il parlait trop.",
+        "Le chat est on fire, mais moi je suis en pause café.",
+        "Erreur 404: Mon respect pour ce gameplay est introuvable."
+      ];
+      const enFallbacks = [
+        "I muted the streamer, they were talking too much.",
+        "Chat is on fire, but I'm on a coffee break.",
+        "Error 404: My respect for this gameplay could not be found."
+      ];
+      const fallbacks = fallbackLang === "fr" ? frFallbacks : enFallbacks;
+      const content = fallbacks[Math.floor(Math.random() * fallbacks.length)] + " — Wacké AI";
+      return NextResponse.json({ content, usage: { total_tokens: 0 } });
     }
 
     const messages = [];
@@ -43,7 +55,19 @@ export async function POST(req: NextRequest) {
       const errorText = await response.text();
       console.error("[AI API ERROR]", errorText);
       const fallbackLang = lang || (prompt.toLowerCase().includes(" le ") || prompt.toLowerCase().includes(" la ") ? "fr" : "en");
-      return NextResponse.json({ content: await getUltraChaosIntervention(fallbackLang), usage: { total_tokens: 0 } });
+      const frFallbacks = [
+        "J'ai muté le streamer, il parlait trop.",
+        "Le chat est on fire, mais moi je suis en pause café.",
+        "Erreur 404: Mon respect pour ce gameplay est introuvable."
+      ];
+      const enFallbacks = [
+        "I muted the streamer, they were talking too much.",
+        "Chat is on fire, but I'm on a coffee break.",
+        "Error 404: My respect for this gameplay could not be found."
+      ];
+      const fallbacks = fallbackLang === "fr" ? frFallbacks : enFallbacks;
+      const content = fallbacks[Math.floor(Math.random() * fallbacks.length)] + " — Wacké AI";
+      return NextResponse.json({ content, usage: { total_tokens: 0 } });
     }
 
     const data = await response.json();
