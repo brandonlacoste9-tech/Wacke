@@ -9,6 +9,7 @@ const PACKS: Record<number, { cost: number; name: string }> = {
   1000: { cost: 1.99, name: "Chips Pack (1,000 🪙)" },
   5000: { cost: 4.99, name: "Pinte Pack (5,000 🪙)" },
   10000: { cost: 8.99, name: "Boîte de 12 Pack (10,000 🪙)" },
+  25000: { cost: 17.99, name: "Gérant Pack (25,000 🪙)" },
 };
 
 /**
