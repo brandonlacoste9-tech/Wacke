@@ -13,6 +13,8 @@ out/
 # Production builds
 dist/
 build/
+!apps/web/app/build/
+!apps/web/app/build/**
 
 # Env files
 .env
