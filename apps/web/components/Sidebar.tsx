@@ -162,11 +162,19 @@ export default function Sidebar() {
         </div>
 
         <div className="p-3 border-t border-wacke-purple/10 space-y-3">
+          {!collapsed && (
+            <Link
+              href="/claims"
+              className="block text-[10px] text-wacke-pink/80 hover:text-wacke-pink font-bold py-1 transition-colors"
+            >
+              {language === "fr" ? "Handles réservés →" : "Reserved handles →"}
+            </Link>
+          )}
           {!collapsed ? (
             <div className="bg-white/2 border border-wacke-purple/10 rounded-xl p-3">
               <p className="text-[10px] text-gray-500 font-semibold mb-2">{t("joinDiscord")}</p>
               <a
-                href="https://discord.gg"
+                href={process.env.NEXT_PUBLIC_DISCORD_INVITE ?? "https://discord.gg/wacke"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full bg-[#5865F2] hover:bg-[#4752C4] py-1.5 rounded-lg font-bold text-[10px] text-white flex items-center justify-center transition-colors"

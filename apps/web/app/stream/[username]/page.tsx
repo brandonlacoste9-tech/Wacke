@@ -16,6 +16,7 @@ import GrokStreamTools from "@/components/GrokStreamTools";
 import GrokCoHost from "@/components/GrokCoHost";
 import GrokRoastBattle from "@/components/GrokRoastBattle";
 import GrokFire from "@/components/GrokFire";
+import ExternalStreamBanner from "@/components/ExternalStreamBanner";
 
 interface StreamPageProps {
   params: { username: string };
@@ -102,6 +103,7 @@ export default async function StreamPage({ params }: StreamPageProps) {
     return (
       <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 min-h-[calc(100vh-160px)] lg:h-[calc(100vh-64px)] relative max-w-[1920px] mx-auto">
         <main className="flex-none lg:flex-1 w-full overflow-y-visible lg:overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6 order-1 lg:order-2">
+          <ExternalStreamBanner platform="twitch" streamerName={displayName} />
           <WackePlayer
             playbackId="mock_playback_id"
             title={fallbackTitle}
@@ -213,6 +215,10 @@ export default async function StreamPage({ params }: StreamPageProps) {
     return (
       <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 min-h-[calc(100vh-160px)] lg:h-[calc(100vh-64px)] relative">
         <main className="flex-none lg:flex-1 w-full overflow-y-visible lg:overflow-y-auto space-y-4 lg:space-y-6 order-1 lg:order-2">
+          <ExternalStreamBanner
+            platform="kick"
+            streamerName={cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1)}
+          />
           <WackePlayer
             playbackId="mock_playback_id"
             title={fallbackTitle}

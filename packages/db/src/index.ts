@@ -8,3 +8,6 @@ export * from "./schema";
 // ─── Query Helpers ────────────────────────────────────────────────────────────
 export * from "./queries";
 
+// ─── Reserved Usernames (recruitment holds) ───────────────────────────────────
+export * from "./reserved-usernames";
+

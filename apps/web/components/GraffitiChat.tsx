@@ -11,6 +11,7 @@ import { playSyntheticSound, speakWithGrokVoice, speakWithCloudGrokVoice } from 
 import { useLanguage } from "./LanguageProvider";
 import { generateGrokResponse, getRandomGrokEvent, generateChaosEvent, getUltraChaosIntervention, GROK_BRAND } from "@/lib/grok-wit";
 import { EMOTE_MAP, EMOTE_IMAGES, getBadgeEmoji, getBadgeLabel, parseKickBadges, getDemoBadgesForUser, getTwemojiUrl, type ChatBadge } from "@/lib/emotes";
+import { useWatchReward } from "@/hooks/useWatchReward";
 
 // ─── Colour palette for usernames ─────────────────────────────────────────────
 const USER_COLORS = [
@@ -229,6 +230,7 @@ export default function GraffitiChat({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { token, user: authUser } = useAuth();
+  const { rewardMessage } = useWatchReward(streamId);
   // Prefer server-resolved userId; fall back to client auth user as safety net
   // so logged-in users are never shown "log in to chat" due to a cookie miss.
   const currentUserId = serverUserId ?? authUser?.id;
@@ -655,6 +657,22 @@ export default function GraffitiChat({
 
   return (
     <div className={`glass-hud flex-1 flex flex-col h-full rounded-2xl overflow-hidden border border-white/[0.07] shadow-2xl shadow-black/50 ${isGrokTakeover ? 'grok-takeover theme-grok-xai' : ''}`}>
+
+      {/* Groké live banner */}
+      <div className="px-3 py-2 bg-gradient-to-r from-wacke-cyan/10 via-wacke-purple/10 to-wacke-pink/10 border-b border-wacke-cyan/20 flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Bot className="w-4 h-4 text-wacke-cyan" />
+          <span className="text-[10px] font-bold text-white uppercase tracking-wider">Groké</span>
+          <span className="text-[9px] text-gray-400 hidden sm:inline">— {t("grokHint")}</span>
+        </div>
+        <span className="text-[9px] text-wacke-cyan font-mono">/grok</span>
+      </div>
+
+      {rewardMessage && (
+        <div className="px-3 py-1.5 bg-yellow-500/10 border-b border-yellow-500/20 text-center text-xs text-yellow-300 font-bold animate-fade-in">
+          {rewardMessage}
+        </div>
+      )}
 
       {/* ── Chat Header ───────────────────────────────────────────────────── */}
       <div className="px-4 py-3 border-b border-white/[0.07] flex items-center justify-between bg-white/[0.02]">

@@ -4,20 +4,9 @@ import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { Users, ChevronDown } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
+import type { UnifiedStream } from "@/lib/stream-aggregator";
 
-export interface UnifiedStream {
-  id: string;
-  source: "kick" | "twitch" | "wacké";
-  username: string;
-  displayName: string;
-  title: string;
-  category: string;
-  viewerCount: number;
-  thumbnailUrl: string | null;
-  avatarUrl: string | null;
-  isLive: boolean;
-  isFallback?: boolean;
-}
+export type { UnifiedStream };
 
 function formatViewers(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -142,20 +131,54 @@ function Tab({ active, onClick, children }: { active: boolean; onClick: () => vo
 interface CombinedStreamGridProps {
   limit?: number;
   title?: string;
+  initialStreams?: {
+    kick: UnifiedStream[];
+    twitch: UnifiedStream[];
+    wacke: UnifiedStream[];
+    all: UnifiedStream[];
+  };
+}
+
+function mapKickApiStream(s: Record<string, unknown>, isFallback: boolean): UnifiedStream {
+  const channel = s.channel as Record<string, unknown> | undefined;
+  const channelUser = channel?.user as Record<string, unknown> | undefined;
+  const username = String(channelUser?.username ?? s.slug ?? "user");
+  const thumb = s.thumbnail;
+  const thumbnailUrl =
+    typeof thumb === "string" ? thumb : (thumb as { src?: string } | undefined)?.src ?? null;
+  const categories = s.categories as Array<{ name?: string }> | undefined;
+  const categoryObj = s.category as { name?: string } | undefined;
+
+  return {
+    id: `kick-${String(s.id ?? username)}`,
+    source: "kick",
+    username,
+    displayName: username.charAt(0).toUpperCase() + username.slice(1),
+    title: String(s.stream_title ?? s.session_title ?? "Live Stream"),
+    category: String(categoryObj?.name ?? categories?.[0]?.name ?? "Live"),
+    viewerCount: Number(s.viewer_count ?? 0),
+    thumbnailUrl,
+    avatarUrl: String(s.profile_picture ?? channel?.profile_picture ?? channelUser?.profile_pic ?? "") || null,
+    isLive: !isFallback,
+    isFallback,
+    language: String(s.language ?? ""),
+  };
 }
 
 export default function CombinedStreamGrid({
   limit = 20,
   title,
+  initialStreams,
 }: CombinedStreamGridProps) {
   const { t } = useLanguage();
   const displayTitle = title || t("liveNow");
-  const [kickStreams, setKickStreams] = useState<UnifiedStream[]>([]);
-  const [twitchStreams, setTwitchStreams] = useState<UnifiedStream[]>([]);
-  const [wackeStreams, setWackeStreams] = useState<UnifiedStream[]>([]);
-  const [loadingKick, setLoadingKick] = useState(true);
-  const [loadingTwitch, setLoadingTwitch] = useState(true);
-  const [loadingWacke, setLoadingWacke] = useState(true);
+  const hasInitial = Boolean(initialStreams?.all.length);
+  const [kickStreams, setKickStreams] = useState<UnifiedStream[]>(initialStreams?.kick ?? []);
+  const [twitchStreams, setTwitchStreams] = useState<UnifiedStream[]>(initialStreams?.twitch ?? []);
+  const [wackeStreams, setWackeStreams] = useState<UnifiedStream[]>(initialStreams?.wacke ?? []);
+  const [loadingKick, setLoadingKick] = useState(!hasInitial);
+  const [loadingTwitch, setLoadingTwitch] = useState(!hasInitial);
+  const [loadingWacke, setLoadingWacke] = useState(!initialStreams?.wacke.length);
   const [activeTab, setActiveTab] = useState<"all" | "wacké" | "kick" | "twitch">("all");
   const [showCount, setShowCount] = useState(12);
 
@@ -164,28 +187,9 @@ export default function CombinedStreamGrid({
       .then((r) => r.json())
       .then((data) => {
         const isFallbackSource = data.source === "fallback";
-        const unified: UnifiedStream[] = (data.streams ?? []).map((s: any) => {
-          const username = s.channel?.user?.username ?? s.slug ?? "user";
-          const displayName = username.charAt(0).toUpperCase() + username.slice(1);
-          const title = s.stream_title ?? s.session_title ?? "Live Stream";
-          const category = s.category?.name ?? s.categories?.[0]?.name ?? "Live";
-          const thumbnailUrl = typeof s.thumbnail === "string" ? s.thumbnail : s.thumbnail?.src ?? null;
-          const avatarUrl = s.profile_picture ?? s.channel?.profile_picture ?? s.channel?.user?.profile_pic ?? null;
-
-          return {
-            id: `kick-${s.id ?? username}`,
-            source: "kick" as const,
-            username,
-            displayName,
-            title,
-            category,
-            viewerCount: s.viewer_count ?? 0,
-            thumbnailUrl,
-            avatarUrl,
-            isLive: !isFallbackSource,
-            isFallback: isFallbackSource,
-          };
-        });
+        const unified: UnifiedStream[] = (data.streams ?? []).map((s: Record<string, unknown>) =>
+          mapKickApiStream(s, isFallbackSource)
+        );
         setKickStreams(unified);
       })
       .catch(console.error)
@@ -250,7 +254,7 @@ export default function CombinedStreamGrid({
       .finally(() => setLoadingWacke(false));
   }, [limit]);
 
-  const loading = loadingKick && loadingTwitch;
+  const loading = !hasInitial && loadingKick && loadingTwitch;
 
   const allStreams = useMemo(
     () => [...wackeStreams, ...kickStreams, ...twitchStreams].sort((a, b) => b.viewerCount - a.viewerCount),

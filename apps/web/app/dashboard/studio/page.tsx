@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mic, MicOff, Video, VideoOff, Play, Square, SwitchCamera, CameraOff } from "lucide-react";
+import { Mic, MicOff, Video, VideoOff, Play, Square, SwitchCamera, CameraOff, Copy, Monitor, Share2 } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 import GraffitiChat from "@/components/GraffitiChat";
@@ -23,6 +23,7 @@ export default function StudioPage() {
 
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
   const [isSwitching, setIsSwitching] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -301,6 +302,60 @@ export default function StudioPage() {
           {error}
         </div>
       )}
+
+      {/* Share + OBS overlay quick links */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="glass-card rounded-xl p-4 border border-white/[0.07]">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center space-x-1">
+            <Share2 className="w-3.5 h-3.5" />
+            <span>{t("dashShareLink")}</span>
+          </p>
+          <div className="flex items-center space-x-2">
+            <code className="flex-1 text-sm text-wacke-cyan truncate">
+              {typeof window !== "undefined" ? `${window.location.origin}/${user.username}` : `/${user.username}`}
+            </code>
+            <button
+              onClick={() => {
+                const url = `${window.location.origin}/${user.username}`;
+                navigator.clipboard.writeText(url);
+                setCopied("share");
+                setTimeout(() => setCopied(null), 2000);
+              }}
+              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+              title={t("dashCopyLink")}
+            >
+              <Copy className="w-4 h-4" />
+            </button>
+          </div>
+          {copied === "share" && <p className="text-xs text-green-400 mt-1">{t("dashCopied")}</p>}
+        </div>
+        <div className="glass-card rounded-xl p-4 border border-white/[0.07]">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center space-x-1">
+            <Monitor className="w-3.5 h-3.5" />
+            <span>{t("dashOverlayLink")}</span>
+          </p>
+          <div className="flex items-center space-x-2">
+            <code className="flex-1 text-[11px] text-gray-300 truncate">
+              {typeof window !== "undefined"
+                ? `${window.location.origin}/stream/${user.username}/overlay`
+                : `/stream/${user.username}/overlay`}
+            </code>
+            <button
+              onClick={() => {
+                const url = `${window.location.origin}/stream/${user.username}/overlay`;
+                navigator.clipboard.writeText(url);
+                setCopied("overlay");
+                setTimeout(() => setCopied(null), 2000);
+              }}
+              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+              title={t("dashCopyLink")}
+            >
+              <Copy className="w-4 h-4" />
+            </button>
+          </div>
+          {copied === "overlay" && <p className="text-xs text-green-400 mt-1">{t("dashCopied")}</p>}
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Camera Preview */}

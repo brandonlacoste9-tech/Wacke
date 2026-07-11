@@ -278,6 +278,55 @@ export const translations = {
     grokSpeaking: "GROK PARLE...",
     grokSummon: "INVOQUER GROK",
     grokHint: "Grok intervient avec des commentaires xAI en direct",
+
+    // ── Claim Page ────────────────────────────────────────────────────
+    claimPageReserved: "Handle réservé pour toi",
+    claimPageClaimed: "Handle réclamé",
+    claimPageSubtitle: "ton salon VIP t'attend sur Wacké",
+    claimPagePreviewTag: "Aperçu de ta chaîne",
+    claimPageWhatYouGet: "Ce que tu obtiens",
+    claimPageGrokTitle: "Groké — IA roast engine",
+    claimPageGrokDesc: "Grok réagit en direct dans ton chat. Roasts, sondages, chaos — le tout sans filtre.",
+    claimPageBoumTitle: "Économie BOUM! 🔥",
+    claimPageBoumDesc: "Tes viewers envoient des réactions tokenisées. Chaque BOUM! compte.",
+    claimPageVipTitle: "Salon VIP Wacké",
+    claimPageVipDesc: "Dark-glass UI, Graffiti Chat, overlay OBS — ta marque, ton vibe.",
+    claimPageCta: "Réclamer",
+    claimPageNoPressure: "Aucune pression — juste un aperçu privé avant de décider.",
+    claimPageHeld: "Ce handle est temporairement en attente.",
+    claimPageViewProfile: "Voir le profil",
+
+    // ── External stream banner ────────────────────────────────────────
+    externalBannerWatching: "sur",
+    externalBannerGrok: "chat propulsé par Groké",
+
+    // ── Québec row ────────────────────────────────────────────────────
+    quebecLive: "🇨🇦 En direct du Québec",
+
+    // ── Onboarding ────────────────────────────────────────────────────
+    onboardingLoading: "Chargement...",
+    onboardingStep1Title: "Handle confirmé ✅",
+    onboardingStep1Desc: "Ton @ est verrouillé. Personne d'autre ne peut le prendre.",
+    onboardingStep1Locked: "Réservé et verrouillé pour toi",
+    onboardingStep2Title: "Passe en live en 2 min",
+    onboardingStep2Desc: "Studio navigateur ou OBS — ton choix.",
+    onboardingGoStudio: "Ouvrir le Studio Wacké",
+    onboardingObsNote: "Tu préfères OBS? Le lien overlay est à l'étape suivante.",
+    onboardingStep3Title: "Partage ton lien",
+    onboardingStep3Desc: "Envoie ça à ta commu — c'est ta page officielle.",
+    onboardingShareLink: "Lien de ta chaîne",
+    onboardingOverlayLink: "Overlay OBS (Browser Source)",
+    onboardingCopied: "Copié!",
+    onboardingBack: "Retour",
+    onboardingNext: "Suivant",
+    onboardingFinish: "C'est parti 🔥",
+    watchRewardToast: "+50 jetons pour avoir regardé! 🪙",
+
+    // ── Studio extras ─────────────────────────────────────────────────
+    dashShareLink: "Lien de ta chaîne",
+    dashOverlayLink: "Overlay OBS",
+    dashCopyLink: "Copier",
+    dashCopied: "Copié!",
   },
   en: {
     // ── Header & Nav ──────────────────────────────────────────────────
@@ -556,6 +605,55 @@ export const translations = {
     grokSpeaking: "GROK IS SPEAKING...",
     grokSummon: "SUMMON GROK",
     grokHint: "Grok jumps in with real xAI commentary",
+
+    // ── Claim Page ────────────────────────────────────────────────────
+    claimPageReserved: "Handle reserved for you",
+    claimPageClaimed: "Handle claimed",
+    claimPageSubtitle: "your VIP lounge awaits on Wacké",
+    claimPagePreviewTag: "Channel preview",
+    claimPageWhatYouGet: "What you get",
+    claimPageGrokTitle: "Groké — AI roast engine",
+    claimPageGrokDesc: "Grok reacts live in your chat. Roasts, polls, chaos — all unfiltered.",
+    claimPageBoumTitle: "BOUM! token economy 🔥",
+    claimPageBoumDesc: "Viewers send tokenized reactions. Every BOUM! counts.",
+    claimPageVipTitle: "Wacké VIP Lounge",
+    claimPageVipDesc: "Dark-glass UI, Graffiti Chat, OBS overlay — your brand, your vibe.",
+    claimPageCta: "Claim",
+    claimPageNoPressure: "No pressure — just a private peek before you decide.",
+    claimPageHeld: "This handle is temporarily on hold.",
+    claimPageViewProfile: "View profile",
+
+    // ── External stream banner ────────────────────────────────────────
+    externalBannerWatching: "on",
+    externalBannerGrok: "chat powered by Groké",
+
+    // ── Québec row ────────────────────────────────────────────────────
+    quebecLive: "🇨🇦 Live from Québec",
+
+    // ── Onboarding ────────────────────────────────────────────────────
+    onboardingLoading: "Loading...",
+    onboardingStep1Title: "Handle confirmed ✅",
+    onboardingStep1Desc: "Your @ is locked. No one else can take it.",
+    onboardingStep1Locked: "Reserved and locked for you",
+    onboardingStep2Title: "Go live in 2 min",
+    onboardingStep2Desc: "Browser studio or OBS — your call.",
+    onboardingGoStudio: "Open Wacké Studio",
+    onboardingObsNote: "Prefer OBS? The overlay link is in the next step.",
+    onboardingStep3Title: "Share your link",
+    onboardingStep3Desc: "Send this to your community — it's your official page.",
+    onboardingShareLink: "Your channel link",
+    onboardingOverlayLink: "OBS Overlay (Browser Source)",
+    onboardingCopied: "Copied!",
+    onboardingBack: "Back",
+    onboardingNext: "Next",
+    onboardingFinish: "Let's go 🔥",
+    watchRewardToast: "+50 tokens for watching! 🪙",
+
+    // ── Studio extras ─────────────────────────────────────────────────
+    dashShareLink: "Your channel link",
+    dashOverlayLink: "OBS Overlay",
+    dashCopyLink: "Copy",
+    dashCopied: "Copied!",
   }
 } as const;
 

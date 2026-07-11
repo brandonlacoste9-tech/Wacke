@@ -11,9 +11,15 @@ interface MainLayoutWrapperProps {
   children: React.ReactNode;
 }
 
+const MINIMAL_LAYOUT_PREFIXES = ["/onboarding", "/auth"];
+const RESERVED_SINGLE_SEGMENT = /^\/[a-z0-9_]{3,32}$/;
+
 export default function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
   const pathname = usePathname();
   const isOverlay = pathname.includes("/overlay");
+  const isClaimPage = RESERVED_SINGLE_SEGMENT.test(pathname) &&
+    !["browse", "build", "claims", "stream", "profile", "dashboard", "settings"].includes(pathname.slice(1));
+  const isMinimal = isClaimPage || MINIMAL_LAYOUT_PREFIXES.some((p) => pathname.startsWith(p));
 
   useEffect(() => {
     if (isOverlay) {
@@ -30,6 +36,14 @@ export default function MainLayoutWrapper({ children }: MainLayoutWrapperProps) 
   if (isOverlay) {
     return (
       <main className="w-screen h-screen overflow-hidden bg-transparent">
+        {children}
+      </main>
+    );
+  }
+
+  if (isMinimal) {
+    return (
+      <main className="min-h-screen">
         {children}
       </main>
     );

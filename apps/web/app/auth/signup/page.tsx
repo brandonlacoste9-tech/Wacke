@@ -1,34 +1,44 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { isSupabaseMocked } from "@/lib/config";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ParticleBackground from "@/components/ParticleBackground";
 import { CheckCircle, XCircle } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 
-export default function SignupPage() {
+function SignupForm() {
   const { signup, user, isLoading } = useAuth();
   const { t } = useLanguage();
-  const [username, setUsername] = useState("");
+  const searchParams = useSearchParams();
+  const claimUsername = searchParams.get("username")?.toLowerCase().replace(/[^a-z0-9_]/g, "") ?? "";
+  const isClaimFlow = searchParams.get("claim") === "1" && claimUsername.length >= 3;
+
+  const [username, setUsername] = useState(claimUsername);
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [isMock, setIsMock] = useState(false);
-  const [usernameStatus, setUsernameStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
+  const [usernameStatus, setUsernameStatus] = useState<"idle" | "checking" | "available" | "taken" | "reserved">("idle");
   const router = useRouter();
 
   useEffect(() => {
     setIsMock(isSupabaseMocked());
     if (user) {
-      router.push("/");
+      const onboarded = typeof window !== "undefined" && localStorage.getItem("wacke_onboarded");
+      router.push(onboarded ? "/" : `/onboarding?username=${user.username}`);
     }
   }, [user, router]);
 
-  // Simulate username availability check
+  useEffect(() => {
+    if (claimUsername && !displayName) {
+      setDisplayName(claimUsername.charAt(0).toUpperCase() + claimUsername.slice(1));
+    }
+  }, [claimUsername, displayName]);
+
   useEffect(() => {
     if (username.length < 3) {
       setUsernameStatus("idle");
@@ -36,11 +46,19 @@ export default function SignupPage() {
     }
 
     setUsernameStatus("checking");
-    const timeout = setTimeout(() => {
-      // Mock check — in production would hit an API
-      const taken = ["admin", "wacke", "gabriel", "sophie", "moderator"];
-      setUsernameStatus(taken.includes(username.toLowerCase()) ? "taken" : "available");
-    }, 600);
+    const timeout = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/users/check-username?username=${encodeURIComponent(username)}`);
+        const data = await res.json();
+        if (!data.available) {
+          setUsernameStatus(data.reason === "reserved_for_you" ? "reserved" : "taken");
+        } else {
+          setUsernameStatus("available");
+        }
+      } catch {
+        setUsernameStatus("idle");
+      }
+    }, 400);
 
     return () => clearTimeout(timeout);
   }, [username]);
@@ -75,7 +93,7 @@ export default function SignupPage() {
 
     if (res.success) {
       if (isMock) {
-        router.push("/");
+        router.push(`/onboarding?username=${username.trim().toLowerCase()}`);
       } else {
         setSuccessMsg(res.error || t("signupSuccessMessage"));
       }
@@ -84,21 +102,25 @@ export default function SignupPage() {
     }
   };
 
+  const canSubmit = usernameStatus === "available" || usernameStatus === "reserved";
+
   return (
     <div className="min-h-[calc(100vh-64px)] flex bg-wacke-dark relative overflow-hidden">
-      {/* ── Artwork Side (Left) ── */}
       <div className="hidden lg:flex w-1/2 relative bg-black items-center justify-center border-r border-wacke-purple/20">
         <img src="/login_artwork.jpg" alt="Cyberpunk City" className="absolute inset-0 w-full h-full object-cover opacity-40" />
         <div className="absolute inset-0 bg-gradient-to-r from-transparent to-wacke-dark z-0" />
         <div className="absolute inset-0 bg-gradient-to-t from-wacke-dark via-transparent to-transparent z-0" />
         <ParticleBackground count={12} />
         <div className="relative z-10 p-16 mt-auto self-end w-full">
-          <h2 className="text-5xl font-black text-white drop-shadow-[0_0_15px_rgba(0,255,255,0.8)] mb-3 uppercase tracking-wide graffiti-text neon-cyan">{t("signupArtworkTitle")}</h2>
-          <p className="text-xl text-gray-200 font-bold max-w-md drop-shadow-md">{t("signupArtworkSub")}</p>
+          <h2 className="text-5xl font-black text-white drop-shadow-[0_0_15px_rgba(0,255,255,0.8)] mb-3 uppercase tracking-wide graffiti-text neon-cyan">
+            {isClaimFlow ? `@${claimUsername}` : t("signupArtworkTitle")}
+          </h2>
+          <p className="text-xl text-gray-200 font-bold max-w-md drop-shadow-md">
+            {isClaimFlow ? t("claimPageNoPressure") : t("signupArtworkSub")}
+          </p>
         </div>
       </div>
 
-      {/* ── Form Side (Right) ── */}
       <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 relative">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-wacke-cyan/5 rounded-full blur-[120px] pointer-events-none" />
 
@@ -132,17 +154,17 @@ export default function SignupPage() {
                   onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ""))}
                   placeholder="Ex: ti_coune_99"
                   maxLength={32}
-                  className="w-full bg-white/3 border border-wacke-purple/20 rounded-xl px-4 py-3 pr-10
-                             text-sm focus:border-wacke-cyan/40 transition-all"
+                  readOnly={isClaimFlow}
+                  className={`w-full bg-white/3 border border-wacke-purple/20 rounded-xl px-4 py-3 pr-10
+                             text-sm focus:border-wacke-cyan/40 transition-all ${isClaimFlow ? "opacity-70 cursor-not-allowed" : ""}`}
                   disabled={isLoading}
                   required
                 />
-                {/* Username availability indicator */}
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
                   {usernameStatus === "checking" && (
                     <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
                   )}
-                  {usernameStatus === "available" && (
+                  {(usernameStatus === "available" || usernameStatus === "reserved") && (
                     <CheckCircle className="w-4 h-4 text-green-400" />
                   )}
                   {usernameStatus === "taken" && (
@@ -153,7 +175,7 @@ export default function SignupPage() {
               {usernameStatus === "taken" && (
                 <p className="text-[10px] text-red-400 mt-1 font-medium">{t("signupUsernameTaken")}</p>
               )}
-              {usernameStatus === "available" && (
+              {(usernameStatus === "available" || usernameStatus === "reserved") && (
                 <p className="text-[10px] text-green-400 mt-1 font-medium">{t("signupUsernameAvailable")}</p>
               )}
             </div>
@@ -195,13 +217,13 @@ export default function SignupPage() {
 
             <button
               type="submit"
-              disabled={isLoading || usernameStatus === "taken"}
+              disabled={isLoading || !canSubmit}
               className="w-full bg-gradient-to-r from-wacke-cyan to-wacke-purple py-4 rounded-xl
                          font-bold text-lg hover:opacity-90 transition-all mt-2
                          disabled:opacity-50 disabled:cursor-not-allowed
                          shadow-lg shadow-wacke-cyan/20"
             >
-              {isLoading ? t("signupBtnRegistering") : t("signupBtnRegister")}
+              {isLoading ? t("signupBtnRegistering") : isClaimFlow ? `${t("claimPageCta")} @${username}` : t("signupBtnRegister")}
             </button>
           </form>
 
@@ -216,5 +238,13 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center animate-pulse">...</div>}>
+      <SignupForm />
+    </Suspense>
   );
 }
