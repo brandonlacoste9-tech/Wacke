@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useLanguage } from "./LanguageProvider";
 import { Sparkles, Volume2 } from "lucide-react";
-import { speakWithGrokVoice, speakWithCloudGrokVoice } from "@/lib/audio";
+import { speakWithAIVoice, speakWithCloudAIVoice } from "@/lib/audio";
 
-export default function GrokHotTakes() {
+export default function AIHotTakes() {
   const { language, t } = useLanguage();
   const [takes, setTakes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -13,7 +13,7 @@ export default function GrokHotTakes() {
   const fetchHotTakes = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/grok", {
+      const res = await fetch("/api/AI", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -28,19 +28,19 @@ export default function GrokHotTakes() {
         const lines = data.content.split('\n').filter((l: string) => l.trim());
         const newTakes = lines.slice(0, 3);
         setTakes(newTakes);
-        // Speak the hot takes with real Grok xAI cloud voice
+        // Speak the hot takes with real AI xAI cloud voice
         if (newTakes.length > 0) {
-          speakWithCloudGrokVoice(newTakes[0], language);
+          speakWithCloudAIVoice(newTakes[0], language);
         }
       }
     } catch (e) {
-      setTakes([t("grokErrorTakes")]);
+      setTakes([t("aiErrorTakes")]);
     }
     setLoading(false);
   };
 
   const speakTake = (take: string) => {
-    speakWithCloudGrokVoice(take, language);
+    speakWithCloudAIVoice(take, language);
   };
 
   return (
@@ -48,14 +48,14 @@ export default function GrokHotTakes() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Sparkles className="text-wacke-cyan" />
-          <h3 className="font-bold graffiti-text neon-cyan">GROK'S HOT TAKES</h3>
+          <h3 className="font-bold graffiti-text neon-cyan">AI'S HOT TAKES</h3>
         </div>
         <button
           onClick={fetchHotTakes}
           disabled={loading}
           className="text-xs bg-wacke-cyan text-black px-3 py-1 rounded font-bold hover:bg-white transition disabled:opacity-50"
         >
-          {loading ? "GROK THINKING..." : "REFRESH TAKES"}
+          {loading ? "AI THINKING..." : "REFRESH TAKES"}
         </button>
       </div>
       {takes.length > 0 ? (
@@ -66,7 +66,7 @@ export default function GrokHotTakes() {
               <button 
                 onClick={() => speakTake(take)} 
                 className="shrink-0 p-1 text-wacke-cyan hover:bg-wacke-cyan/10 rounded"
-                title="Speak with Grok Voice"
+                title="Speak with AI Voice"
               >
                 <Volume2 size={14} />
               </button>
@@ -74,9 +74,9 @@ export default function GrokHotTakes() {
           ))}
         </ul>
       ) : (
-        <p className="text-xs text-gray-500">Hit refresh for fresh Grok xAI roasts on the scene.</p>
+        <p className="text-xs text-gray-500">Hit refresh for fresh AI xAI roasts on the scene.</p>
       )}
-      <div className="mt-4 text-[10px] text-wacke-cyan/60">Powered by real Grok • Updated live</div>
+      <div className="mt-4 text-[10px] text-wacke-cyan/60">Powered by real AI • Updated live</div>
     </div>
   );
 }

@@ -148,11 +148,11 @@ export default function Sidebar() {
 
           <div className="mt-2 pt-2 pb-4 border-t border-wacke-cyan/20 px-1">
             <div className="text-[9px] text-wacke-cyan font-black flex items-center gap-1 mb-1">
-              <Bot className="w-3 h-3" /> GROK xAI PICKS
+              <Bot className="w-3 h-3" /> AI xAI PICKS
             </div>
             {[
-              { displayName: "Grok Override", username: "grok-xai", viewerCount: 42069 },
-              { displayName: "Grok xAI", username: "grok-xai-live", viewerCount: 1337 },
+              { displayName: "AI Override", username: "ai-xai", viewerCount: 42069 },
+              { displayName: "AI xAI", username: "ai-xai-live", viewerCount: 1337 },
             ].map((ch, i) => (
               <Link key={i} href={`/stream/${ch.username}`} className="block text-[10px] text-wacke-cyan/80 hover:text-white py-0.5">
                 {ch.displayName} <span className="font-mono text-[8px]">{formatViewers(ch.viewerCount)}</span>

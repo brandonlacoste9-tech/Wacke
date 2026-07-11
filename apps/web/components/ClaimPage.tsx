@@ -65,7 +65,7 @@ export default function ClaimPage({ username, reserved, hoursRemaining, isClaime
 
             <div className="grid gap-4">
               {[
-                { icon: <Bot className="w-5 h-5" />, title: t("claimPageGrokTitle"), desc: t("claimPageGrokDesc") },
+                { icon: <Bot className="w-5 h-5" />, title: t("claimPageAITitle"), desc: t("claimPageAIDesc") },
                 { icon: <Flame className="w-5 h-5" />, title: t("claimPageBoumTitle"), desc: t("claimPageBoumDesc") },
                 { icon: <Shield className="w-5 h-5" />, title: t("claimPageVipTitle"), desc: t("claimPageVipDesc") },
               ].map((item) => (

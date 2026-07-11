@@ -3,7 +3,7 @@
 Place transparent 1:1 PNGs here for custom emotes.
 
 ## Workflow (from the spec)
-1. Use Grok (or any AI) with this exact ending:
+1. Use AI (or any AI) with this exact ending:
    "Twitch emote style, flat vector illustration, thick outlines, solid white background, 1:1 aspect ratio."
    (or "Chat badge style" for badges)
 

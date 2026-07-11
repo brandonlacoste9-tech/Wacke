@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useLanguage } from "./LanguageProvider";
 import { Bot, Volume2 } from "lucide-react";
-import { speakWithGrokVoice, speakWithCloudGrokVoice } from "@/lib/audio";
+import { speakWithAIVoice, speakWithCloudAIVoice } from "@/lib/audio";
 
 interface StatsData {
   totalViewers: number;
@@ -20,13 +20,13 @@ export default function LiveStatsTicker() {
   });
   const [pulse, setPulse] = useState(false);
   const [displayViewers, setDisplayViewers] = useState(0);
-  const [grokFact, setGrokFact] = useState("");
+  const [aiFact, setAIFact] = useState("");
   const [factLoading, setFactLoading] = useState(false);
 
-  const fetchGrokFact = async () => {
+  const fetchAIFact = async () => {
     setFactLoading(true);
     try {
-      const res = await fetch("/api/grok", {
+      const res = await fetch("/api/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -39,17 +39,17 @@ export default function LiveStatsTicker() {
       const data = await res.json();
       if (data.content) {
         const fact = data.content.trim();
-        setGrokFact(fact);
-        speakWithCloudGrokVoice(fact, language);
+        setAIFact(fact);
+        speakWithCloudAIVoice(fact, language);
       }
     } catch {}
     setFactLoading(false);
   };
 
-  // Fetch a fresh Grok fact on mount + whenever the language changes,
+  // Fetch a fresh AI fact on mount + whenever the language changes,
   // so the ticker never sits on a stale (or French-when-English) default.
   useEffect(() => {
-    fetchGrokFact();
+    fetchAIFact();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
 
@@ -144,11 +144,11 @@ export default function LiveStatsTicker() {
               <span className="text-wacke-cyan font-bold">{t("liveStatsTop")}</span>
               <span className="text-white">{stats.topGame}</span>
             </span>
-            <span className="flex items-center space-x-1 text-wacke-cyan cursor-pointer" onClick={fetchGrokFact}>
+            <span className="flex items-center space-x-1 text-wacke-cyan cursor-pointer" onClick={fetchAIFact}>
               <Bot className="w-3 h-3" />
-              <span className="font-bold">GROK:</span>
-              <span className="text-gray-300 hover:text-white">{factLoading ? "..." : (grokFact || (language === "fr" ? "Clique pour un fait Grok..." : "Click for a Grok fact..."))}</span>
-              <Volume2 className="w-3 h-3 hover:text-white" onClick={(e) => { e.stopPropagation(); speakWithCloudGrokVoice(grokFact, language); }} />
+              <span className="font-bold">AI:</span>
+              <span className="text-gray-300 hover:text-white">{factLoading ? "..." : (aiFact || (language === "fr" ? "Clique pour un fait AI..." : "Click for a AI fact..."))}</span>
+              <Volume2 className="w-3 h-3 hover:text-white" onClick={(e) => { e.stopPropagation(); speakWithCloudAIVoice(aiFact, language); }} />
             </span>
             <span className="flex items-center space-x-1">
               <span className="text-wacke-pink font-bold">Boost:</span>

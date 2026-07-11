@@ -94,12 +94,12 @@ export function playSyntheticSound(type: string) {
 }
 
 /**
- * Browser-native speech synthesis for Grok voice output.
+ * Browser-native speech synthesis for AI voice output.
  * Uses device voices (great French support on modern OS).
- * Complements the paid Grok xAI cloud TTS for user messages.
+ * Complements the paid AI xAI cloud TTS for user messages.
  * Auto-loads voices and prefers French voices.
  */
-export function speakWithGrokVoice(text: string, lang = "fr-FR") {
+export function speakWithAIVoice(text: string, lang = "fr-FR") {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
 
   const speak = () => {
@@ -143,26 +143,26 @@ export function speakWithGrokVoice(text: string, lang = "fr-FR") {
   }
 }
 
-/** Stop any ongoing Grok voice */
-export function stopGrokVoice() {
+/** Stop any ongoing AI voice */
+export function stopAIVoice() {
   if (typeof window !== "undefined" && "speechSynthesis" in window) {
     window.speechSynthesis.cancel();
   }
 }
 
 /**
- * Cloud Grok xAI Voice (real AI TTS) for system outputs (CoHost, HotTakes, Fire, events...).
+ * Cloud AI xAI Voice (real AI TTS) for system outputs (CoHost, HotTakes, Fire, events...).
  * Calls /api/tts/system (no user tokens deducted). Falls back to browser synth on failure.
- * Use for premium "Grok is really speaking" feel on key AI moments.
+ * Use for premium "AI is really speaking" feel on key AI moments.
  */
-export async function speakWithCloudGrokVoice(text: string, lang: "fr" | "en" = "en") {
+export async function speakWithCloudAIVoice(text: string, lang: "fr" | "en" = "en") {
   if (typeof window === "undefined") return;
 
   try {
     const res = await fetch("/api/tts/system", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: text.replace(/— Grok xAI/g, "").trim(), lang }),
+      body: JSON.stringify({ text: text.replace(/— AI xAI/g, "").trim(), lang }),
     });
 
     if (!res.ok) throw new Error(await res.text());
@@ -170,15 +170,15 @@ export async function speakWithCloudGrokVoice(text: string, lang: "fr" | "en" = 
     const { audioUrl } = await res.json();
     if (audioUrl) {
       // Stop any browser synth that might be running
-      stopGrokVoice();
+      stopAIVoice();
       const audio = new Audio(audioUrl);
       // slightly boost for hype
       audio.volume = 0.95;
       await audio.play();
     }
   } catch (e) {
-    console.warn("[CLOUD_GROK_TTS] falling back to browser voice:", e);
+    console.warn("[CLOUD_AI_TTS] falling back to browser voice:", e);
     // Fallback keeps the experience alive
-    speakWithGrokVoice(text, lang === "fr" ? "fr-FR" : "en-US");
+    speakWithAIVoice(text, lang === "fr" ? "fr-FR" : "en-US");
   }
 }

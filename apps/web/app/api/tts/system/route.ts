@@ -6,9 +6,9 @@ export const dynamic = "force-dynamic";
 
 /**
  * POST /api/tts/system
- * System (free for viewers) Grok xAI Voice TTS for CoHost, HotTakes, Fire, events, etc.
+ * System (free for viewers) AI xAI Voice TTS for CoHost, HotTakes, Fire, events, etc.
  * Uses service-role to upload to public 'audio' bucket under system/ prefix.
- * No user token deduction. Called internally by Grok components.
+ * No user token deduction. Called internally by AI components.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     if (!ttsResponse.ok) {
       const errText = await ttsResponse.text();
       console.error("[SYSTEM_TTS_ERROR]", ttsResponse.status, errText);
-      return NextResponse.json({ error: "Grok TTS failed" }, { status: 502 });
+      return NextResponse.json({ error: "AI TTS failed" }, { status: 502 });
     }
 
     const audioBuffer = await ttsResponse.arrayBuffer();
@@ -61,10 +61,10 @@ export async function POST(req: NextRequest) {
       await supabaseAdmin.storage.createBucket(bucket, { public: true });
     } catch (_) {}
 
-    // System folder for Grok voice outputs (CoHost, HotTakes, Fire, etc).
+    // System folder for AI voice outputs (CoHost, HotTakes, Fire, etc).
     // Uploaded exclusively via service role (getSupabaseServiceRole), which bypasses RLS.
     // Public bucket + getPublicUrl makes playback work for everyone.
-    const fileName = `system/grok/${Date.now()}-${Math.random().toString(36).substring(2)}.mp3`;
+    const fileName = `system/ai/${Date.now()}-${Math.random().toString(36).substring(2)}.mp3`;
 
     const { error: uploadError } = await supabaseAdmin.storage
       .from(bucket)

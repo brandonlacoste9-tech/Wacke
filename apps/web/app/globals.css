@@ -33,16 +33,16 @@
   --wacke-accent: 255, 215, 0;
 }
 
-/* GROK xAI CHAOS THEME – we broke the CSS on purpose */
-.theme-grok-xai, .grok-takeover {
+/* AI xAI CHAOS THEME – we broke the CSS on purpose */
+.theme-ai-xai, .ai-takeover {
   --wacke-primary: 0, 255, 255;
   --wacke-secondary: 255, 0, 255;
   --wacke-glow: rgba(0, 255, 255, 0.6);
   --wacke-glow-sec: rgba(255, 0, 255, 0.4);
-  animation: grok-glitch 0.8s infinite steps(2);
+  animation: ai-glitch 0.8s infinite steps(2);
 }
 
-@keyframes grok-glitch {
+@keyframes ai-glitch {
   0% { transform: translate(0); filter: hue-rotate(0deg); }
   20% { transform: translate(-1px, 1px); filter: hue-rotate(90deg); }
   40% { transform: translate(1px, -1px); filter: hue-rotate(180deg); }
@@ -50,44 +50,44 @@
   100% { transform: translate(0); filter: hue-rotate(0deg); }
 }
 
-/* Grok takeover text chaos */
-.grok-takeover .graffiti-text {
-  animation: grok-text-break 1.2s infinite;
+/* AI takeover text chaos */
+.ai-takeover .graffiti-text {
+  animation: ai-text-break 1.2s infinite;
 }
 
-@keyframes grok-text-break {
+@keyframes ai-text-break {
   0%, 100% { transform: skew(0deg); }
   25% { transform: skew(8deg) scale(1.02); }
   50% { transform: skew(-6deg); }
 }
 
-/* GROK FIRE MODE - LIGHT THE MATCH BOOM */
-.grok-fire-mode {
-  animation: grok-fire-shake 0.1s infinite;
+/* AI FIRE MODE - LIGHT THE MATCH BOOM */
+.ai-fire-mode {
+  animation: ai-fire-shake 0.1s infinite;
   background: linear-gradient(45deg, #0a0a0f, #3a0000, #0a0a0f);
 }
 
-@keyframes grok-fire-shake {
+@keyframes ai-fire-shake {
   0%, 100% { transform: translate(0, 0); }
   25% { transform: translate(2px, -2px); }
   75% { transform: translate(-2px, 2px); }
 }
 
-.grok-fire-mode .graffiti-text {
+.ai-fire-mode .graffiti-text {
   color: #ff4500 !important;
   text-shadow: 0 0 20px #ff0000, 0 0 40px #ff4500;
 }
 
-.grok-fire-mode .neon-pink {
+.ai-fire-mode .neon-pink {
   color: #ff0000 !important;
   text-shadow: 0 0 30px #ff4500;
 }
 
-.grok-fuego {
+.ai-fuego {
   filter: saturate(1.5) contrast(1.2);
 }
 
-.grok-fuego .graffiti-text {
+.ai-fuego .graffiti-text {
   animation: fuego-flicker 0.8s infinite alternate;
 }
 
@@ -483,9 +483,9 @@ img.emoji:hover {
   transform: scale(1.1);
 }
 
-/* Extra pop in fire/grok modes */
-.grok-fire-mode .emoji img,
-.grok-fire-mode img.emoji,
+/* Extra pop in fire/ai modes */
+.ai-fire-mode .emoji img,
+.ai-fire-mode img.emoji,
 .fuego-msg .emoji img,
 .fuego-msg img.emoji {
   filter: drop-shadow(0 0 6px #ff4500) saturate(1.3) brightness(1.1);
@@ -510,7 +510,7 @@ img.emoji:hover {
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
 }
 
-/* Emoji rain / shower (used in GrokFire and token effects) */
+/* Emoji rain / shower (used in AIFire and token effects) */
 @keyframes coinShower {
   0% {
     transform: translateY(-50px) rotate(0deg);
@@ -537,7 +537,7 @@ img.emoji:hover {
 }
 
 /* Stronger emoji in fire mode or highlights */
-.grok-fire-mode .emoji,
+.ai-fire-mode .emoji,
 .fuego-msg .emoji {
   filter: saturate(1.4) brightness(1.1);
   text-shadow: 0 0 8px currentColor;

@@ -63,7 +63,7 @@ export default function TokenShopModal({ isOpen, onClose }: TokenShopModalProps)
     { amount: 1000, price: "$1.99", unit: "CAD", badge: "🍟 Chips Pack", perk: t("perkSpray") ?? "Spray emotes" },
     { amount: 5000, price: "$4.99", unit: "CAD", badge: "🍺 Pinte Pack", perk: t("perkSacres") ?? "Unlock sacres", popular: true },
     { amount: 10000, price: "$8.99", unit: "CAD", badge: "📦 Caisse Pack", perk: t("perkVIP") ?? "VIP badge", bestValue: true },
-    { amount: 25000, price: "$17.99", unit: "CAD", badge: "👑 Gérant Pack", perk: t("perkBoss") ?? "Grok roast boost" },
+    { amount: 25000, price: "$17.99", unit: "CAD", badge: "👑 Gérant Pack", perk: t("perkBoss") ?? "AI roast boost" },
   ];
 
   const modalContent = (

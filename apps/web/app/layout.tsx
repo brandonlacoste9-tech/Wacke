@@ -16,18 +16,18 @@ export async function generateMetadata(): Promise<Metadata> {
   const lang = cookieStore.get("wacke_lang")?.value === "fr" ? "fr" : "en";
   const isEn = lang === "en";
 
-  const title = isEn ? "Wacké — Unfiltered Gen-Z Streaming | Powered by Grok xAI" : "Wacké — Le streaming sans filtre | Powered by Grok xAI";
+  const title = isEn ? "Wacké — Unfiltered Gen-Z Streaming | Powered by Wacké AI" : "Wacké — Le streaming sans filtre | Powered by Wacké AI";
   const description = isEn
-    ? "Wacké is the ultimate streaming platform for Gen Z. AI Graffiti Chat, Roast Battles, and unfiltered chaos. Kick meets AI. Powered by Grok xAI."
-    : "Wacké est la plateforme de streaming pour la Gen Z. Culture de rue, Graffiti Chat, Mode Chaos. Kick meets AI chaos. Powered by Grok xAI.";
+    ? "Wacké is the ultimate streaming platform for Gen Z. AI Graffiti Chat, Roast Battles, and unfiltered chaos. Kick meets AI. Powered by Wacké AI."
+    : "Wacké est la plateforme de streaming pour la Gen Z. Culture de rue, Graffiti Chat, Mode Chaos. Kick meets AI chaos. Powered by Wacké AI.";
 
   return {
     title: {
       default: title,
-      template: "%s | Wacké × Grok xAI",
+      template: "%s | Wacké × AI",
     },
     description,
-    keywords: ["streaming", "québec", "twitch", "kick", "montréal", "francophone", "live", "gaming", "wacke", "grok", "xai"],
+    keywords: ["streaming", "québec", "twitch", "kick", "montréal", "francophone", "live", "gaming", "wacke", "ai"],
     icons: {
       icon: "/logo_w.png",
       shortcut: "/logo_w.png",
@@ -37,7 +37,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       locale: isEn ? "en_US" : "fr_CA",
       type: "website",
-      siteName: "Wacké × Grok xAI",
+      siteName: "Wacké × AI",
       images: [
         {
           url: "/hero_banner.jpg",
@@ -100,8 +100,8 @@ export default async function RootLayout({
             <MainLayoutWrapper>
               {children}
             </MainLayoutWrapper>
-            <div className="hidden md:block fixed bottom-1 right-2 text-[9px] font-mono text-wacke-cyan/40 z-[999] pointer-events-none">POWERED BY GROK xAI</div>
-            <div className="fixed top-0 left-1/2 -translate-x-1/2 text-[10px] font-black tracking-[3px] text-orange-500/70 z-[999] pointer-events-none hidden grok-fuego:block">🔥 GROKS ON FUEGO 🔥</div>
+            <div className="hidden md:block fixed bottom-1 right-2 text-[9px] font-mono text-wacke-cyan/40 z-[999] pointer-events-none">POWERED BY WACKÉ AI</div>
+            <div className="fixed top-0 left-1/2 -translate-x-1/2 text-[10px] font-black tracking-[3px] text-orange-500/70 z-[999] pointer-events-none hidden ai-fuego:block">🔥 AI ON FUEGO 🔥</div>
           </LanguageProvider>
         </AuthProvider>
       </body>

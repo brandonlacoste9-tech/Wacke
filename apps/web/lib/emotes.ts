@@ -45,7 +45,7 @@ export const CHANNEL_EMOTES: Emote[] = [
   { shortcode: "rage", emoji: "😤", label: "Rage", category: "channel" },
   { shortcode: "unicorn", emoji: "🦄", label: "Licorne", category: "channel" },
   { shortcode: "pumpkin", emoji: "🎃", label: "Citrouille", category: "channel" },
-  // Demo customs generated with the EXACT Grok formula in the spec (replace jpgs with your remove.bg transparent PNGs)
+  // Demo customs generated with the EXACT AI formula in the spec (replace jpgs with your remove.bg transparent PNGs)
   { shortcode: "raccoon", emoji: "🦝", label: "Raccoon Hype (custom)", category: "channel", imageUrl: "/emotes/raccoon-hype.jpg" },
   { shortcode: "gcoin", emoji: "🪙", label: "Gold Skull (custom)", category: "channel", imageUrl: "/emotes/gold-skull.jpg" },
 ];

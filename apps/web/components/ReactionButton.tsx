@@ -21,7 +21,7 @@ export default function ReactionButton({
 }: ReactionButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
-  const [grokComment, setGrokComment] = useState<string | null>(null);
+  const [aiComment, setAIComment] = useState<string | null>(null);
   const router = useRouter();
   const { t, language } = useLanguage();
   const { token: authClientToken } = useAuth();
@@ -38,7 +38,7 @@ export default function ReactionButton({
 
     setIsLoading(true);
     setToastMsg(null);
-    setGrokComment(null);
+    setAIComment(null);
 
     try {
       const res = await fetch("/api/tokens", {
@@ -65,9 +65,9 @@ export default function ReactionButton({
 
       setToastMsg(language === "fr" ? "BOUM! Épique!" : "BOOM! Epic!");
 
-      // Grok on fire comment
+      // AI on fire comment
       try {
-        const grokRes = await fetch("/api/grok", {
+        const aiRes = await fetch("/api/ai", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -77,8 +77,8 @@ export default function ReactionButton({
             maxTokens: 40,
           }),
         });
-        const grokData = await grokRes.json();
-        if (grokData.content) setGrokComment(grokData.content);
+        const aiData = await aiRes.json();
+        if (aiData.content) setAIComment(aiData.content);
       } catch {}
 
       // Trigger callback to update balance globally or trigger animation
@@ -95,16 +95,16 @@ export default function ReactionButton({
       setIsLoading(false);
       setTimeout(() => {
         setToastMsg(null);
-        setGrokComment(null);
+        setAIComment(null);
       }, 3500);
     }
   };
 
   return (
     <div className="relative">
-      {grokComment && (
+      {aiComment && (
         <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black/80 text-wacke-cyan text-[10px] px-2 py-0.5 rounded border border-wacke-cyan/30 whitespace-nowrap z-50">
-          {grokComment} 🔥
+          {aiComment} 🔥
         </div>
       )}
       <button

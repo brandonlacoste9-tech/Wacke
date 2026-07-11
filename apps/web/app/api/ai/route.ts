@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUltraChaosIntervention } from "@/lib/grok-wit";
+import { getUltraChaosIntervention } from "@/lib/ai-wit";
 
 export const runtime = "nodejs";
 
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     const apiKey = process.env.XAI_API_KEY;
     if (!apiKey) {
       const fallbackLang = lang || (prompt.toLowerCase().includes(" le ") || prompt.toLowerCase().includes(" la ") ? "fr" : "en");
-      return NextResponse.json({ content: getUltraChaosIntervention(fallbackLang), usage: { total_tokens: 0 } });
+      return NextResponse.json({ content: await getUltraChaosIntervention(fallbackLang), usage: { total_tokens: 0 } });
     }
 
     const messages = [];
@@ -41,17 +41,17 @@ export async function POST(req: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("[GROK API ERROR]", errorText);
+      console.error("[AI API ERROR]", errorText);
       const fallbackLang = lang || (prompt.toLowerCase().includes(" le ") || prompt.toLowerCase().includes(" la ") ? "fr" : "en");
-      return NextResponse.json({ content: getUltraChaosIntervention(fallbackLang), usage: { total_tokens: 0 } });
+      return NextResponse.json({ content: await getUltraChaosIntervention(fallbackLang), usage: { total_tokens: 0 } });
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || "Grok had nothing to say (weird).";
+    const content = data.choices?.[0]?.message?.content || "AI had nothing to say (weird).";
 
     return NextResponse.json({ content, usage: data.usage });
   } catch (error) {
-    console.error("[GROK ROUTE ERROR]", error);
-    return NextResponse.json({ error: "Internal error calling Grok" }, { status: 500 });
+    console.error("[AI ROUTE ERROR]", error);
+    return NextResponse.json({ error: "Internal error calling AI" }, { status: 500 });
   }
 }

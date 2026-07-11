@@ -13,7 +13,7 @@ const TTS_COST = 50;
 
 /**
  * POST /api/chat/tts
- * Deducts tokens, uses native Grok xAI Voice (TTS) to generate expressive audio, uploads to Supabase, and saves the message.
+ * Deducts tokens, uses native AI xAI Voice (TTS) to generate expressive audio, uploads to Supabase, and saves the message.
  */
 export async function POST(req: NextRequest) {
   console.log("[TTS_DEBUG] ----------------- TTS REQUEST RECEIVED -----------------");
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
     try {
       const xaiKey = process.env.XAI_API_KEY;
       if (!xaiKey) {
-        throw new Error("XAI_API_KEY not configured for Grok TTS");
+        throw new Error("XAI_API_KEY not configured for AI TTS");
       }
 
       const ttsResponse = await fetch("https://api.x.ai/v1/tts", {
@@ -119,8 +119,8 @@ export async function POST(req: NextRequest) {
 
       if (!ttsResponse.ok) {
         const errText = await ttsResponse.text();
-        console.error("[GROK_TTS_ERROR]", ttsResponse.status, errText);
-        throw new Error("Grok TTS generation failed");
+        console.error("[AI_TTS_ERROR]", ttsResponse.status, errText);
+        throw new Error("AI TTS generation failed");
       }
 
       const audioBuffer = await ttsResponse.arrayBuffer();
@@ -181,7 +181,7 @@ export async function POST(req: NextRequest) {
         });
 
       if (uploadError) {
-        console.error("[GROK_TTS_STORAGE_ERROR]", uploadError);
+        console.error("[AI_TTS_STORAGE_ERROR]", uploadError);
         // Fallback: data URL (works for demo, large messages may be heavy)
         const base64 = Buffer.from(audioBuffer).toString("base64");
         audioUrl = `data:audio/mpeg;base64,${base64}`;
@@ -193,7 +193,7 @@ export async function POST(req: NextRequest) {
       }
       ttsSucceeded = true;
     } catch (ttsError) {
-      console.error("[GROK_TTS_ERROR]", ttsError);
+      console.error("[AI_TTS_ERROR]", ttsError);
       audioUrl = undefined;
       ttsSucceeded = false;
     }

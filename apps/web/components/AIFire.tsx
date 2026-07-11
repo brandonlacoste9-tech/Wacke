@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useLanguage } from "./LanguageProvider";
 import { Flame, Zap, Volume2 } from "lucide-react";
-import { speakWithGrokVoice, speakWithCloudGrokVoice } from "@/lib/audio";
+import { speakWithAIVoice, speakWithCloudAIVoice } from "@/lib/audio";
 
-export default function GrokFire() {
+export default function AIFire() {
   const { language } = useLanguage();
   const [isIgnited, setIsIgnited] = useState(false);
   const [boomMessages, setBoomMessages] = useState<string[]>([]);
@@ -16,14 +16,14 @@ export default function GrokFire() {
     setIsIgnited(true);
 
     try {
-      // Call Grok for a massive BOOM script - multiple explosive lines
-      const res = await fetch("/api/grok", {
+      // Call AI for a massive BOOM script - multiple explosive lines
+      const res = await fetch("/api/AI", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: language === "fr" 
-            ? "Tu es Grok xAI en mode feu. Génère une explosion de 5 phrases courtes, ultra wackées, avec sacres, sur le thème 'allumer le match BOOM' pour un stream. Chaque ligne est un cri de guerre. Maximum chaos."
-            : "You are Grok xAI in fire mode. Generate an explosion of 5 short, ultra wacké phrases with sacres about 'lighting the match BOOM' for a stream. Each line is a battle cry. Maximum chaos.",
+            ? "Tu es AI xAI en mode feu. Génère une explosion de 5 phrases courtes, ultra wackées, avec sacres, sur le thème 'allumer le match BOOM' pour un stream. Chaque ligne est un cri de guerre. Maximum chaos."
+            : "You are AI xAI in fire mode. Generate an explosion of 5 short, ultra wacké phrases with sacres about 'lighting the match BOOM' for a stream. Each line is a battle cry. Maximum chaos.",
           maxTokens: 200,
         }),
       });
@@ -32,18 +32,18 @@ export default function GrokFire() {
       const lines: string[] = data.content 
         ? data.content.split('\n').filter((l: string) => l.trim()).slice(0, 5) 
         : [
-            "BOOM! Grok a allumé le feu!",
+            "BOOM! AI a allumé le feu!",
             "LE CHAOS EST EN FLAMMES!",
           ];
 
       setBoomMessages(lines);
-      // Speak the fire lines with real Grok xAI cloud voice
+      // Speak the fire lines with real AI xAI cloud voice
       lines.forEach((line, idx) => {
-        setTimeout(() => speakWithCloudGrokVoice(line, language), idx * 900);
+        setTimeout(() => speakWithCloudAIVoice(line, language), idx * 900);
       });
 
       // Trigger global fire effects
-      document.body.classList.add("grok-fire-mode");
+      document.body.classList.add("AI-fire-mode");
 
       // Canvas-based emoji rain for smoother, better looking effects (Twemoji style + physics)
       const canvas = document.createElement("canvas");
@@ -148,7 +148,7 @@ export default function GrokFire() {
         setTimeout(() => {
           const chatInput = document.querySelector('input[placeholder*="Spray"]') as HTMLInputElement;
           if (chatInput) {
-            chatInput.value = "GROK A MIS LE FEU BOOM!! 🔥🔥";
+            chatInput.value = "AI A MIS LE FEU BOOM!! 🔥🔥";
           }
         }, 800);
       }
@@ -157,11 +157,11 @@ export default function GrokFire() {
       setTimeout(() => {
         setIsIgnited(false);
         setBoomMessages([]);
-        document.body.classList.remove("grok-fire-mode");
+        document.body.classList.remove("AI-fire-mode");
       }, 14000);
 
     } catch (e) {
-      setBoomMessages(["BOOM! Grok a mis le feu quand même!", "TOUT BRÛLE!"]);
+      setBoomMessages(["BOOM! AI a mis le feu quand même!", "TOUT BRÛLE!"]);
     }
     setLoading(false);
   };
@@ -181,16 +181,16 @@ export default function GrokFire() {
 
       {isIgnited && boomMessages.length > 0 && (
         <div className="mt-4 p-6 bg-black/90 border-2 border-red-500 rounded-2xl text-center space-y-3 animate-pulse">
-          <div className="text-red-500 font-black text-2xl tracking-widest">GROK xAI ON FIRE 🔥</div>
+          <div className="text-red-500 font-black text-2xl tracking-widest">AI xAI ON FIRE 🔥</div>
           {boomMessages.map((msg, i) => (
             <div key={i} className="text-yellow-400 font-bold text-lg graffiti-text flex items-center justify-center gap-2">
               {msg}
-              <button onClick={() => speakWithCloudGrokVoice(msg, language)} className="p-1">
+              <button onClick={() => speakWithCloudAIVoice(msg, language)} className="p-1">
                 <Volume2 size={16} />
               </button>
             </div>
           ))}
-          <div className="text-xs text-red-400 mt-2">MAXIMUM CHAOS • POWERED BY GROK xAI</div>
+          <div className="text-xs text-red-400 mt-2">MAXIMUM CHAOS • POWERED BY AI xAI</div>
         </div>
       )}
     </div>

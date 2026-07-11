@@ -9,8 +9,8 @@ interface EmojiPickerProps {
 
 // getTwemojiUrl imported from lib/emotes
 
-// Exact Grok Prompt Formula (from the Kick emote/badge spec)
-function buildGrokEmotePrompt(concept: string, isBadge = false) {
+// Exact AI Prompt Formula (from the Kick emote/badge spec)
+function buildAIEmotePrompt(concept: string, isBadge = false) {
   const style = isBadge ? "Chat badge style" : "Twitch emote style";
   const base = concept.trim() || "A cartoon mascot of a raccoon wearing sunglasses and screaming with excitement";
   return `${base}, ${style}, flat vector illustration, thick outlines, solid white background, 1:1 aspect ratio.`;
@@ -25,10 +25,10 @@ export default function EmojiPicker({ onSelect }: EmojiPickerProps) {
   const currentEmotes: Emote[] = EMOTES_BY_CATEGORY[activeCat] || [];
 
   const copyPrompt = () => {
-    const p = buildGrokEmotePrompt(promptConcept, promptIsBadge);
+    const p = buildAIEmotePrompt(promptConcept, promptIsBadge);
     navigator.clipboard?.writeText(p).catch(() => {});
     const orig = promptConcept;
-    setPromptConcept("✅ Copied! Paste to Grok → remove.bg → transparent 1:1 PNG");
+    setPromptConcept("✅ Copied! Paste to AI → remove.bg → transparent 1:1 PNG");
     setTimeout(() => setPromptConcept(orig), 1700);
   };
 
@@ -40,10 +40,10 @@ export default function EmojiPicker({ onSelect }: EmojiPickerProps) {
         <button
           onClick={() => setShowPromptHelper((v) => !v)}
           className="text-[8px] px-1.5 py-0.5 rounded bg-wacke-purple/20 text-wacke-cyan hover:bg-wacke-purple/40"
-          title="Grok prompt formula for custom emotes & badges"
+          title="AI prompt formula for custom emotes & badges"
           type="button"
         >
-          ✨ GROK GENERATE
+          ✨ AI GENERATE
         </button>
       </div>
 
@@ -91,7 +91,7 @@ export default function EmojiPicker({ onSelect }: EmojiPickerProps) {
       {/* The crucial prompt formula + workflow section */}
       {showPromptHelper && (
         <div className="mt-2 p-2 bg-black/50 border border-wacke-cyan/30 rounded-lg text-[9px]">
-          <div className="font-bold text-wacke-cyan mb-1">GROK PROMPT FORMULA FOR EMOTES &amp; BADGES</div>
+          <div className="font-bold text-wacke-cyan mb-1">AI PROMPT FORMULA FOR EMOTES &amp; BADGES</div>
           <div className="text-[8px] text-gray-400 mb-1">
             Keywords (always use): "Twitch emote style" or "Chat badge style", "flat vector illustration", "thick outlines", "solid white background", "1:1 aspect ratio"
           </div>

@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     description: `${displayName}, your @${username} handle is reserved on Wacké. Claim it before someone else does.`,
     openGraph: {
       title: `@${username} is reserved on Wacké`,
-      description: "Dark-glass UI + Grok roast engine. Claim your handle free.",
+      description: "Dark-glass UI + AI roast engine. Claim your handle free.",
       images: [{ url: "/hero_banner.jpg", width: 1200, height: 630 }],
     },
   };

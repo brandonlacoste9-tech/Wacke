@@ -27,7 +27,7 @@ export const translations = {
     join: "Rejoindre",
     expand: "Agrandir",
     collapse: "Réduire",
-    poweredBy: "Powered by Grok xAI",
+    poweredBy: "Powered by AI xAI",
 
     // ── Home Page ─────────────────────────────────────────────────────
     welcome: "Bienvenue sur Wacké",
@@ -70,14 +70,14 @@ export const translations = {
 
     // ── Graffiti Chat ─────────────────────────────────────────────────
     chatPlaceholder: "Spray ton message...",
-    ttsBtn: "Grok Voice TTS (50 🪙)",
-    ttsGenerating: "Grok parle...",
+    ttsBtn: "AI Voice TTS (50 🪙)",
+    ttsGenerating: "AI parle...",
     stickerTitle: "GÉNÉRATEUR DE STICKERS AI (100 🪙)",
     stickerPlaceholder: "Ex: un canard punk...",
     stickerBtn: "Sprayer",
     soundboardTitle: "SOUNDBOARD INTERACTIVE",
     sacreTitle: "GÉNÉRATEUR DE CHAOS",
-    sacreTtsCheckbox: "Hurler avec Grok Voice (+50 🪙)",
+    sacreTtsCheckbox: "Hurler avec AI Voice (+50 🪙)",
     sacreBtn: "Crier",
     sacreActive: "Mode Chaos actif — chaos permis",
     sacreDisabled: "Mode Chaos désactivé",
@@ -94,11 +94,11 @@ export const translations = {
     stickerTooltip: "Générateur de stickers AI (100 jetons)",
     soundTooltip: "Soundboard interactive (20-50 jetons)",
     sacreTooltip: "Générateur de chaos (10 jetons)",
-    grokTooltip: "Consult Groké — l'IA wackée avec du gros bon sens (et du chaos)",
+    aiTooltip: "Consult Wacké AI — l'IA wackée avec du gros bon sens (et du chaos)",
 
     // ── Token Shop ────────────────────────────────────────────────────
     shopTitle: "BOUTIQUE DE JETONS 🪙",
-    shopSubtitle: "Recharge ton solde pour débloquer le Mode Chaos, Grok Voice TTS, stickers et soundboard !",
+    shopSubtitle: "Recharge ton solde pour débloquer le Mode Chaos, AI Voice TTS, stickers et soundboard !",
     buyBtn: "Recharger",
     loadingCheckout: "Redirection vers Stripe...",
     loginToBuy: "Tu dois être connecté pour acheter des jetons",
@@ -109,7 +109,7 @@ export const translations = {
     perkSpray: "Spray emotes",
     perkSacres: "Débloque le chaos",
     perkVIP: "Badge VIP",
-    perkBoss: "Boost de roasts Grok",
+    perkBoss: "Boost de roasts AI",
     bestValue: "MEILLEURE VALEUR",
     securedByStripe: "Sécurisé par Stripe",
 
@@ -270,14 +270,14 @@ export const translations = {
     watchLiveProfile: "🔴 Regarder le live",
     backHome: "← Retour à l'accueil",
 
-    // ── Grok ──────────────────────────────────────────────────────────
-    grokErrorTakes: "Grok fait du chaos sur le réseau. Réessaie.",
-    grokErrorCoHost: "Grok dit: ce stream est fire!",
-    grokBackstage: "Grok cuisine du chaos dans les coulisses.",
-    grokCohostTitle: "GROK xAI CO-HÔTE",
-    grokSpeaking: "GROK PARLE...",
-    grokSummon: "INVOQUER GROK",
-    grokHint: "Grok intervient avec des commentaires xAI en direct",
+    // ── AI ──────────────────────────────────────────────────────────
+    aiErrorTakes: "AI fait du chaos sur le réseau. Réessaie.",
+    aiErrorCoHost: "AI dit: ce stream est fire!",
+    aiBackstage: "AI cuisine du chaos dans les coulisses.",
+    aiCohostTitle: "AI xAI CO-HÔTE",
+    aiSpeaking: "AI PARLE...",
+    aiSummon: "INVOQUER AI",
+    aiHint: "AI intervient avec des commentaires xAI en direct",
 
     // ── Claim Page ────────────────────────────────────────────────────
     claimPageReserved: "Handle réservé pour toi",
@@ -285,8 +285,8 @@ export const translations = {
     claimPageSubtitle: "ton salon VIP t'attend sur Wacké",
     claimPagePreviewTag: "Aperçu de ta chaîne",
     claimPageWhatYouGet: "Ce que tu obtiens",
-    claimPageGrokTitle: "Groké — IA roast engine",
-    claimPageGrokDesc: "Grok réagit en direct dans ton chat. Roasts, sondages, chaos — le tout sans filtre.",
+    claimPageAITitle: "Wacké AI — IA roast engine",
+    claimPageAIDesc: "AI réagit en direct dans ton chat. Roasts, sondages, chaos — le tout sans filtre.",
     claimPageBoumTitle: "Économie BOUM! 🔥",
     claimPageBoumDesc: "Tes viewers envoient des réactions tokenisées. Chaque BOUM! compte.",
     claimPageVipTitle: "Salon VIP Wacké",
@@ -298,7 +298,7 @@ export const translations = {
 
     // ── External stream banner ────────────────────────────────────────
     externalBannerWatching: "sur",
-    externalBannerGrok: "chat propulsé par Groké",
+    externalBannerAI: "chat propulsé par Wacké AI",
 
     // ── Québec row ────────────────────────────────────────────────────
     quebecLive: "🇨🇦 En direct du Québec",
@@ -354,7 +354,7 @@ export const translations = {
     join: "Join Now",
     expand: "Expand",
     collapse: "Collapse",
-    poweredBy: "Powered by Grok xAI",
+    poweredBy: "Powered by AI xAI",
 
     // ── Home Page ─────────────────────────────────────────────────────
     welcome: "Welcome to Wacké",
@@ -397,14 +397,14 @@ export const translations = {
 
     // ── Graffiti Chat ─────────────────────────────────────────────────
     chatPlaceholder: "Spray your message...",
-    ttsBtn: "Grok Voice TTS (50 🪙)",
-    ttsGenerating: "Grok speaking...",
+    ttsBtn: "AI Voice TTS (50 🪙)",
+    ttsGenerating: "AI speaking...",
     stickerTitle: "AI STICKER GENERATOR (100 🪙)",
     stickerPlaceholder: "Ex: a punk duck...",
     stickerBtn: "Spray",
     soundboardTitle: "INTERACTIVE SOUNDBOARD",
     sacreTitle: "CHAOS GENERATOR",
-    sacreTtsCheckbox: "Scream with Grok Voice (+50 🪙)",
+    sacreTtsCheckbox: "Scream with AI Voice (+50 🪙)",
     sacreBtn: "Shout",
     sacreActive: "Chaos Mode active — chaos allowed",
     sacreDisabled: "Chaos Mode disabled",
@@ -421,11 +421,11 @@ export const translations = {
     stickerTooltip: "AI sticker generator (100 tokens)",
     soundTooltip: "Interactive soundboard (20-50 tokens)",
     sacreTooltip: "Chaos generator (10 tokens)",
-    grokTooltip: "Ask Groké — wacké AI with maximum truth & maximum fun",
+    aiTooltip: "Ask Wacké AI — wacké AI with maximum truth & maximum fun",
 
     // ── Token Shop ────────────────────────────────────────────────────
     shopTitle: "TOKEN SHOP 🪙",
-    shopSubtitle: "Refill your balance to unlock Chaos Mode, Grok Voice TTS, stickers, and soundboard chimes!",
+    shopSubtitle: "Refill your balance to unlock Chaos Mode, AI Voice TTS, stickers, and soundboard chimes!",
     buyBtn: "Purchase",
     loadingCheckout: "Redirecting to Stripe...",
     loginToBuy: "You must be logged in to buy tokens",
@@ -436,7 +436,7 @@ export const translations = {
     perkSpray: "Spray emotes",
     perkSacres: "Unlock chaos",
     perkVIP: "VIP badge",
-    perkBoss: "Grok roast boost",
+    perkBoss: "AI roast boost",
     bestValue: "BEST VALUE",
     securedByStripe: "Secured by Stripe",
 
@@ -597,14 +597,14 @@ export const translations = {
     watchLiveProfile: "🔴 Watch Live",
     backHome: "← Back to home",
 
-    // ── Grok ──────────────────────────────────────────────────────────
-    grokErrorTakes: "Grok is cooking up chaos on the network. Try again.",
-    grokErrorCoHost: "Grok says: Damn, this stream is fire!",
-    grokBackstage: "Grok is cooking up chaos backstage.",
-    grokCohostTitle: "GROK xAI CO-HOST",
-    grokSpeaking: "GROK IS SPEAKING...",
-    grokSummon: "SUMMON GROK",
-    grokHint: "Grok jumps in with real xAI commentary",
+    // ── AI ──────────────────────────────────────────────────────────
+    aiErrorTakes: "AI is cooking up chaos on the network. Try again.",
+    aiErrorCoHost: "AI says: Damn, this stream is fire!",
+    aiBackstage: "AI is cooking up chaos backstage.",
+    aiCohostTitle: "AI xAI CO-HOST",
+    aiSpeaking: "AI IS SPEAKING...",
+    aiSummon: "SUMMON AI",
+    aiHint: "AI jumps in with real xAI commentary",
 
     // ── Claim Page ────────────────────────────────────────────────────
     claimPageReserved: "Handle reserved for you",
@@ -612,8 +612,8 @@ export const translations = {
     claimPageSubtitle: "your VIP lounge awaits on Wacké",
     claimPagePreviewTag: "Channel preview",
     claimPageWhatYouGet: "What you get",
-    claimPageGrokTitle: "Groké — AI roast engine",
-    claimPageGrokDesc: "Grok reacts live in your chat. Roasts, polls, chaos — all unfiltered.",
+    claimPageAITitle: "Wacké AI — AI roast engine",
+    claimPageAIDesc: "AI reacts live in your chat. Roasts, polls, chaos — all unfiltered.",
     claimPageBoumTitle: "BOUM! token economy 🔥",
     claimPageBoumDesc: "Viewers send tokenized reactions. Every BOUM! counts.",
     claimPageVipTitle: "Wacké VIP Lounge",
@@ -625,7 +625,7 @@ export const translations = {
 
     // ── External stream banner ────────────────────────────────────────
     externalBannerWatching: "on",
-    externalBannerGrok: "chat powered by Groké",
+    externalBannerAI: "chat powered by Wacké AI",
 
     // ── Québec row ────────────────────────────────────────────────────
     quebecLive: "🇨🇦 Live from Québec",

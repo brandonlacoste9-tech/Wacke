@@ -4,37 +4,37 @@ import { useState, useEffect } from "react";
 import { useLanguage } from "./LanguageProvider";
 import { Bot, MessageCircle } from "lucide-react";
 
-interface GrokCoHostProps {
+interface AICoHostProps {
   streamerName: string;
   streamId: string;
 }
 
-export default function GrokCoHost({ streamerName, streamId }: GrokCoHostProps) {
+export default function AICoHost({ streamerName, streamId }: AICoHostProps) {
   const { language, t } = useLanguage();
   const [comment, setComment] = useState<string>("");
   const [isActive, setIsActive] = useState(false);
 
-  const summonGrok = async () => {
+  const summonAI = async () => {
     setIsActive(true);
     try {
-      const res = await fetch("/api/grok", {
+      const res = await fetch("/api/AI", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: language === "fr" 
-            ? `Tu es le co-hôte Grok xAI sur le stream de ${streamerName}. Dis quelque chose de drôle, wacké et pertinent sur le stream en cours. Court, en argot décontracté.`
-            : `You are Grok xAI co-host on ${streamerName}'s stream. Say something funny, wacké and relevant about the current stream. Short, in casual slang.`,
+            ? `Tu es le co-hôte AI xAI sur le stream de ${streamerName}. Dis quelque chose de drôle, wacké et pertinent sur le stream en cours. Court, en argot décontracté.`
+            : `You are AI xAI co-host on ${streamerName}'s stream. Say something funny, wacké and relevant about the current stream. Short, in casual slang.`,
           maxTokens: 120,
         }),
       });
       const data = await res.json();
-      const grokText = data.content || t("grokBackstage");
-      setComment(grokText);
+      const AIText = data.content || t("aiBackstage");
+      setComment(AIText);
       
       // Removed TTS per user request
-      // speakWithCloudGrokVoice(grokText, language);
+      // speakWithCloudAIVoice(AIText, language);
     } catch {
-      setComment(t("grokErrorCoHost"));
+      setComment(t("aiErrorCoHost"));
     }
     setTimeout(() => setIsActive(false), 8000);
   };
@@ -43,23 +43,23 @@ export default function GrokCoHost({ streamerName, streamId }: GrokCoHostProps) 
     <div className="glass p-4 rounded-xl border border-white/[0.07] flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-wacke-cyan text-sm font-bold font-display tracking-wide">
-          <Bot /> {t("grokCohostTitle")}
+          <Bot /> {t("aiCohostTitle")}
         </div>
         <button
-          onClick={summonGrok}
+          onClick={summonAI}
           disabled={isActive}
           className="text-xs px-2.5 py-1 bg-wacke-cyan text-black rounded-lg font-bold hover:brightness-110 active:scale-95 transition-all disabled:opacity-50"
         >
-          {isActive ? t("grokSpeaking") : t("grokSummon")}
+          {isActive ? t("aiSpeaking") : t("aiSummon")}
         </button>
       </div>
       {comment && (
         <div className="text-xs bg-black/30 p-2 rounded border-l-2 border-wacke-cyan/60 text-gray-200 flex items-start gap-2">
-          <div className="flex-1">{comment} <span className="text-wacke-cyan/60">— Grok xAI</span></div>
+          <div className="flex-1">{comment} <span className="text-wacke-cyan/60">— AI xAI</span></div>
         </div>
       )}
       <div className="text-[10px] text-gray-400">
-        {t("grokHint")}
+        {t("aiHint")}
       </div>
     </div>
   );

@@ -16,7 +16,7 @@ export default function NotFound() {
         </h1>
         
         <h2 className="text-2xl md:text-4xl font-bold text-white mb-6 font-display uppercase tracking-wider graffiti-text transform -rotate-2">
-          Page roasted by Grok
+          Page roasted by AI
         </h2>
         
         <p className="text-gray-300 text-lg md:text-xl mb-10 max-w-md mx-auto">

@@ -16,9 +16,9 @@ import TokenShopModal from "./TokenShopModal";
  */
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [grokChaos, setGrokChaos] = useState(false);
-  const [grokFuego, setGrokFuego] = useState(false);
-  const [grokMenuOpen, setGrokMenuOpen] = useState(false);
+  const [aiChaos, setAIChaos] = useState(false);
+  const [aiFuego, setAIFuego] = useState(false);
+  const [aiMenuOpen, setAIMenuOpen] = useState(false);
   const { user, claimDailyTokens, isLoading, refreshUser } = useAuth();
   const [claimFeedback, setClaimFeedback] = useState<string | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
@@ -89,7 +89,7 @@ export default function Header() {
           <span className="text-2xl font-bold graffiti-text neon-pink group-hover:opacity-80 transition-opacity hidden sm:block">
             WACKE
           </span>
-          <span className="hidden md:inline text-[10px] font-mono tracking-widest text-wacke-cyan/70 border border-wacke-cyan/30 px-1.5 py-0.5 rounded ml-1.5">POWERED BY GROK xAI</span>
+          <span className="hidden md:inline text-[10px] font-mono tracking-widest text-wacke-cyan/70 border border-wacke-cyan/30 px-1.5 py-0.5 rounded ml-1.5">POWERED BY AI xAI</span>
         </Link>
 
         {/* ── Navigation ────────────────────────────────────────────────── */}
@@ -200,57 +200,57 @@ export default function Header() {
                 🌐 {language.toUpperCase()}
               </button>
 
-              {/* GROK xAI MODES — consolidated popover (Chaos + Fuego) */}
+              {/* AI xAI MODES — consolidated popover (Chaos + Fuego) */}
               <div className="relative hidden md:block">
                 <button
-                  onClick={() => setGrokMenuOpen((v) => !v)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-black transition-all ${grokChaos || grokFuego ? "bg-red-600 text-white border-red-500" : "border-wacke-cyan/30 text-wacke-cyan hover:bg-white/5"}`}
-                  title="Grok xAI modes — Chaos & Fuego"
+                  onClick={() => setAIMenuOpen((v) => !v)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-black transition-all ${aiChaos || aiFuego ? "bg-red-600 text-white border-red-500" : "border-wacke-cyan/30 text-wacke-cyan hover:bg-white/5"}`}
+                  title="AI xAI modes — Chaos & Fuego"
                   type="button"
                 >
-                  <Bot className="w-3.5 h-3.5" /> GROK
+                  <Bot className="w-3.5 h-3.5" /> AI
                 </button>
-                {grokMenuOpen && (
+                {aiMenuOpen && (
                   <>
-                    <div className="fixed inset-0 z-40" onClick={() => setGrokMenuOpen(false)} />
+                    <div className="fixed inset-0 z-40" onClick={() => setAIMenuOpen(false)} />
                     <div className="absolute right-0 top-full mt-2 w-52 glass-dark rounded-xl p-2 z-50 shadow-2xl animate-scale-in origin-top-right">
                       <button
                         onClick={() => {
-                          const next = !grokChaos;
-                          setGrokChaos(next);
+                          const next = !aiChaos;
+                          setAIChaos(next);
                           if (next) {
-                            document.body.classList.add("grok-takeover", "theme-grok-xai");
+                            document.body.classList.add("ai-takeover", "theme-ai-xai");
                           } else {
-                            document.body.classList.remove("grok-takeover", "theme-grok-xai");
+                            document.body.classList.remove("ai-takeover", "theme-ai-xai");
                           }
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all ${grokChaos ? "bg-red-600/20 text-red-300" : "text-gray-300 hover:bg-white/5"}`}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all ${aiChaos ? "bg-red-600/20 text-red-300" : "text-gray-300 hover:bg-white/5"}`}
                       >
                         <span className="flex items-center gap-2"><Bot className="w-3.5 h-3.5" /> Chaos Mode</span>
-                        <span className={`w-8 h-4 rounded-full relative transition-colors ${grokChaos ? "bg-red-500" : "bg-white/10"}`}>
-                          <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${grokChaos ? "left-4" : "left-0.5"}`} />
+                        <span className={`w-8 h-4 rounded-full relative transition-colors ${aiChaos ? "bg-red-500" : "bg-white/10"}`}>
+                          <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${aiChaos ? "left-4" : "left-0.5"}`} />
                         </span>
                       </button>
                       <button
                         onClick={() => {
-                          const next = !grokFuego;
-                          setGrokFuego(next);
+                          const next = !aiFuego;
+                          setAIFuego(next);
                           if (next) {
-                            document.body.classList.add("grok-fire-mode", "grok-fuego");
+                            document.body.classList.add("ai-fire-mode", "ai-fuego");
                             const fire = document.createElement('div');
-                            fire.textContent = '🔥 GROK ON FUEGO 🔥';
+                            fire.textContent = '🔥 AI ON FUEGO 🔥';
                             fire.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl font-black text-orange-500 z-[99999] pointer-events-none animate-pulse';
                             document.body.appendChild(fire);
                             setTimeout(() => fire.remove(), 2000);
                           } else {
-                            document.body.classList.remove("grok-fire-mode", "grok-fuego");
+                            document.body.classList.remove("ai-fire-mode", "ai-fuego");
                           }
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all ${grokFuego ? "bg-orange-600/20 text-orange-300" : "text-gray-300 hover:bg-white/5"}`}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all ${aiFuego ? "bg-orange-600/20 text-orange-300" : "text-gray-300 hover:bg-white/5"}`}
                       >
                         <span className="flex items-center gap-2">🔥 On Fuego</span>
-                        <span className={`w-8 h-4 rounded-full relative transition-colors ${grokFuego ? "bg-orange-500" : "bg-white/10"}`}>
-                          <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${grokFuego ? "left-4" : "left-0.5"}`} />
+                        <span className={`w-8 h-4 rounded-full relative transition-colors ${aiFuego ? "bg-orange-500" : "bg-white/10"}`}>
+                          <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${aiFuego ? "left-4" : "left-0.5"}`} />
                         </span>
                       </button>
                     </div>

@@ -5,11 +5,11 @@ import { useLanguage } from "@/components/LanguageProvider";
 import { Terminal, Copy, Check, X } from "lucide-react";
 
 /**
- * Grok Build — install banner for the Grok CLI.
+ * AI Build — install banner for the AI CLI.
  * Mirrors xAI's official install cards: PowerShell (Windows) + WSL/Linux tabs,
  * one-click copy. Placed near the bottom of the homepage.
  */
-export default function GrokBuildInstall() {
+export default function AIBuildInstall() {
   const { t, language } = useLanguage();
   const [tab, setTab] = useState<"powershell" | "wsl">("powershell");
   const [copied, setCopied] = useState(false);
@@ -60,7 +60,7 @@ export default function GrokBuildInstall() {
                   <Terminal className="w-5 h-5" />
                 </span>
                 <h2 className="font-display text-2xl md:text-3xl font-bold tracking-tight text-white">
-                  Grok Build
+                  AI Build
                 </h2>
                 <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-orange-500/40 text-orange-400 bg-orange-500/10">
                   Beta
@@ -68,8 +68,8 @@ export default function GrokBuildInstall() {
               </div>
               <p className="text-sm md:text-base text-gray-400 max-w-md leading-relaxed">
                 {isEn
-                  ? "Build with Grok right from your terminal. Powered by Grok 4.5 — the command-line side of the Wacké × Grok xAI chaos."
-                  : "Code avec Grok directement depuis ton terminal. Propulsé par Grok 4.5 — le côté ligne de commande du chaos Wacké × Grok xAI."}
+                  ? "Build with AI right from your terminal. Powered by AI 4.5 — the command-line side of the Wacké × AI xAI chaos."
+                  : "Code avec AI directement depuis ton terminal. Propulsé par AI 4.5 — le côté ligne de commande du chaos Wacké × AI xAI."}
               </p>
             </div>
 
@@ -106,7 +106,7 @@ export default function GrokBuildInstall() {
               <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/50" />
               <span className="w-2.5 h-2.5 rounded-full bg-green-500/50" />
               <span className="ml-2 text-[11px] font-mono text-gray-600">
-                {tab === "powershell" ? "powershell" : "bash"} — grok install
+                {tab === "powershell" ? "powershell" : "bash"} — AI install
               </span>
             </div>
 

@@ -22,7 +22,7 @@ export default function ExternalStreamBanner({ platform, streamerName }: Externa
         <span className="font-bold" style={{ color: platform === "kick" ? "#53fc18" : "#9146ff" }}>
           {platformLabel}
         </span>
-        {" "}— {t("externalBannerGrok")}
+        {" "}— {t("externalBannerAI")}
       </p>
     </div>
   );

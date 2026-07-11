@@ -72,10 +72,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
     }
 
-    // Enhance prompt with real Grok xAI for better AI stickers
+    // Enhance prompt with real AI for better AI stickers
     let enhancedPrompt = `graffiti sticker of ${prompt}, die-cut border, vibrant street art style, isolated on clean background, high quality cyberpunk sticker design, bold outline`;
     try {
-      const grokRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/grok`, {
+      const aiRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/ai`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -83,12 +83,12 @@ export async function POST(req: NextRequest) {
           maxTokens: 60,
         }),
       });
-      if (grokRes.ok) {
-        const grokData = await grokRes.json();
-        if (grokData.content) enhancedPrompt = grokData.content.trim();
+      if (aiRes.ok) {
+        const aiData = await aiRes.json();
+        if (aiData.content) enhancedPrompt = aiData.content.trim();
       }
     } catch (e) {
-      console.log("[GROK SPRAY ENHANCE] using original prompt");
+      console.log("[AI SPRAY ENHANCE] using original prompt");
     }
 
     // Check if streamId is a valid UUID

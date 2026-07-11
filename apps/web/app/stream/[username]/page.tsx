@@ -12,10 +12,10 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 import type { Metadata } from "next";
 
 import ObsOverlayButton from "@/components/ObsOverlayButton";
-import GrokStreamTools from "@/components/GrokStreamTools";
-import GrokCoHost from "@/components/GrokCoHost";
-import GrokRoastBattle from "@/components/GrokRoastBattle";
-import GrokFire from "@/components/GrokFire";
+import AIStreamTools from "@/components/AIStreamTools";
+import AICoHost from "@/components/AICoHost";
+import AIRoastBattle from "@/components/AIRoastBattle";
+import AIFire from "@/components/AIFire";
 import ExternalStreamBanner from "@/components/ExternalStreamBanner";
 
 interface StreamPageProps {
@@ -138,12 +138,12 @@ export default async function StreamPage({ params }: StreamPageProps) {
               </p>
             </div>
 
-            {/* Grok xAI suite */}
+            {/* AI xAI suite */}
             <div className="mt-5 space-y-3">
-              <GrokStreamTools streamerName={displayName} />
-              <GrokCoHost streamerName={displayName} streamId={`twitch-mock-chat-${twitchUsername}`} />
-              <GrokRoastBattle streamerName={displayName} />
-              <GrokFire />
+              <AIStreamTools streamerName={displayName} />
+              <AICoHost streamerName={displayName} streamId={`twitch-mock-chat-${twitchUsername}`} />
+              <AIRoastBattle streamerName={displayName} />
+              <AIFire />
             </div>
           </section>
         </main>
@@ -243,10 +243,10 @@ export default async function StreamPage({ params }: StreamPageProps) {
               <p className="text-gray-300 text-sm leading-relaxed">{isEn ? cleanUsername + ' broadcasting live on Kick, simulcast on Wacké.' : cleanUsername + ' diffuse en direct sur Kick, simultané sur Wacké.'}</p>
             </div>
             <div className="mt-5 space-y-3">
-              <GrokStreamTools streamerName={cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1)} />
-              <GrokCoHost streamerName={cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1)} streamId={`kick-mock-chat-${cleanUsername}`} />
-              <GrokRoastBattle streamerName={cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1)} />
-              <GrokFire />
+              <AIStreamTools streamerName={cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1)} />
+              <AICoHost streamerName={cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1)} streamId={`kick-mock-chat-${cleanUsername}`} />
+              <AIRoastBattle streamerName={cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1)} />
+              <AIFire />
             </div>
           </section>
         </main>
@@ -382,12 +382,12 @@ export default async function StreamPage({ params }: StreamPageProps) {
             </div>
           )}
 
-          {/* Grok xAI suite */}
+          {/* AI xAI suite */}
           <div className="mt-5 space-y-3">
-            <GrokStreamTools streamerName={user.displayName} />
-            <GrokCoHost streamerName={user.displayName} streamId={stream.id} />
-            <GrokRoastBattle streamerName={user.displayName} />
-            <GrokFire />
+            <AIStreamTools streamerName={user.displayName} />
+            <AICoHost streamerName={user.displayName} streamId={stream.id} />
+            <AIRoastBattle streamerName={user.displayName} />
+            <AIFire />
           </div>
         </section>
       </main>

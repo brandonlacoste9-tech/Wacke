@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getUserByUsername, getStreamByUserId, getFollowerCount } from "@wacke/db";
-import GrokRoastButton from "@/components/GrokRoastButton";
+import AIRoastButton from "@/components/AIRoastButton";
 import { cookies } from "next/headers";
 import { translations, type Language, type TranslationKey } from "@/lib/translations";
 
@@ -131,7 +131,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           </p>
         )}
 
-        <GrokRoastButton username={user.username} />
+        <AIRoastButton username={user.username} />
       </div>
 
       {/* ── Current/Last Stream ──────────────────────────────────────────── */}

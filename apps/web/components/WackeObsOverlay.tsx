@@ -215,7 +215,7 @@ export default function WackeObsOverlay({ streamId, streamerName }: WackeObsOver
 
   return (
     <div className="w-screen h-screen relative bg-transparent overflow-hidden select-none pointer-events-none">
-      <div className="absolute top-2 right-3 text-[9px] font-mono tracking-[2px] text-white/30 z-[60] pointer-events-none">GROK xAI POWERED</div>
+      <div className="absolute top-2 right-3 text-[9px] font-mono tracking-[2px] text-white/30 z-[60] pointer-events-none">AI xAI POWERED</div>
 
       {/* ─── Animated Custom Bouncing Coins ─────────────────────────────────── */}
       <div className="absolute inset-0 z-50 pointer-events-none">

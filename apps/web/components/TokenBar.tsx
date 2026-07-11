@@ -5,7 +5,7 @@ import { useTokens } from "@/hooks/useTokens";
 import { Heart, ChevronUp, Flame, Bot, Eye, Settings, Sparkles } from "lucide-react";
 import TokenShopModal from "./TokenShopModal";
 import { useLanguage } from "./LanguageProvider";
-import { getRandomGrokTip, GROK_BRAND } from "@/lib/grok-wit";
+import { getRandomAITip, AI_BRAND } from "@/lib/ai-wit";
 
 import { useAuth } from "./AuthProvider";
 
@@ -47,7 +47,7 @@ export default function TokenBar({
   const [customAmount, setCustomAmount] = useState("");
   const [boumAnimate, setBoumAnimate] = useState(false);
   const [isShopOpen, setIsShopOpen] = useState(false);
-  const [grokChallengeActive, setGrokChallengeActive] = useState(false);
+  const [aiChallengeActive, setAIChallengeActive] = useState(false);
   const [burst, setBurst] = useState<string | null>(null);
   const { t, language } = useLanguage();
 
@@ -63,14 +63,14 @@ export default function TokenBar({
     showFeedback(error ?? message ?? "");
   };
 
-  // Grok xAI Mini-Game: Quick challenge for bonus tokens (demo)
-  const handleGrokChallenge = () => {
-    setGrokChallengeActive(true);
-    const tip = getRandomGrokTip(language);
+  // AI xAI Mini-Game: Quick challenge for bonus tokens (demo)
+  const handleAIChallenge = () => {
+    setAIChallengeActive(true);
+    const tip = getRandomAITip(language);
     setTimeout(() => {
       const bonus = Math.floor(Math.random() * 150) + 50;
-      showFeedback(`${GROK_BRAND}: ${tip} +${bonus} ${language === "fr" ? "jetons" : "tokens"}!`);
-      setGrokChallengeActive(false);
+      showFeedback(`${AI_BRAND}: ${tip} +${bonus} ${language === "fr" ? "jetons" : "tokens"}!`);
+      setAIChallengeActive(false);
     }, 850);
   };
 
@@ -223,15 +223,15 @@ export default function TokenBar({
                 <span className="hidden sm:inline">{language === "fr" ? "BOUM!" : "BOOM!"}</span>
               </button>
 
-              {/* Grok xAI Mini-Game */}
+              {/* AI xAI Mini-Game */}
               <button
-                onClick={handleGrokChallenge}
-                disabled={isLoading || grokChallengeActive}
+                onClick={handleAIChallenge}
+                disabled={isLoading || aiChallengeActive}
                 className="bg-wacke-cyan/10 hover:bg-wacke-cyan/20 border border-wacke-cyan/30 text-wacke-cyan px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition-all active:scale-95 disabled:opacity-50"
-                title="Grok xAI Challenge"
+                title="AI xAI Challenge"
               >
                 <Bot className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">GROK</span>
+                <span className="hidden sm:inline">AI</span>
               </button>
 
               {/* Gift / Donation */}
