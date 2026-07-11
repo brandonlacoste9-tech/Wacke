@@ -3,17 +3,17 @@ import { getUltraChaosIntervention } from "@/lib/ai-wit";
 
 export const runtime = "nodejs";
 
-const XAI_API_URL = "https://api.x.ai/v1/chat/completions";
+const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt, system, lang, model = "grok-2-1212", maxTokens = 300 } = await req.json();
+    const { prompt, system, lang, model = "x-ai/grok-2-1212", maxTokens = 300 } = await req.json();
 
     if (!prompt) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
     }
 
-    const apiKey = process.env.XAI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY || process.env.XAI_API_KEY;
     if (!apiKey) {
       const fallbackLang = lang || (prompt.toLowerCase().includes(" le ") || prompt.toLowerCase().includes(" la ") ? "fr" : "en");
       const frFallbacks = [
@@ -37,11 +37,13 @@ export async function POST(req: NextRequest) {
     }
     messages.push({ role: "user", content: prompt });
 
-    const response = await fetch(XAI_API_URL, {
+    const response = await fetch(OPENROUTER_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
+        "HTTP-Referer": "https://wacke.live",
+        "X-Title": "Wacké",
       },
       body: JSON.stringify({
         model,
