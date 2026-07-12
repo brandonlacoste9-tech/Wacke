@@ -15,7 +15,6 @@ import ObsOverlayButton from "@/components/ObsOverlayButton";
 import AIStreamTools from "@/components/AIStreamTools";
 import AICoHost from "@/components/AICoHost";
 import AIRoastBattle from "@/components/AIRoastBattle";
-import AIFire from "@/components/AIFire";
 import ExternalStreamBanner from "@/components/ExternalStreamBanner";
 
 interface StreamPageProps {
@@ -143,7 +142,6 @@ export default async function StreamPage({ params }: StreamPageProps) {
               <AIStreamTools streamerName={displayName} />
               <AICoHost streamerName={displayName} streamId={`twitch-mock-chat-${twitchUsername}`} />
               <AIRoastBattle streamerName={displayName} />
-              <AIFire />
             </div>
           </section>
         </main>
@@ -246,7 +244,6 @@ export default async function StreamPage({ params }: StreamPageProps) {
               <AIStreamTools streamerName={cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1)} />
               <AICoHost streamerName={cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1)} streamId={`kick-mock-chat-${cleanUsername}`} />
               <AIRoastBattle streamerName={cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1)} />
-              <AIFire />
             </div>
           </section>
         </main>
@@ -387,7 +384,6 @@ export default async function StreamPage({ params }: StreamPageProps) {
             <AIStreamTools streamerName={user.displayName} />
             <AICoHost streamerName={user.displayName} streamId={stream.id} />
             <AIRoastBattle streamerName={user.displayName} />
-            <AIFire />
           </div>
         </section>
       </main>
