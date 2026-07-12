@@ -290,6 +290,7 @@ export default function GraffitiChat({
     currentUser: authUser
       ? { username: authUser.username, displayName: authUser.displayName, avatarUrl: authUser.avatarUrl }
       : undefined,
+    language,
   });
 
   // Demo/mock streams (Twitch/Kick embed fallbacks): chat echoes locally only.

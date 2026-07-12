@@ -28,6 +28,7 @@ interface UseGraffitiChatOptions {
   initialMessages?: ChatMessage[];
   authToken?: string;
   currentUser?: { username: string; displayName: string; avatarUrl?: string | null };
+  language?: "fr" | "en";
 }
 
 interface UseGraffitiChatReturn {
@@ -59,6 +60,7 @@ export function useGraffitiChat({
   initialMessages = [],
   authToken,
   currentUser,
+  language = "en",
 }: UseGraffitiChatOptions): UseGraffitiChatReturn {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [isConnected, setIsConnected] = useState(false);
@@ -116,7 +118,7 @@ export function useGraffitiChat({
   useEffect(() => {
     if (!streamId) return;
     const timer = setTimeout(() => {
-      const isEn = typeof window !== "undefined" && localStorage.getItem("wacke_lang") === "en";
+      const isEn = language === "en";
       const welcomeMsg: ChatMessage = {
         id: "wackebot-welcome-system",
         streamId,
@@ -161,7 +163,7 @@ export function useGraffitiChat({
     };
 
     const interval = setInterval(() => {
-      const isEn = typeof window !== "undefined" && localStorage.getItem("wacke_lang") === "en";
+      const isEn = language === "en";
       const pool = isEn ? tips.en : tips.fr;
       const randomTip = pool[Math.floor(Math.random() * pool.length)];
 
