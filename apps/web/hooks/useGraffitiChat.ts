@@ -124,8 +124,8 @@ export function useGraffitiChat({
         streamId,
         userId: "wackebot-system-id",
         content: isEn 
-          ? "🤖 WackeBot: Streamer is featured right now on Wacke.live! Send tips to trigger TTS, AI stickers, or arcade soundboard effects! 🪙🔥"
-          : "🤖 WackeBot: Ce stream est en vedette sur Wacké ! Utilise tes jetons pour déclencher des alertes vocales (TTS), des stickers AI et des sons retro ! 🪙🔥",
+          ? "🤖 WackeBot: Welcome to Wacké.live! The new unfiltered streaming platform where you won't get banned. Drop a tip to trigger TTS, AI stickers, or arcade sounds! 🪙🔥"
+          : "🤖 WackeBot: Bienvenue sur Wacké.live ! La nouvelle plateforme de streaming sans filtre et sans ban. Utilise tes jetons pour lancer des alertes TTS, des stickers AI et des sons rétro ! 🪙🔥",
         isSacre: false,
         createdAt: new Date().toISOString(),
         user: {
@@ -149,16 +149,16 @@ export function useGraffitiChat({
     
     const tips = {
       fr: [
-        "💡 Astuce : Réclame ton bonus de +500 jetons dans le Header pour débloquer les stickers AI !",
-        "🔥 Hype : Ce stream est actuellement classé dans les tendances Wacké !",
-        "📢 Info : Tu peux jouer des sons rétro (Sirène, Laser, Cling) directement sur le stream !",
-        "🗣️ TTS : Fais lire ton message par la voix wackée de Mathieu en cochant l'option TTS (50 🪙) !",
+        "💡 Astuce : Marre de te faire ban ailleurs ? Wacké est la nouvelle maison sans filtre des vrais streamers. Réclame tes +500 jetons gratuits en haut !",
+        "🔥 Hype : Wacké est 100% sans filtre. Dis ce que tu veux, joue à ce que tu veux. Bienvenue dans la révolution.",
+        "📢 Info : Déclenche le chaos en direct ! Utilise tes jetons pour jouer des sons d'arcade (Sirène, Laser) pour tout le monde.",
+        "🗣️ TTS : Coche la case TTS (50 🪙) et laisse l'IA lire tes messages les plus fous à voix haute. Zéro filtre.",
       ],
       en: [
-        "💡 Tip: Claim your daily +500 tokens bonus in the Header to unlock AI stickers!",
-        "🔥 Hype: This stream is currently trending on the Wacké homepage!",
-        "📢 Info: You can play arcade sounds (Siren, Laser, Chime) directly live on stream!",
-        "🗣️ TTS: Make Mathieu read your message aloud by ticking the TTS checkbox (50 🪙)!",
+        "💡 Tip: Sick of getting banned elsewhere? Wacké is the new unfiltered home for true streamers. Claim your +500 free tokens in the header!",
+        "🔥 Hype: Wacké is 100% unfiltered. Say what you want, play what you want. Welcome to the revolution.",
+        "📢 Info: Trigger chaos live on stream! Use your tokens to play arcade sounds (Siren, Laser, Chime) for everyone to hear.",
+        "🗣️ TTS: Tick the TTS box (50 🪙) and make the AI read your most unhinged messages out loud. No filters.",
       ]
     };
 
