@@ -7,7 +7,7 @@ const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt, system, lang, model = "x-ai/grok-4.5", maxTokens = 300 } = await req.json();
+    const { prompt, system, lang, model = "meta-llama/llama-3.1-8b-instruct", maxTokens = 300 } = await req.json();
 
     if (!prompt) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
