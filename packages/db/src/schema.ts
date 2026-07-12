@@ -8,6 +8,10 @@ import {
   boolean,
   pgEnum,
   index,
+  numeric,
+  bigint,
+  jsonb,
+  serial,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -35,6 +39,19 @@ export const streamCategoryEnum = pgEnum("stream_category", [
   "art",
   "irl",
   "talk",
+]);
+
+export const heatPhaseEnum = pgEnum("heat_phase", [
+  "idle",
+  "overload",
+  "cooldown",
+]);
+
+export const resonancePhaseEnum = pgEnum("resonance_phase", [
+  "calm",
+  "rising",
+  "critical",
+  "overload",
 ]);
 
 // ─── Users ────────────────────────────────────────────────────────────────────
@@ -209,6 +226,75 @@ export const reactions = pgTable(
   },
   (t) => ({
     streamIdIdx: index("reactions_stream_id_idx").on(t.streamId),
+  })
+);
+
+// ─── Heat System ─────────────────────────────────────────────────────────────
+
+export const heatChambers = pgTable(
+  "heat_chambers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    streamId: varchar("stream_id", { length: 128 }).notNull().unique(),
+    level: integer("level").notNull().default(0),
+    phase: heatPhaseEnum("phase").notNull().default("idle"),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    streamIdIdx: index("heat_chambers_stream_id_idx").on(t.streamId),
+  })
+);
+
+export const heatEvents = pgTable(
+  "heat_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    streamId: varchar("stream_id", { length: 128 }).notNull(),
+    source: varchar("source", { length: 32 }).notNull(), // "token_spend", "chat_velocity", etc.
+    delta: integer("delta").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    streamIdIdx: index("heat_events_stream_id_idx").on(t.streamId),
+  })
+);
+
+// ─── Resonance Chamber / Madness Meter ────────────────────────────────────────
+
+export const resonanceChambers = pgTable(
+  "resonance_chambers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: text("slug").notNull().unique(), // e.g. streamer name or custom slug
+    meterValue: numeric("meter_value", { precision: 6, scale: 2 }).notNull().default("0.00"),
+    phase: resonancePhaseEnum("phase").notNull().default("calm"),
+    decayRate: numeric("decay_rate", { precision: 5, scale: 2 }).notNull().default("2.00"),
+    peakValue: numeric("peak_value", { precision: 6, scale: 2 }).notNull().default("0.00"),
+    overloadCount: integer("overload_count").notNull().default(0),
+    lastEventAt: timestamp("last_event_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    slugIdx: index("resonance_chambers_slug_idx").on(t.slug),
+  })
+);
+
+export const resonanceEvents = pgTable(
+  "resonance_events",
+  {
+    id: serial("id").primaryKey(),
+    chamberId: uuid("chamber_id")
+      .notNull()
+      .references(() => resonanceChambers.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+    kind: text("kind").notNull(), // 'pulse' | 'surge' | 'chaos' | 'gift'
+    intensity: numeric("intensity", { precision: 5, scale: 2 }).notNull(),
+    metadata: jsonb("metadata").default({}),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    chamberIdCreatedAtIdx: index("resonance_events_chamber_id_created_at_idx").on(t.chamberId, t.createdAt),
   })
 );
 

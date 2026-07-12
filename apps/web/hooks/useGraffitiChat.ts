@@ -285,7 +285,9 @@ export function useGraffitiChat({
 
   // ─── Send TTS Message ──────────────────────────────────────────────────────
   const sendTtsMessage = useCallback(
-    async (content: string, lang: "fr" | "en" = "fr"): Promise<{ error?: string }> => {
+    async (content: string, lang?: "fr" | "en"): Promise<{ error?: string }> => {
+      // Always follow UI language (never default to French when UI is English)
+      const ttsLang = lang ?? language ?? "en";
       if (!currentUserId || !authToken) return { error: "Tu dois être connecté pour envoyer un TTS" };
       if (isSendingTts) return { error: "Attends la fin de la génération TTS..." };
 
@@ -307,7 +309,7 @@ export function useGraffitiChat({
             streamId,
             content: modResult.sanitized,
             isSacre: modResult.isSacre,
-            lang,
+            lang: ttsLang,
           }),
         });
 
@@ -323,7 +325,7 @@ export function useGraffitiChat({
         setIsSendingTts(false);
       }
     },
-    [streamId, currentUserId, sacreModeEnabled, isSendingTts, authToken]
+    [streamId, currentUserId, sacreModeEnabled, isSendingTts, authToken, language]
   );
 
   // ─── Send Spray Message (AI Graffiti) ──────────────────────────────────────
@@ -404,7 +406,14 @@ export function useGraffitiChat({
   );
 
   const sendSacreMessage = useCallback(
-    async (prefix: string, core: string, suffix: string, useTts: boolean, lang: "fr" | "en" = "fr"): Promise<{ error?: string }> => {
+    async (
+      prefix: string,
+      core: string,
+      suffix: string,
+      useTts: boolean,
+      lang?: "fr" | "en"
+    ): Promise<{ error?: string }> => {
+      const ttsLang = lang ?? language ?? "en";
       if (!currentUserId || !authToken) return { error: "Tu dois être connecté pour jurer" };
       if (isSendingSacre) return { error: "Attends que le sacre soit envoyé..." };
 
@@ -423,7 +432,7 @@ export function useGraffitiChat({
               streamId,
               content: sentence,
               isSacre: true,
-              lang,
+              lang: ttsLang,
             }),
           });
 
@@ -459,7 +468,7 @@ export function useGraffitiChat({
         setIsSendingSacre(false);
       }
     },
-    [streamId, currentUserId, isSendingSacre, authToken]
+    [streamId, currentUserId, isSendingSacre, authToken, language]
   );
 
   return {

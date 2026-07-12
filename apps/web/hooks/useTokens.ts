@@ -49,7 +49,7 @@ export function useTokens({
 
   const sendBoum = useCallback(
     async (toUserId: string, streamId: string) => {
-      if (!authToken) return { error: "Connecte-toi pour envoyer un Boum!" };
+      if (!authToken) return { error: "Log in to send a Boom! / Connecte-toi pour un Boum!" };
       setIsLoading(true);
       try {
         const res = await fetch("/api/tokens", {

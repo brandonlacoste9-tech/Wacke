@@ -23,10 +23,9 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Block reserved path segments from hitting the vanity [username] route
-  const vanityMatch = pathname.match(/^\/([a-zA-Z0-9_]+)$/);
-  if (vanityMatch && BLOCKED_USERNAMES.has(vanityMatch[1].toLowerCase())) {
-    return NextResponse.redirect(new URL("/", request.url));
+  // Redirect dashboard to studio
+  if (pathname.toLowerCase() === "/dashboard" || pathname.toLowerCase() === "/dashboard/") {
+    return NextResponse.redirect(new URL("/dashboard/studio", request.url));
   }
 
   return response;

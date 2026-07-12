@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { getUserBySupabaseId, transferTokens, getUserTokenBalance } from "@wacke/db";
 
+
 export const runtime = "nodejs";
 export const dynamic = 'force-dynamic';
 
@@ -111,6 +112,8 @@ export async function POST(req: NextRequest) {
     });
 
     const newBalance = await getUserTokenBalance(dbUser.id);
+
+
 
     return NextResponse.json({
       success: true,

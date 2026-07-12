@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { playSyntheticSound } from "@/lib/audio";
 import { Volume2, Sparkles, Flame, Mic, Coins } from "lucide-react";
+import ResonanceOverlay from "@/components/ResonanceOverlay";
 
 interface ChatMessage {
   id: string;
@@ -216,6 +217,13 @@ export default function WackeObsOverlay({ streamId, streamerName }: WackeObsOver
   return (
     <div className="w-screen h-screen relative bg-transparent overflow-hidden select-none pointer-events-none">
       <div className="absolute top-2 right-3 text-[9px] font-mono tracking-[2px] text-white/30 z-[60] pointer-events-none">AI xAI POWERED</div>
+
+      {/* Resonance Column overlay */}
+      <ResonanceOverlay
+        slug={streamId}
+        streamerName={streamerName}
+        variant="obs"
+      />
 
       {/* ─── Animated Custom Bouncing Coins ─────────────────────────────────── */}
       <div className="absolute inset-0 z-50 pointer-events-none">

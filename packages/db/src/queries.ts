@@ -7,6 +7,10 @@ import {
   tokenTransactions,
   follows,
   reactions,
+  heatChambers,
+  heatEvents,
+  resonanceChambers,
+  resonanceEvents,
 } from "./schema";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -47,6 +51,8 @@ declare global {
   var mockMessages: any[] | undefined;
   var mockFollows: any[] | undefined;
   var mockTokenTransactions: any[] | undefined;
+  var mockHeatChambers: any[] | undefined;
+  var mockHeatEvents: any[] | undefined;
 }
 
 export function getMockDbState() {
@@ -902,6 +908,11 @@ export async function transferTokens({
         reason,
         createdAt: new Date(),
       });
+      if (streamId) {
+        const isReaction = reason.includes("reaction") || reason.includes("Reaction") || reason.includes("Boum") || reason.includes("Boom");
+        const delta = isReaction ? 2 : Math.min(25, Math.max(1, Math.round(amount * 0.1)));
+        await createResonanceEvent({ slug: streamId, userId: fromUserId, kind: isReaction ? "pulse" : "gift", intensity: delta });
+      }
       return true;
     }
     throw new Error("Solde insuffisante ou utilisateurs introuvables");
@@ -1042,6 +1053,10 @@ export async function deductTokens({
       createdAt: new Date(),
     });
 
+    if (streamId && amount > 0) {
+      await createResonanceEvent({ slug: streamId, userId, kind: "chaos", intensity: Math.round(amount * 0.2) });
+    }
+
     return true;
   }
 
@@ -1066,6 +1081,15 @@ export async function deductTokens({
         amount,
         reason,
       });
+
+      // 30% of chaos spend → streamer earnings ledger
+      await creditChaosShareToStreamer({
+        streamId,
+        amountSpent: amount,
+        spendReason: reason,
+        fromUserId: userId,
+        txClient: tx,
+      });
     } else {
       const absoluteAmount = Math.abs(amount);
       await tx
@@ -1081,7 +1105,181 @@ export async function deductTokens({
         reason,
       });
     }
+    // Heat meter charged by API routes (with realtime broadcast).
   });
+}
+
+// ─── Chaos share (streamer earnings from spend) ───────────────────────────────
+
+/** 30% of chaos token spends credited to the streamer. */
+export const CHAOS_SHARE_PERCENT = 30;
+
+export function chaosShareAmount(amountSpent: number): number {
+  if (amountSpent <= 0) return 0;
+  return Math.floor((amountSpent * CHAOS_SHARE_PERCENT) / 100);
+}
+
+/**
+ * Credit the streamer 30% of a chaos spend (TTS / sacre / spray / sound).
+ * Gifts/Boum already transfer 100% via transferTokens — do not call this for those.
+ */
+export async function creditChaosShareToStreamer({
+  streamId,
+  amountSpent,
+  spendReason,
+  fromUserId,
+  txClient,
+}: {
+  streamId?: string;
+  amountSpent: number;
+  spendReason: string;
+  fromUserId: string;
+  txClient?: any;
+}) {
+  if (!streamId || amountSpent <= 0) return null;
+
+  const share = chaosShareAmount(amountSpent);
+  if (share <= 0) return null;
+
+  // Resolve streamer from real stream UUID only
+  let streamerId: string | null = null;
+
+  if (isDbMocked()) {
+    const state = getMockDbState();
+    const stream = state.streams.find((s: any) => s.id === streamId);
+    streamerId = stream?.userId ?? null;
+    if (!streamerId || streamerId === fromUserId) return null;
+
+    const streamer = state.users.find((u: any) => u.id === streamerId);
+    if (!streamer) return null;
+    streamer.tokenBalance = (streamer.tokenBalance || 0) + share;
+    state.transactions.push({
+      id: "mock-chaos-share-" + Math.random().toString(36).slice(2, 8),
+      fromUserId: null,
+      toUserId: streamerId,
+      streamId,
+      type: "earn",
+      amount: share,
+      reason: `Chaos share 30%: ${spendReason}`.slice(0, 128),
+      createdAt: new Date(),
+    });
+    return { streamerId, share };
+  }
+
+  if (!isValidUuid(streamId)) return null;
+
+  const client = txClient || db;
+
+  const streamRows = await client
+    .select({ userId: streams.userId })
+    .from(streams)
+    .where(eq(streams.id, streamId))
+    .limit(1);
+
+  streamerId = streamRows[0]?.userId ?? null;
+  if (!streamerId || streamerId === fromUserId) return null;
+
+  await client
+    .update(users)
+    .set({ tokenBalance: sql`${users.tokenBalance} + ${share}` })
+    .where(eq(users.id, streamerId));
+
+  await client.insert(tokenTransactions).values({
+    fromUserId: null,
+    toUserId: streamerId,
+    streamId,
+    type: "earn",
+    amount: share,
+    reason: `Chaos share 30%: ${spendReason}`.slice(0, 128),
+  });
+
+  return { streamerId, share };
+}
+
+/** Aggregate streamer earnings from chaos share + gifts/boum. */
+export async function getStreamerEarnings(userId: string, limit = 20) {
+  if (isDbMocked()) {
+    const state = getMockDbState();
+    const incoming = state.transactions
+      .filter((t: any) => t.toUserId === userId && (t.type === "earn" || t.type === "gift"))
+      .sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+    const chaosShareTotal = incoming
+      .filter((t: any) => t.type === "earn" && String(t.reason || "").includes("Chaos share"))
+      .reduce((s: number, t: any) => s + (t.amount || 0), 0);
+
+    const giftTotal = incoming
+      .filter((t: any) => t.type === "gift")
+      .reduce((s: number, t: any) => s + (t.amount || 0), 0);
+
+    return {
+      chaosShareTotal,
+      giftTotal,
+      totalEarned: chaosShareTotal + giftTotal,
+      recent: incoming.slice(0, limit),
+      sharePercent: CHAOS_SHARE_PERCENT,
+    };
+  }
+
+  if (!isValidUuid(userId)) {
+    return {
+      chaosShareTotal: 0,
+      giftTotal: 0,
+      totalEarned: 0,
+      recent: [],
+      sharePercent: CHAOS_SHARE_PERCENT,
+    };
+  }
+
+  const recent = await db
+    .select()
+    .from(tokenTransactions)
+    .where(
+      and(
+        eq(tokenTransactions.toUserId, userId),
+        or(
+          eq(tokenTransactions.type, "earn"),
+          eq(tokenTransactions.type, "gift")
+        )
+      )
+    )
+    .orderBy(desc(tokenTransactions.createdAt))
+    .limit(limit);
+
+  const allEarn = await db
+    .select({
+      amount: tokenTransactions.amount,
+      type: tokenTransactions.type,
+      reason: tokenTransactions.reason,
+    })
+    .from(tokenTransactions)
+    .where(
+      and(
+        eq(tokenTransactions.toUserId, userId),
+        or(
+          eq(tokenTransactions.type, "earn"),
+          eq(tokenTransactions.type, "gift")
+        )
+      )
+    );
+
+  let chaosShareTotal = 0;
+  let giftTotal = 0;
+  for (const row of allEarn) {
+    if (row.type === "gift") giftTotal += row.amount;
+    else if (row.reason?.includes("Chaos share")) chaosShareTotal += row.amount;
+  }
+
+  return {
+    chaosShareTotal,
+    giftTotal,
+    totalEarned: chaosShareTotal + giftTotal,
+    recent,
+    sharePercent: CHAOS_SHARE_PERCENT,
+  };
 }
 
 // ─── Follow Queries ───────────────────────────────────────────────────────────
@@ -1286,4 +1484,318 @@ export async function addTokens({
       streamId,
     });
   });
+}
+
+// ─── Resonance Chamber Query Helpers ──────────────────────────────────────────
+
+export async function createResonanceEvent({
+  slug,
+  userId,
+  kind,
+  intensity,
+  metadata = {},
+  txClient = db,
+}: {
+  slug: string;
+  userId?: string | null;
+  kind: string;
+  intensity: number;
+  metadata?: any;
+  txClient?: any;
+}) {
+  try {
+    // Slugs are streamer handles / mock stream ids (NOT UUIDs). Only skip DB when mocked.
+    if (isDbMocked()) {
+      if (!(globalThis as any).mockResonanceChambers) (globalThis as any).mockResonanceChambers = [];
+      if (!(globalThis as any).mockResonanceEvents) (globalThis as any).mockResonanceEvents = [];
+
+      let chamber = (globalThis as any).mockResonanceChambers.find((c: any) => c.slug === slug);
+      if (!chamber) {
+        chamber = {
+          id: "mock-chamber-" + crypto.randomUUID(),
+          slug,
+          meterValue: "0.00",
+          phase: "calm",
+          decayRate: "2.00",
+          peakValue: "0.00",
+          overloadCount: 0,
+          lastEventAt: new Date(),
+          updatedAt: new Date(),
+          createdAt: new Date(),
+        };
+        (globalThis as any).mockResonanceChambers.push(chamber);
+      }
+
+      if (chamber.phase === "overload") {
+        return chamber;
+      }
+
+      const currentVal = parseFloat(chamber.meterValue);
+      const newVal = Math.min(100.0, currentVal + intensity);
+      chamber.meterValue = newVal.toFixed(2);
+      chamber.lastEventAt = new Date();
+      chamber.updatedAt = new Date();
+      chamber.peakValue = Math.max(parseFloat(chamber.peakValue), newVal).toFixed(2);
+
+      const prevPhase = chamber.phase;
+      chamber.phase =
+        newVal >= 100 ? "overload" : newVal >= 75 ? "critical" : newVal >= 40 ? "rising" : "calm";
+      if (chamber.phase === "overload" && prevPhase !== "overload") {
+        chamber.overloadCount += 1;
+      }
+
+      (globalThis as any).mockResonanceEvents.push({
+        id: (globalThis as any).mockResonanceEvents.length + 1,
+        chamberId: chamber.id,
+        userId,
+        kind,
+        intensity: intensity.toFixed(2),
+        metadata,
+        createdAt: new Date(),
+      });
+      return chamber;
+    }
+
+    // 1. Get or create resonance chamber (DB path)
+    let chamber;
+    const existing = await txClient
+      .select()
+      .from(resonanceChambers)
+      .where(eq(resonanceChambers.slug, slug))
+      .limit(1);
+
+    if (existing.length > 0) {
+      chamber = existing[0];
+    } else {
+      const [inserted] = await txClient
+        .insert(resonanceChambers)
+        .values({
+          slug,
+          meterValue: "0.00",
+          phase: "calm",
+        })
+        .returning();
+      chamber = inserted;
+    }
+
+    if (chamber.phase === "overload") {
+      return chamber;
+    }
+
+    // 2. Application-level accumulation (works even if DB trigger is missing)
+    const currentVal = parseFloat(String(chamber.meterValue));
+    const newVal = Math.min(100, currentVal + intensity);
+    const newPhase =
+      newVal >= 100 ? "overload" : newVal >= 75 ? "critical" : newVal >= 40 ? "rising" : "calm";
+    const prevPhase = chamber.phase;
+    const peak = Math.max(parseFloat(String(chamber.peakValue ?? "0")), newVal);
+    const overloadCount =
+      newPhase === "overload" && prevPhase !== "overload"
+        ? (chamber.overloadCount || 0) + 1
+        : chamber.overloadCount || 0;
+
+    await txClient
+      .insert(resonanceEvents)
+      .values({
+        chamberId: chamber.id,
+        userId: userId && isValidUuid(userId) ? userId : null,
+        kind,
+        intensity: intensity.toFixed(2),
+        metadata,
+      });
+
+    const [updated] = await txClient
+      .update(resonanceChambers)
+      .set({
+        meterValue: newVal.toFixed(2),
+        phase: newPhase as any,
+        peakValue: peak.toFixed(2),
+        overloadCount,
+        lastEventAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(resonanceChambers.slug, slug))
+      .returning();
+
+    return updated;
+  } catch (err) {
+    console.error("[CREATE_RESONANCE_EVENT_ERROR]", err);
+    // Fall back to in-process mock so local UI never fully dies
+    if (!(globalThis as any).mockResonanceChambers) (globalThis as any).mockResonanceChambers = [];
+    let chamber = (globalThis as any).mockResonanceChambers.find((c: any) => c.slug === slug);
+    if (!chamber) {
+      chamber = {
+        id: "mock-chamber-" + crypto.randomUUID(),
+        slug,
+        meterValue: "0.00",
+        phase: "calm",
+        decayRate: "2.00",
+        peakValue: "0.00",
+        overloadCount: 0,
+        lastEventAt: new Date(),
+        updatedAt: new Date(),
+        createdAt: new Date(),
+      };
+      (globalThis as any).mockResonanceChambers.push(chamber);
+    }
+    if (chamber.phase !== "overload") {
+      const currentVal = parseFloat(chamber.meterValue);
+      const newVal = Math.min(100, currentVal + intensity);
+      chamber.meterValue = newVal.toFixed(2);
+      chamber.phase =
+        newVal >= 100 ? "overload" : newVal >= 75 ? "critical" : newVal >= 40 ? "rising" : "calm";
+      chamber.updatedAt = new Date();
+      chamber.peakValue = Math.max(parseFloat(chamber.peakValue), newVal).toFixed(2);
+      if (chamber.phase === "overload") chamber.overloadCount += 1;
+    }
+    return chamber;
+  }
+}
+
+export async function getOrCreateResonanceChamber(slug: string) {
+  if (isDbMocked()) {
+    if (!(globalThis as any).mockResonanceChambers) (globalThis as any).mockResonanceChambers = [];
+    let chamber = (globalThis as any).mockResonanceChambers.find((c: any) => c.slug === slug);
+    if (!chamber) {
+      chamber = {
+        id: "mock-chamber-" + crypto.randomUUID(),
+        slug,
+        meterValue: "0.00",
+        phase: "calm",
+        decayRate: "2.00",
+        peakValue: "0.00",
+        overloadCount: 0,
+        lastEventAt: new Date(),
+        updatedAt: new Date(),
+        createdAt: new Date(),
+      };
+      (globalThis as any).mockResonanceChambers.push(chamber);
+    }
+    return chamber;
+  }
+
+  try {
+    const existing = await db
+      .select()
+      .from(resonanceChambers)
+      .where(eq(resonanceChambers.slug, slug))
+      .limit(1);
+
+    if (existing.length > 0) {
+      return existing[0];
+    }
+
+    const [inserted] = await db
+      .insert(resonanceChambers)
+      .values({
+        slug,
+        meterValue: "0.00",
+        phase: "calm",
+      })
+      .returning();
+
+    return inserted;
+  } catch (err) {
+    console.error("[GET_OR_CREATE_RESONANCE_ERROR]", err);
+    // Soft fallback for missing tables / connection issues
+    if (!(globalThis as any).mockResonanceChambers) (globalThis as any).mockResonanceChambers = [];
+    let chamber = (globalThis as any).mockResonanceChambers.find((c: any) => c.slug === slug);
+    if (!chamber) {
+      chamber = {
+        id: "mock-chamber-" + crypto.randomUUID(),
+        slug,
+        meterValue: "0.00",
+        phase: "calm",
+        decayRate: "2.00",
+        peakValue: "0.00",
+        overloadCount: 0,
+        lastEventAt: new Date(),
+        updatedAt: new Date(),
+        createdAt: new Date(),
+      };
+      (globalThis as any).mockResonanceChambers.push(chamber);
+    }
+    return chamber;
+  }
+}
+
+export async function transitionResonancePhase(
+  slug: string,
+  phase: "calm" | "rising" | "critical" | "overload"
+) {
+  if (isDbMocked()) {
+    if (!(globalThis as any).mockResonanceChambers) (globalThis as any).mockResonanceChambers = [];
+    let chamber = (globalThis as any).mockResonanceChambers.find((c: any) => c.slug === slug);
+    if (!chamber) {
+      chamber = {
+        id: "mock-chamber-" + crypto.randomUUID(),
+        slug,
+        meterValue: "0.00",
+        phase: "calm",
+        decayRate: "2.00",
+        peakValue: "0.00",
+        overloadCount: 0,
+        lastEventAt: new Date(),
+        updatedAt: new Date(),
+        createdAt: new Date(),
+      };
+      (globalThis as any).mockResonanceChambers.push(chamber);
+    }
+    chamber.phase = phase;
+    if (phase === "calm") {
+      chamber.meterValue = "0.00";
+    }
+    chamber.updatedAt = new Date();
+    return chamber;
+  }
+
+  try {
+    const updates: Record<string, any> = {
+      phase,
+      updatedAt: new Date(),
+    };
+    if (phase === "calm") {
+      updates.meterValue = "0.00";
+    }
+
+    const [updated] = await db
+      .update(resonanceChambers)
+      .set(updates)
+      .where(eq(resonanceChambers.slug, slug))
+      .returning();
+
+    if (updated) return updated;
+
+    // Chamber missing — create then transition
+    await getOrCreateResonanceChamber(slug);
+    const [again] = await db
+      .update(resonanceChambers)
+      .set(updates)
+      .where(eq(resonanceChambers.slug, slug))
+      .returning();
+    return again;
+  } catch (err) {
+    console.error("[TRANSITION_RESONANCE_ERROR]", err);
+    if (!(globalThis as any).mockResonanceChambers) (globalThis as any).mockResonanceChambers = [];
+    let chamber = (globalThis as any).mockResonanceChambers.find((c: any) => c.slug === slug);
+    if (!chamber) {
+      chamber = {
+        id: "mock-chamber-" + crypto.randomUUID(),
+        slug,
+        meterValue: "0.00",
+        phase: "calm",
+        decayRate: "2.00",
+        peakValue: "0.00",
+        overloadCount: 0,
+        lastEventAt: new Date(),
+        updatedAt: new Date(),
+        createdAt: new Date(),
+      };
+      (globalThis as any).mockResonanceChambers.push(chamber);
+    }
+    chamber.phase = phase;
+    if (phase === "calm") chamber.meterValue = "0.00";
+    chamber.updatedAt = new Date();
+    return chamber;
+  }
 }

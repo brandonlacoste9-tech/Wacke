@@ -6,6 +6,7 @@ import { useLanguage } from "@/components/LanguageProvider";
 import { useRouter } from "next/navigation";
 import { Settings, Shield, LogOut, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import ChaosEarningsCard from "@/components/ChaosEarningsCard";
 
 /**
  * Settings Page — User preferences, bio, display name, stream defaults.
@@ -104,6 +105,11 @@ export default function SettingsPage() {
           {feedback}
         </div>
       )}
+
+      {/* ── Chaos Earnings ──────────────────────────────────────────────── */}
+      <div className="mb-6">
+        <ChaosEarningsCard />
+      </div>
 
       {/* ── Profile Section ─────────────────────────────────────────────── */}
       <section className="glass-card rounded-2xl p-6 mb-6">

@@ -94,36 +94,73 @@ export function playSyntheticSound(type: string) {
 }
 
 /**
- * Browser-native speech synthesis for AI voice output.
- * Uses device voices (great French support on modern OS).
- * Complements the paid AI xAI cloud TTS for user messages.
- * Auto-loads voices and prefers French voices.
+ * Pick a browser voice that matches the requested language.
+ * EN mode must not fall back to a French/Québec voice.
  */
-export function speakWithAIVoice(text: string, lang = "fr-FR") {
+function pickVoiceForLang(
+  voices: SpeechSynthesisVoice[],
+  lang: string
+): SpeechSynthesisVoice | undefined {
+  const l = lang.toLowerCase();
+  const wantFr = l.startsWith("fr");
+
+  if (wantFr) {
+    return (
+      voices.find((v) => v.lang.toLowerCase().includes("fr-ca")) ||
+      voices.find((v) => v.lang.toLowerCase().includes("fr-fr")) ||
+      voices.find((v) => v.lang.toLowerCase().startsWith("fr")) ||
+      voices.find((v) => /french|quebec|québec|canadien/i.test(v.name))
+    );
+  }
+
+  // English (and anything non-FR): prefer en-US / en-CA / en-GB — never French
+  return (
+    voices.find((v) => v.lang.toLowerCase().includes("en-us")) ||
+    voices.find((v) => v.lang.toLowerCase().includes("en-ca")) ||
+    voices.find((v) => v.lang.toLowerCase().includes("en-gb")) ||
+    voices.find((v) => v.lang.toLowerCase().startsWith("en")) ||
+    voices.find(
+      (v) =>
+        /english|american|british|david|zira|samantha|alex|google us/i.test(v.name) &&
+        !/french|français|quebec/i.test(v.name)
+    )
+  );
+}
+
+/**
+ * Browser-native speech synthesis for AI voice output.
+ * Language-aware: EN mode uses English voices, FR mode uses French/Québec.
+ */
+export function speakWithAIVoice(text: string, lang = "en-US") {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+
+  const normalizedLang =
+    lang === "fr" || lang.toLowerCase().startsWith("fr")
+      ? lang.toLowerCase().includes("ca")
+        ? "fr-CA"
+        : "fr-FR"
+      : lang === "en" || lang.toLowerCase().startsWith("en")
+        ? lang.toLowerCase().includes("gb")
+          ? "en-GB"
+          : "en-US"
+        : lang;
 
   const speak = () => {
     try {
       window.speechSynthesis.cancel();
 
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = lang;
-      utterance.rate = 1.1;   // energetic hype delivery
+      utterance.lang = normalizedLang;
+      utterance.rate = 1.1; // energetic hype delivery
       utterance.pitch = 1.08;
       utterance.volume = 0.95;
 
-      // Prefer French voice
       const voices = window.speechSynthesis.getVoices();
-      const preferred = voices.find(
-        (v) =>
-          v.lang.toLowerCase().includes("fr-ca") ||
-          v.lang.toLowerCase().includes("fr-fr") ||
-          v.name.toLowerCase().includes("french") ||
-          v.name.toLowerCase().includes("quebec") ||
-          v.name.toLowerCase().includes("canadian")
-      );
+      const preferred = pickVoiceForLang(voices, normalizedLang);
       if (preferred) {
         utterance.voice = preferred;
+        // Keep utterance.lang aligned with the chosen voice
+        if (preferred.lang) utterance.lang = preferred.lang;
       }
 
       window.speechSynthesis.speak(utterance);
@@ -136,7 +173,6 @@ export function speakWithAIVoice(text: string, lang = "fr-FR") {
   const voices = window.speechSynthesis.getVoices();
   if (voices.length === 0) {
     window.speechSynthesis.onvoiceschanged = speak;
-    // Fallback speak after short delay
     setTimeout(speak, 300);
   } else {
     speak();

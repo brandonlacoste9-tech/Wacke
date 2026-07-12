@@ -581,3 +581,54 @@ img.emoji:hover {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* ─── Resonance Chamber / Madness Meter ──────────────────────────────────── */
+
+.chamber-critical {
+  animation: chamber-edge-strobe 0.45s infinite steps(2);
+  box-shadow: 0 0 24px rgba(255, 20, 147, 0.5), 0 0 48px rgba(0, 255, 255, 0.2);
+}
+
+@keyframes chamber-edge-strobe {
+  0%, 100% { border-color: rgba(255, 20, 147, 0.45); }
+  50% { border-color: rgba(0, 255, 255, 0.55); }
+}
+
+.chamber-overload-root {
+  animation: chamber-hard-shake 0.08s infinite;
+  filter: contrast(1.12) saturate(1.35);
+}
+
+@keyframes chamber-hard-shake {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  25%  { transform: translate(3px, -2px) rotate(-0.25deg); }
+  50%  { transform: translate(-3px, 2px) rotate(0.2deg); }
+  75%  { transform: translate(2px, 3px) rotate(-0.12deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.chamber-scanlines::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 255, 0.035) 2px,
+    rgba(0, 255, 255, 0.035) 4px
+  );
+  mix-blend-mode: screen;
+  z-index: 2;
+}
+
+.chamber-overload-flash {
+  animation: chamber-chromatic 0.15s infinite steps(2);
+}
+
+@keyframes chamber-chromatic {
+  0% { filter: hue-rotate(0deg); }
+  50% { filter: hue-rotate(40deg) saturate(1.4); }
+  100% { filter: hue-rotate(0deg); }
+}

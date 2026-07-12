@@ -6,6 +6,7 @@ import {
   deductTokens,
 } from "@wacke/db";
 
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -215,6 +216,8 @@ export async function POST(req: NextRequest) {
         createdAt: new Date(),
       };
     }
+
+
 
     return NextResponse.json({ success: true, message });
   } catch (error) {

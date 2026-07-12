@@ -393,7 +393,7 @@ export const translations = {
     feature2Desc: "Chaos Mode lets the AI unleash its raw energy live. Genuine hate speech? Blocked instantly. Zero tolerance.",
     feature3Title: "Token Economy",
     feature3Sub: "Support Your Creators",
-    feature3Desc: "Get 500 free tokens daily. Send BOUM! 🔥 to your favorite streamers. Every interaction counts.",
+    feature3Desc: "Get 500 free tokens daily. Send BOOM! 🔥 to your favorite streamers. Every interaction counts.",
 
     // ── Graffiti Chat ─────────────────────────────────────────────────
     chatPlaceholder: "Spray your message...",
@@ -614,8 +614,8 @@ export const translations = {
     claimPageWhatYouGet: "What you get",
     claimPageAITitle: "Wacké AI — AI roast engine",
     claimPageAIDesc: "AI reacts live in your chat. Roasts, polls, chaos — all unfiltered.",
-    claimPageBoumTitle: "BOUM! token economy 🔥",
-    claimPageBoumDesc: "Viewers send tokenized reactions. Every BOUM! counts.",
+    claimPageBoumTitle: "BOOM! token economy 🔥",
+    claimPageBoumDesc: "Viewers send tokenized reactions. Every BOOM! counts.",
     claimPageVipTitle: "Wacké VIP Lounge",
     claimPageVipDesc: "Dark-glass UI, Graffiti Chat, OBS overlay — your brand, your vibe.",
     claimPageCta: "Claim",

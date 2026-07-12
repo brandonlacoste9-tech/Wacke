@@ -16,6 +16,8 @@ import AIStreamTools from "@/components/AIStreamTools";
 import AICoHost from "@/components/AICoHost";
 import AIRoastBattle from "@/components/AIRoastBattle";
 import ExternalStreamBanner from "@/components/ExternalStreamBanner";
+import ResonanceOverlay from "@/components/ResonanceOverlay";
+import ChaosEarningsCard from "@/components/ChaosEarningsCard";
 
 interface StreamPageProps {
   params: { username: string };
@@ -146,13 +148,20 @@ export default async function StreamPage({ params }: StreamPageProps) {
           </section>
         </main>
 
-        <div className="w-full lg:w-[320px] shrink-0 h-[60vh] pb-[80px] lg:pb-0 lg:h-[calc(100vh-220px)] lg:sticky lg:top-20 order-2 lg:order-1">
-          <GraffitiChat
-            streamId={`twitch-mock-chat-${twitchUsername}`}
-            initialMessages={[]}
-            currentUserId={undefined}
-            twitchUsername={twitchUsername}
+        <div className="w-full lg:w-[320px] shrink-0 space-y-3 pb-[80px] lg:pb-0 lg:sticky lg:top-20 order-2 lg:order-1">
+          <ResonanceOverlay
+            slug={`twitch-mock-chat-${twitchUsername}`}
+            streamerName={displayName}
+            variant="compact"
           />
+          <div className="h-[55vh] lg:h-[calc(100vh-320px)]">
+            <GraffitiChat
+              streamId={`twitch-mock-chat-${twitchUsername}`}
+              initialMessages={[]}
+              currentUserId={undefined}
+              twitchUsername={twitchUsername}
+            />
+          </div>
         </div>
 
         <TokenBar
@@ -249,13 +258,20 @@ export default async function StreamPage({ params }: StreamPageProps) {
         </main>
         
         {/* Left Rail: Chat (Mobile bottom, Desktop left) */}
-        <div className="w-full lg:w-[320px] shrink-0 h-[60vh] pb-[80px] lg:pb-0 lg:h-[calc(100vh-220px)] lg:sticky lg:top-20 order-2 lg:order-1">
-          <GraffitiChat
-            streamId={`kick-mock-chat-${cleanUsername}`}
-            initialMessages={[]}
-            currentUserId={undefined}
-            kickUsername={cleanUsername}
+        <div className="w-full lg:w-[320px] shrink-0 space-y-3 pb-[80px] lg:pb-0 lg:sticky lg:top-20 order-2 lg:order-1">
+          <ResonanceOverlay
+            slug={`kick-mock-chat-${cleanUsername}`}
+            streamerName={cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1)}
+            variant="compact"
           />
+          <div className="h-[55vh] lg:h-[calc(100vh-320px)]">
+            <GraffitiChat
+              streamId={`kick-mock-chat-${cleanUsername}`}
+              initialMessages={[]}
+              currentUserId={undefined}
+              kickUsername={cleanUsername}
+            />
+          </div>
         </div>
 
         <TokenBar
@@ -381,6 +397,8 @@ export default async function StreamPage({ params }: StreamPageProps) {
 
           {/* AI xAI suite */}
           <div className="mt-5 space-y-3">
+            <ObsOverlayButton username={user.username} />
+            {viewer?.id === user.id && <ChaosEarningsCard />}
             <AIStreamTools streamerName={user.displayName} />
             <AICoHost streamerName={user.displayName} streamId={stream.id} />
             <AIRoastBattle streamerName={user.displayName} />
@@ -388,15 +406,22 @@ export default async function StreamPage({ params }: StreamPageProps) {
         </section>
       </main>
 
-      {/* Left Rail: Floating HUD Chat */}
-      <div className="w-full lg:w-[320px] shrink-0 h-[60vh] pb-[80px] lg:pb-0 lg:h-[calc(100vh-220px)] lg:sticky lg:top-20 order-2 lg:order-1">
-        <GraffitiChat
-          streamId={stream.id}
-          initialMessages={initialMessages as any}
-          currentUserId={viewer?.id}
-          kickUsername={isKickUser ? user.username : undefined}
-          twitchUsername={(user as any).twitchUsername || undefined}
+      {/* Left Rail: Resonance + Chat */}
+      <div className="w-full lg:w-[320px] shrink-0 space-y-3 pb-[80px] lg:pb-0 lg:sticky lg:top-20 order-2 lg:order-1">
+        <ResonanceOverlay
+          slug={stream.id}
+          streamerName={user.displayName}
+          variant="compact"
         />
+        <div className="h-[55vh] lg:h-[calc(100vh-320px)]">
+          <GraffitiChat
+            streamId={stream.id}
+            initialMessages={initialMessages as any}
+            currentUserId={viewer?.id}
+            kickUsername={isKickUser ? user.username : undefined}
+            twitchUsername={(user as any).twitchUsername || undefined}
+          />
+        </div>
       </div>
     </div>
 

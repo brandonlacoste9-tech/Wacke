@@ -6,6 +6,7 @@ import {
   deductTokens,
 } from "@wacke/db";
 
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -108,7 +109,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           text: content,
           voice_id: voiceId, // e.g. "leo", "eve", "ara", "rex", "sal"
-          language: lang === "fr" ? "fr" : "en",  // pass through from UI lang toggle (French default)
+          language: lang === "fr" ? "fr" : "en", // follows UI language toggle
           output_format: {
             codec: "mp3",
             sample_rate: 44100,
@@ -254,6 +255,8 @@ export async function POST(req: NextRequest) {
       event: "chat_message",
       payload: hydratedMessage,
     });
+
+
 
     return NextResponse.json({ success: true, message: hydratedMessage });
   } catch (error) {

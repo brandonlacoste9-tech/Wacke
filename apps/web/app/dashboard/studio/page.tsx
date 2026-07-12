@@ -424,6 +424,22 @@ export default function StudioPage() {
                 <option value="gaming">{t("catGaming")}</option>
               </select>
             </div>
+
+            <div className="bg-black/40 p-4 rounded-xl border border-white/[0.06]">
+              <label className="text-xs font-bold text-gray-300 uppercase tracking-wider block mb-2">RESONANCE CHAMBER</label>
+              <div className="flex items-center justify-between text-white text-sm">
+                <span>System Status</span>
+                <span className="text-green-400 font-bold text-xs bg-green-500/10 px-2 py-0.5 rounded border border-green-500/20">ACTIVE</span>
+              </div>
+              <div className="mt-3 flex justify-between items-center text-xs text-gray-400">
+                <span>Sensitivity Level</span>
+                <select className="bg-transparent border-none p-0 text-white focus:ring-0 font-medium text-xs">
+                  <option value="normal">Normal (1.0x)</option>
+                  <option value="high">High Chaos (2.0x)</option>
+                  <option value="extreme">Extreme Overdrive (4.0x)</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <div className="mt-8">
