@@ -124,8 +124,8 @@ export function useGraffitiChat({
         streamId,
         userId: "wackebot-system-id",
         content: isEn 
-          ? "🤖 WackeBot: Welcome to Wacké.live! The new unfiltered streaming platform where you won't get banned. Drop a tip to trigger TTS, AI stickers, or arcade sounds! 🪙🔥"
-          : "🤖 WackeBot: Bienvenue sur Wacké.live ! La nouvelle plateforme de streaming sans filtre et sans ban. Utilise tes jetons pour lancer des alertes TTS, des stickers AI et des sons rétro ! 🪙🔥",
+          ? "🤖 WackeBot: Welcome to Wacké.live. No bans, no filters, just raw streaming. Drop a tip to trigger TTS or soundboard effects. 🪙🔥"
+          : "🤖 WackeBot: Bienvenue sur Wacké.live. Pas de bans, pas de filtres. Utilise tes jetons pour lancer la TTS ou les sons d'arcade. 🪙🔥",
         isSacre: false,
         createdAt: new Date().toISOString(),
         user: {
@@ -149,16 +149,16 @@ export function useGraffitiChat({
     
     const tips = {
       fr: [
-        "💡 Astuce : Marre de te faire ban ailleurs ? Wacké est la nouvelle maison sans filtre des vrais streamers. Réclame tes +500 jetons gratuits en haut !",
-        "🔥 Hype : Wacké est 100% sans filtre. Dis ce que tu veux, joue à ce que tu veux. Bienvenue dans la révolution.",
-        "📢 Info : Déclenche le chaos en direct ! Utilise tes jetons pour jouer des sons d'arcade (Sirène, Laser) pour tout le monde.",
-        "🗣️ TTS : Coche la case TTS (50 🪙) et laisse l'IA lire tes messages les plus fous à voix haute. Zéro filtre.",
+        "💡 Astuce : Marre de te faire ban pour rien sur Twitch/Kick ? Bienvenue sur Wacké. Prends tes jetons gratuits en haut.",
+        "🔥 Hype : Wacké est complètement sans filtre. Dis ce que tu veux dans le chat. On s'en fout.",
+        "📢 Info : Tu peux utiliser tes jetons pour spam des bruitages directement sur le stream. Fais-toi plaisir.",
+        "🗣️ TTS : Coche la case TTS et l'IA lira ton message à voix haute sur le stream. Même les pires dingueries.",
       ],
       en: [
-        "💡 Tip: Sick of getting banned elsewhere? Wacké is the new unfiltered home for true streamers. Claim your +500 free tokens in the header!",
-        "🔥 Hype: Wacké is 100% unfiltered. Say what you want, play what you want. Welcome to the revolution.",
-        "📢 Info: Trigger chaos live on stream! Use your tokens to play arcade sounds (Siren, Laser, Chime) for everyone to hear.",
-        "🗣️ TTS: Tick the TTS box (50 🪙) and make the AI read your most unhinged messages out loud. No filters.",
+        "💡 Tip: Tired of getting banned on Twitch/Kick for literally nothing? Welcome to Wacké. Claim your free tokens at the top.",
+        "🔥 Hype: Wacké is fully unfiltered. Say what you want in chat. We don't care.",
+        "📢 Info: You can use your tokens to play loud ass sound effects on the stream. Do with that what you will.",
+        "🗣️ TTS: Tick the TTS box before sending a message and the AI will read it out loud. Yes, even the wild shit.",
       ]
     };
 
