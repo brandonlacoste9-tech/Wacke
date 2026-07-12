@@ -124,8 +124,8 @@ export function useGraffitiChat({
         streamId,
         userId: "wackebot-system-id",
         content: isEn 
-          ? "🤖 WackeBot: Welcome to Wacké.live. No bans, no filters, just raw streaming. Drop a tip to trigger TTS or soundboard effects. 🪙🔥"
-          : "🤖 WackeBot: Bienvenue sur Wacké.live. Pas de bans, pas de filtres. Utilise tes jetons pour lancer la TTS ou les sons d'arcade. 🪙🔥",
+          ? "🤖 WackeBot: Welcome to Wacké.live. The dark alley of streaming. Streamers get paid to talk shit, and chat triggers the chaos. Drop a tip to trigger TTS or soundboard effects. 🪙🔥"
+          : "🤖 WackeBot: Bienvenue sur Wacké.live. La ruelle sombre du streaming. Les streamers sont payés pour dire de la merde, et le chat sème le chaos. Utilise tes jetons pour la TTS ou les bruitages. 🪙🔥",
         isSacre: false,
         createdAt: new Date().toISOString(),
         user: {
@@ -150,13 +150,13 @@ export function useGraffitiChat({
     const tips = {
       fr: [
         "💡 Astuce : Marre de te faire ban pour rien sur Twitch/Kick ? Bienvenue sur Wacké. Prends tes jetons gratuits en haut.",
-        "🔥 Hype : Wacké est complètement sans filtre. Dis ce que tu veux dans le chat. On s'en fout.",
+        "🔥 Hype : Wacké, c'est la ruelle sombre du streaming. Parle mal, fais-toi payer, dis ce que tu veux. On s'en tape.",
         "📢 Info : Tu peux utiliser tes jetons pour spam des bruitages directement sur le stream. Fais-toi plaisir.",
         "🗣️ TTS : Coche la case TTS et l'IA lira ton message à voix haute sur le stream. Même les pires dingueries.",
       ],
       en: [
         "💡 Tip: Tired of getting banned on Twitch/Kick for literally nothing? Welcome to Wacké. Claim your free tokens at the top.",
-        "🔥 Hype: Wacké is fully unfiltered. Say what you want in chat. We don't care.",
+        "🔥 Hype: Wacké is the dark alley of streaming. Talk shit, get paid, say what you want. We don't care.",
         "📢 Info: You can use your tokens to play loud ass sound effects on the stream. Do with that what you will.",
         "🗣️ TTS: Tick the TTS box before sending a message and the AI will read it out loud. Yes, even the wild shit.",
       ]
