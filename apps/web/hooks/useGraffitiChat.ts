@@ -67,6 +67,7 @@ export function useGraffitiChat({
   const [isSending, setIsSending] = useState(false);
   const [isSendingTts, setIsSendingTts] = useState(false);
   const channelRef = useRef<RealtimeChannel | null>(null);
+  const welcomeShownRef = useRef(false);
   const supabase = getSupabaseClient();
 
   // ─── Realtime Subscription ─────────────────────────────────────────────────
@@ -114,34 +115,48 @@ export function useGraffitiChat({
     };
   }, [streamId, supabase]);
 
+  // Reset welcome state when switching streams
+  useEffect(() => {
+    welcomeShownRef.current = false;
+  }, [streamId]);
+
   // ─── WackeBot Chat Welcome Announcement ────────────────────────────────────
   useEffect(() => {
     if (!streamId) return;
-    const timer = setTimeout(() => {
-      const isEn = language === "en";
-      const welcomeMsg: ChatMessage = {
-        id: "wackebot-welcome-system",
-        streamId,
-        userId: "wackebot-system-id",
-        content: isEn 
-          ? "🤖 WackeBot: Welcome to Wacké.live. The dark alley of streaming. Streamers get paid to talk shit, and chat triggers the chaos. Drop a tip to trigger TTS or soundboard effects. 🪙🔥"
-          : "🤖 WackeBot: Bienvenue sur Wacké.live. La ruelle sombre du streaming. Les streamers sont payés pour dire de la merde, et le chat sème le chaos. Utilise tes jetons pour la TTS ou les bruitages. 🪙🔥",
-        isSacre: false,
-        createdAt: new Date().toISOString(),
-        user: {
-          id: "wackebot-system-id",
-          username: "WackeBot",
-          displayName: "WackeBot 🤖",
-          avatarUrl: "/token.png"
-        }
-      };
+
+    const isEn = language === "en";
+    const welcomeMsg: ChatMessage = {
+      id: "wackebot-welcome-system",
+      streamId,
+      userId: "wackebot-system-id",
+      content: isEn
+        ? "🤖 WackeBot: Welcome to Wacké.live. The dark alley of streaming. Streamers get paid to talk shit, and chat triggers the chaos. Drop a tip to trigger TTS or soundboard effects. 🪙🔥"
+        : "🤖 WackeBot: Bienvenue sur Wacké.live. La ruelle sombre du streaming. Les streamers sont payés pour dire de la merde, et le chat sème le chaos. Utilise tes jetons pour la TTS ou les bruitages. 🪙🔥",
+      isSacre: false,
+      createdAt: new Date().toISOString(),
+      user: {
+        id: "wackebot-system-id",
+        username: "WackeBot",
+        displayName: "WackeBot 🤖",
+        avatarUrl: "/token.png",
+      },
+    };
+
+    const applyWelcome = () => {
       setMessages((prev) => {
-        if (prev.some(m => m.id === welcomeMsg.id)) return prev;
+        const exists = prev.some((m) => m.id === welcomeMsg.id);
+        if (exists) {
+          return prev.map((m) => (m.id === welcomeMsg.id ? welcomeMsg : m));
+        }
         return [...prev, welcomeMsg];
       });
-    }, 1500);
+      welcomeShownRef.current = true;
+    };
+
+    const delay = welcomeShownRef.current ? 0 : 1500;
+    const timer = setTimeout(applyWelcome, delay);
     return () => clearTimeout(timer);
-  }, [streamId]);
+  }, [streamId, language]);
 
   // ─── WackeBot Periodic Helpful Reminders ─────────────────────────────────
   useEffect(() => {
@@ -189,7 +204,7 @@ export function useGraffitiChat({
     }, 120_000); // every 2 minutes
 
     return () => clearInterval(interval);
-  }, [streamId]);
+  }, [streamId, language]);
 
   // ─── Send Message ──────────────────────────────────────────────────────────
   const sendMessage = useCallback(
