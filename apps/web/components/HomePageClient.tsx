@@ -5,7 +5,6 @@ import KickFeaturedCarousel from "@/components/KickFeaturedCarousel";
 import CombinedStreamGrid from "@/components/CombinedStreamGrid";
 import TrendingGames from "@/components/TrendingGames";
 import ParticleBackground from "@/components/ParticleBackground";
-import AIFire from "@/components/AIFire";
 import FeatureShowcase from "@/components/FeatureShowcase";
 import HeroStats from "@/components/HeroStats";
 import QuebecLiveRow from "@/components/QuebecLiveRow";
@@ -64,12 +63,8 @@ export default function HomePageClient({ initialStreams, initialStats }: HomePag
           <p className="text-base md:text-lg text-gray-200 font-medium max-w-xl mx-auto drop-shadow-md mb-6">
             {t("heroSubtitle")} <span className="text-wacke-cyan font-bold">+ AI chaos</span>
           </p>
-          <div className="text-[10px] uppercase tracking-[3px] text-wacke-cyan/70 mb-2">
+          <div className="text-[10px] uppercase tracking-[3px] text-wacke-cyan/70 mb-6">
             POWERED BY AI xAI • Maximum Truth • Maximum Wacké
-          </div>
-
-          <div className="mb-8">
-            <AIFire />
           </div>
 
           <HeroStats initial={initialStats} />
