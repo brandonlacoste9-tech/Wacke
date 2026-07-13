@@ -1,5 +1,7 @@
 "use client";
 
+// Cloudflare Stream WHIP studio (UTF-8)
+
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Mic, MicOff, Video, VideoOff, Play, Square, SwitchCamera, CameraOff, Copy, Monitor, Share2 } from "lucide-react";
