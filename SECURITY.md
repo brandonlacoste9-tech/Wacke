@@ -20,12 +20,11 @@
 - Expanded FR/EN hard blocks (hate/scams/threats), spam (caps, URLs, repeats)  
 - Chaos/sacré vocabulary still allowed only when stream mode is on  
 
-### Mux Live (primary)
-- Studio: OBS RTMP via `/api/stream/mux`  
-- Player: `stream.mux.com/{playbackId}.m3u8`  
-- Webhook: `/api/webhooks/mux`  
-- Run SQL: `packages/db/drizzle/0004_mux_live.sql`  
-- Env: `MUX_TOKEN_ID`, `MUX_TOKEN_SECRET`, `MUX_WEBHOOK_SECRET`  
+### Native live video
+- **Primary studio: Cloudflare Stream WHIP** (`/api/stream/cloudflare`) — browser go-live  
+- Env: `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`  
+- Player prefers Mux playback id if set, else Cloudflare  
+- **Optional Mux OBS path** still available (`/api/stream/mux`) if you set Mux keys later
 
 ### Still recommended
 - Redis rate limits for multi-instance  

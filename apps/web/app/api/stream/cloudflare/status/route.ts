@@ -1,39 +1,53 @@
-import { NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { streams } from "@wacke/db";
-import { eq } from "drizzle-orm";
-import { db } from "@wacke/db";
+import { NextRequest, NextResponse } from "next/server";
+import { desc, eq } from "drizzle-orm";
+import { db, streams, getUserBySupabaseId } from "@wacke/db";
+import { resolveAuthUserId } from "@/lib/auth-api";
 
-export async function POST(req: Request) {
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+/**
+ * POST /api/stream/cloudflare/status
+ * Body: { status: "live" | "offline" }
+ */
+export async function POST(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
+    const authUserId = await resolveAuthUserId(
+      req.headers.get("Authorization")
+    );
+    if (!authUserId) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    const token = authHeader.replace("Bearer ", "");
-    const supabase = getSupabaseAdmin();
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Session invalide" }, { status: 401 });
-    }
-
     const body = await req.json();
-    const { status } = body;
+    const status = body.status === "live" ? "live" : "offline";
 
-    if (status !== "live" && status !== "offline") {
-      return NextResponse.json({ error: "Statut invalide" }, { status: 400 });
+    const dbUser = await getUserBySupabaseId(authUserId);
+    if (!dbUser) {
+      return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
     }
 
-    // Fetch Wacke user
-    const { data: wackeUser } = await supabase.from("users").select("id").eq("supabase_id", user.id).single();
-    
-    if (wackeUser) {
-      await db.update(streams)
-        .set({ status })
-        .where(eq(streams.userId, wackeUser.id));
+    const existing = await db.query.streams.findFirst({
+      where: eq(streams.userId, dbUser.id),
+      orderBy: [desc(streams.createdAt)],
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Aucun stream — démarre d'abord une diffusion" },
+        { status: 400 }
+      );
     }
+
+    await db
+      .update(streams)
+      .set({
+        status,
+        startedAt: status === "live" ? new Date() : existing.startedAt,
+        endedAt: status === "offline" ? new Date() : null,
+        updatedAt: new Date(),
+      })
+      .where(eq(streams.id, existing.id));
 
     return NextResponse.json({ success: true, status });
   } catch (error) {

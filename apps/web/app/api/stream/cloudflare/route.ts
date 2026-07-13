@@ -1,30 +1,40 @@
-import { NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { streams } from "@wacke/db";
-import { eq } from "drizzle-orm";
-import { db } from "@wacke/db";
+import { NextRequest, NextResponse } from "next/server";
+import { desc, eq } from "drizzle-orm";
+import { db, streams, getUserBySupabaseId } from "@wacke/db";
+import { resolveAuthUserId } from "@/lib/auth-api";
 
-export async function POST(req: Request) {
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+/**
+ * POST /api/stream/cloudflare
+ * Create a Cloudflare Stream live input (WHIP) for browser go-live.
+ */
+export async function POST(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
+    const authUserId = await resolveAuthUserId(
+      req.headers.get("Authorization")
+    );
+    if (!authUserId) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    const token = authHeader.replace("Bearer ", "");
-    const supabase = getSupabaseAdmin();
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Session invalide" }, { status: 401 });
-    }
-
-    // Call Cloudflare API to create a live input
-    const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-    const apiToken = process.env.CLOUDFLARE_API_TOKEN;
+    const accountId = process.env.CLOUDFLARE_ACCOUNT_ID?.trim();
+    const apiToken = process.env.CLOUDFLARE_API_TOKEN?.trim();
 
     if (!accountId || !apiToken) {
-      return NextResponse.json({ error: "Configuration Cloudflare manquante" }, { status: 500 });
+      return NextResponse.json(
+        {
+          error: "Configuration Cloudflare manquante",
+          hint: "Set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN",
+        },
+        { status: 503 }
+      );
+    }
+
+    const dbUser = await getUserBySupabaseId(authUserId);
+    if (!dbUser) {
+      return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
     }
 
     const cfResponse = await fetch(
@@ -32,13 +42,13 @@ export async function POST(req: Request) {
       {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${apiToken}`,
+          Authorization: `Bearer ${apiToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          meta: { name: `Stream for ${user.id}` },
-          recording: { mode: "automatic" }
-        })
+          meta: { name: `Wacke:${dbUser.username}` },
+          recording: { mode: "automatic" },
+        }),
       }
     );
 
@@ -48,34 +58,55 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Erreur Cloudflare" }, { status: 500 });
     }
 
-    const cfData = await cfResponse.json();
+    const cfData = (await cfResponse.json()) as {
+      result: {
+        uid: string;
+        webRTC?: { url?: string };
+        rtmps?: { url?: string; streamKey?: string };
+      };
+    };
     const liveInput = cfData.result;
-
-    const whipUrl = liveInput.webRTC.url;
+    const whipUrl = liveInput.webRTC?.url;
     const playbackId = liveInput.uid;
 
-    // We don't save it to the DB just yet; the client will start broadcasting first
-    // and then call another endpoint to update their status, or we can save it now.
-    
-    // Save to database
-    // Note: We need the Wacke user ID. We have the Supabase ID.
-    // Fetch Wacke user
-    const { data: wackeUser } = await supabase.from("users").select("id").eq("supabase_id", user.id).single();
-    if (wackeUser) {
-      // Find stream
-      await db.update(streams)
+    if (!whipUrl) {
+      return NextResponse.json(
+        { error: "Cloudflare n'a pas renvoyé d'URL WHIP" },
+        { status: 500 }
+      );
+    }
+
+    const existing = await db.query.streams.findFirst({
+      where: eq(streams.userId, dbUser.id),
+      orderBy: [desc(streams.createdAt)],
+    });
+
+    if (existing) {
+      await db
+        .update(streams)
         .set({
           cloudflareStreamId: liveInput.uid,
-          cloudflarePlaybackId: liveInput.uid,
-          status: "offline", // Will be marked live when they actually connect
+          cloudflarePlaybackId: playbackId,
+          status: "offline",
+          updatedAt: new Date(),
         })
-        .where(eq(streams.userId, wackeUser.id));
+        .where(eq(streams.id, existing.id));
+    } else {
+      await db.insert(streams).values({
+        userId: dbUser.id,
+        title: `Live ${dbUser.displayName}`,
+        status: "offline",
+        cloudflareStreamId: liveInput.uid,
+        cloudflarePlaybackId: playbackId,
+      });
     }
 
     return NextResponse.json({
       success: true,
       whipUrl,
       playbackId,
+      rtmpsUrl: liveInput.rtmps?.url,
+      rtmpsStreamKey: liveInput.rtmps?.streamKey,
     });
   } catch (error) {
     console.error("[STREAM_CREATE_ERROR]", error);
