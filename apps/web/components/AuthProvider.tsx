@@ -190,7 +190,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Mock Login: always works for demo
         const finalUsername = (username || email.split("@")[0] || "visiteur").toLowerCase().replace(/[^a-z0-9_]/g, "");
         const mockSupabaseId = `mock-${finalUsername}-${Date.now()}`;
-        const mockToken = `mock-session:${finalUsername}:${mockSupabaseId}`;
+        // Dev-only: signed platform session (unsigned mock-session rejected in production)
+        const { createPlatformSession } = await import("@/lib/platform-session");
+        const mockToken = createPlatformSession({
+          provider: "mock",
+          username: finalUsername,
+          supabaseId: mockSupabaseId.includes("-")
+            ? mockSupabaseId
+            : "12345678-1234-1234-1234-" +
+              Array.from(finalUsername.slice(0, 6))
+                .map((c) => c.charCodeAt(0).toString(16))
+                .join("")
+                .substring(0, 12)
+                .padEnd(12, "0"),
+        });
         
         // Sync profile
         const syncRes = await fetch("/api/auth/sync", {
@@ -257,7 +270,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .substring(0, 12)
           .padEnd(12, "0");
 
-        const mockToken = `mock-session:${username}:${validMockUuid}`;
+        const { createPlatformSession } = await import("@/lib/platform-session");
+        const mockToken = createPlatformSession({
+          provider: "mock",
+          username,
+          supabaseId: validMockUuid,
+        });
 
         const syncRes = await fetch("/api/auth/sync", {
           method: "POST",

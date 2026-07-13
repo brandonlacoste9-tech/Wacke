@@ -174,8 +174,13 @@ export async function GET(req: NextRequest) {
       displayName: kickUser.displayName,
     });
 
-    // 3. Create Session Session Token & Redirect response
-    const sessionToken = `mock-session:${dbUser.username}:${dbUser.supabaseId}`;
+    // 3. Signed platform session (not forgeable mock-session tokens)
+    const { createPlatformSession } = await import("@/lib/platform-session");
+    const sessionToken = createPlatformSession({
+      provider: "kick",
+      username: dbUser.username,
+      supabaseId: dbUser.supabaseId || validUuid,
+    });
     const redirectUrl = new URL("/", origin);
     const response = NextResponse.redirect(redirectUrl);
 
@@ -185,6 +190,7 @@ export async function GET(req: NextRequest) {
       maxAge: 60 * 60 * 24 * 7, // 7 days
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
+      httpOnly: false, // client AuthProvider reads it; consider httpOnly + /api/me later
     });
 
     // Save Kick access token for chat:write capability

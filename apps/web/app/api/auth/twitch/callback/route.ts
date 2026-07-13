@@ -121,8 +121,13 @@ export async function GET(req: NextRequest) {
       avatarUrl: twitchUser.profile_image_url || undefined,
     });
 
-    // 6. Build session token & set cookies
-    const sessionToken = `twitch-session:${dbUser.username}:${dbUser.supabaseId}`;
+    // 6. Signed platform session (not forgeable twitch-session tokens)
+    const { createPlatformSession } = await import("@/lib/platform-session");
+    const sessionToken = createPlatformSession({
+      provider: "twitch",
+      username: dbUser.username,
+      supabaseId: dbUser.supabaseId || validUuid,
+    });
     const redirectUrl = new URL("/", origin);
     const response = NextResponse.redirect(redirectUrl);
 

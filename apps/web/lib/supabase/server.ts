@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { isSupabaseMocked } from "../config";
+import { verifyPlatformSession } from "../platform-session";
 
 /**
  * Server-side Supabase client using the service role key.
@@ -27,16 +28,13 @@ export function getSupabaseAdmin() {
       },
       auth: {
         getUser: async (token: string) => {
-          if (token && (token.startsWith("mock-session:") || token.startsWith("twitch-session:") || token.startsWith("kick-session:"))) {
-            // Format: mock-session:username:supabaseId
-            const parts = token.split(":");
-            const username = parts[1];
-            const supabaseId = parts[2];
+          const session = token ? verifyPlatformSession(token) : null;
+          if (session) {
             return {
               data: {
                 user: {
-                  id: supabaseId,
-                  email: `${username}@mock.wacke.ca`,
+                  id: session.supabaseId,
+                  email: `${session.username}@mock.wacke.ca`,
                 },
               },
               error: null,
@@ -74,22 +72,22 @@ export function getSupabaseAdmin() {
     },
   });
 
-  // Intercept auth.getUser to support our custom mock-session tokens for Kick OAuth
+  // Intercept auth.getUser for signed Kick/Twitch platform sessions only
   const originalGetUser = client.auth.getUser.bind(client.auth);
   client.auth.getUser = async (jwt?: string) => {
-    if (jwt && (jwt.startsWith("mock-session:") || jwt.startsWith("twitch-session:") || jwt.startsWith("kick-session:"))) {
-      const parts = jwt.split(":");
-      const username = parts[1];
-      const supabaseId = parts[2];
-      return {
-        data: {
-          user: {
-            id: supabaseId,
-            email: `${username}@mock.wacke.ca`,
-          } as any,
-        },
-        error: null,
-      };
+    if (jwt) {
+      const session = verifyPlatformSession(jwt);
+      if (session) {
+        return {
+          data: {
+            user: {
+              id: session.supabaseId,
+              email: `${session.username}@platform.wacke.ca`,
+            } as any,
+          },
+          error: null,
+        };
+      }
     }
     return originalGetUser(jwt);
   };

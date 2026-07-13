@@ -1,31 +1,32 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseMocked } from "@/lib/config";
 
 /**
  * GET /api/debug/auth
- * Temporary diagnostic endpoint.
- * Returns sanitized Supabase config info (no secret values).
- * Remove or protect this after login is working.
+ * Dev-only diagnostics. Disabled in production unless DEBUG_AUTH_SECRET matches.
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const secret = process.env.DEBUG_AUTH_SECRET;
+  const provided = req.headers.get("x-debug-secret");
+  const allowed =
+    process.env.NODE_ENV !== "production" ||
+    (secret && provided && secret === provided);
+
+  if (!allowed) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
   const hasAnon = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const hasService = !!process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const anonPreview = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.slice(0, 12) + "..." || "missing";
-  const servicePreview = process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 8) + "..." || "missing";
-
-  const dbUrl = process.env.DATABASE_URL || "";
-  const dbPreview = dbUrl ? dbUrl.split("@")[0].slice(0, 30) + "@..." : "missing";
 
   return NextResponse.json({
     isMocked: isSupabaseMocked(),
-    supabaseUrl: url,
+    supabaseHost: url ? new URL(url).host : null,
     hasAnonKey: hasAnon,
-    anonKeyPreview: anonPreview,
     hasServiceRole: hasService,
-    serviceRolePreview: servicePreview,
-    databaseUrlPreview: dbPreview,
+    hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
     nodeEnv: process.env.NODE_ENV,
-    note: "If supabaseUrl is not exactly https://ulbfaxhsbbckotcbmslk.supabase.co then the env var was not set correctly at build time.",
+    // Never return key previews or connection string fragments in responses
   });
 }

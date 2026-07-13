@@ -47,13 +47,27 @@ export async function POST(req: NextRequest) {
     }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const stripeSecret = process.env.STRIPE_SECRET_KEY || "sk_test_mock";
+    const stripeSecret = process.env.STRIPE_SECRET_KEY || "";
 
-    // ─── Mode Sandbox Mocks (No Stripe keys or starts with sk_test_mock) ──
-    if (stripeSecret.startsWith("sk_test_mock")) {
-      console.log(`[Stripe Checkout] Simulating Checkout Session for user ${user.id} (${pack.name})`);
+    // ─── Sandbox mock ONLY in non-production with explicit mock key ──
+    const allowMockCheckout =
+      process.env.NODE_ENV !== "production" &&
+      (stripeSecret.startsWith("sk_test_mock") ||
+        process.env.ALLOW_TOKEN_MOCK_CHECKOUT === "true");
+
+    if (allowMockCheckout) {
+      console.log(
+        `[Stripe Checkout] Simulating Checkout Session for user ${user.id} (${pack.name})`
+      );
       const mockSuccessUrl = `${appUrl}/api/tokens/checkout/mock-success?userId=${user.id}&amount=${amount}`;
       return NextResponse.json({ url: mockSuccessUrl });
+    }
+
+    if (!stripeSecret || stripeSecret.includes("your-") || stripeSecret.length < 20) {
+      return NextResponse.json(
+        { error: "Stripe non configuré (STRIPE_SECRET_KEY)" },
+        { status: 503 }
+      );
     }
 
     // ─── Stripe Production Checkout ──────────────────────────────────────────

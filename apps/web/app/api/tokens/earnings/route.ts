@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { getUserBySupabaseId, getStreamerEarnings } from "@wacke/db";
+import { resolveAuthUserId } from "@/lib/auth-api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,33 +11,9 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
-    let authUserId: string | null = null;
-
-    if (
-      token.startsWith("mock-session:") ||
-      token.startsWith("twitch-session:") ||
-      token.startsWith("kick-session:")
-    ) {
-      const parts = token.split(":");
-      authUserId = parts.length >= 3 ? parts.slice(2).join(":") : null;
-    } else {
-      try {
-        const supabase = getSupabaseAdmin();
-        const {
-          data: { user },
-        } = await supabase.auth.getUser(token);
-        authUserId = user?.id ?? null;
-      } catch {
-        /* fallthrough */
-      }
-    }
-
+    const authUserId = await resolveAuthUserId(
+      req.headers.get("Authorization")
+    );
     if (!authUserId) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }

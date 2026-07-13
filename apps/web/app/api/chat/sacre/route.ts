@@ -5,7 +5,7 @@ import {
   createChatMessage,
   deductTokens,
 } from "@wacke/db";
-
+import { resolveAuthUserId } from "@/lib/auth-api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,41 +18,9 @@ const SACRE_COST = 10;
  */
 export async function POST(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-
-    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
-
-    // Robust auth extraction: support mock-session (Kick/demo), real JWTs, and fallbacks
-    let authUserId: string | null = null;
-
-    if (token.startsWith("mock-session:") || token.startsWith("twitch-session:") || token.startsWith("kick-session:")) {
-      const parts = token.split(":");
-      authUserId = parts.length >= 3 ? parts.slice(2).join(":") : null;
-    } else if (token.includes(".")) {
-      try {
-        const payloadB64 = token.split(".")[1];
-        const payload = JSON.parse(Buffer.from(payloadB64, "base64").toString("utf8"));
-        authUserId = payload.sub || payload.user_id || payload.id || null;
-      } catch {}
-    }
-
-    if (!authUserId) {
-      try {
-        const supabase = getSupabaseAdmin();
-        const {
-          data: { user: authUser },
-          error: authError,
-        } = await supabase.auth.getUser(token);
-
-        if (!authError && authUser) {
-          authUserId = authUser.id;
-        }
-      } catch {}
-    }
-
+    const authUserId = await resolveAuthUserId(
+      req.headers.get("Authorization")
+    );
     if (!authUserId) {
       return NextResponse.json({ error: "Session invalide" }, { status: 401 });
     }

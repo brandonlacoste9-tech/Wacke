@@ -22,29 +22,27 @@ export async function POST(req: NextRequest) {
     
     let user: any = null;
 
-    if (
-      token.startsWith("mock-session:") ||
-      token.startsWith("twitch-session:") ||
-      token.startsWith("kick-session:")
-    ) {
-      const parts = token.split(":");
-      const username = parts[1];
-      const supabaseId = parts[2];
-      
-      const dbUser = await getUserBySupabaseId(supabaseId);
-      console.log("[AUTH_SYNC_DEBUG] token:", token);
-      console.log("[AUTH_SYNC_DEBUG] parsed username:", username);
-      console.log("[AUTH_SYNC_DEBUG] parsed supabaseId:", supabaseId);
-      console.log("[AUTH_SYNC_DEBUG] dbUser:", dbUser);
+    const { verifyPlatformSession } = await import("@/lib/platform-session");
+    const platform = verifyPlatformSession(token);
 
-      if (!dbUser || dbUser.username !== username) {
-        return NextResponse.json({ error: "Session invalide" }, { status: 401 });
+    if (platform) {
+      const dbUser = await getUserBySupabaseId(platform.supabaseId);
+      if (!dbUser || dbUser.username !== platform.username) {
+        // Allow first-time mock sync when user not created yet (dev only)
+        if (!dbUser && platform.provider === "mock") {
+          user = {
+            id: platform.supabaseId,
+            email: `${platform.username}@mock.wacke.ca`,
+          };
+        } else {
+          return NextResponse.json({ error: "Session invalide" }, { status: 401 });
+        }
+      } else {
+        user = {
+          id: dbUser.supabaseId,
+          email: dbUser.email,
+        };
       }
-      
-      user = {
-        id: dbUser.supabaseId,
-        email: dbUser.email,
-      };
     } else {
       const supabase = getSupabaseAdmin();
       const { data: { user: supaUser }, error: authError } = await supabase.auth.getUser(token);

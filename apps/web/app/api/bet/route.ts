@@ -1,51 +1,61 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { getUserBySupabaseId, deductTokens } from "@wacke/db";
+import { resolveAuthUserId } from "@/lib/auth-api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+/** Server-only odds options (client cannot choose arbitrary multipliers) */
+const ALLOWED_ODDS = [1.5, 2.0] as const;
+const MAX_BET = 500;
+const MIN_BET = 10;
+/** House edge: win probability ~40% */
+const WIN_CHANCE = 0.4;
+
+/**
+ * POST /api/bet
+ * Optional chaos betting. Disabled when BETTING_ENABLED=false (default in production).
+ */
 export async function POST(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
+    if (
+      process.env.BETTING_ENABLED !== "true" &&
+      process.env.NODE_ENV === "production"
+    ) {
+      return NextResponse.json(
+        { error: "Les paris sont temporairement désactivés" },
+        { status: 403 }
+      );
+    }
+
+    const authUserId = await resolveAuthUserId(
+      req.headers.get("Authorization")
+    );
+    if (!authUserId) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
-    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
 
-    let authUserId: string | null = null;
-    if (token.startsWith("mock-session:") || token.startsWith("twitch-session:") || token.startsWith("kick-session:")) {
-      const parts = token.split(":");
-      authUserId = parts.length >= 3 ? parts.slice(2).join(":") : null;
-    } else if (token.includes(".")) {
-      try {
-        const payloadB64 = token.split(".")[1];
-        const payload = JSON.parse(Buffer.from(payloadB64, "base64").toString("utf8"));
-        authUserId = payload.sub || payload.user_id || payload.id || null;
-      } catch {}
-    }
+    const body = await req.json();
+    const betAmount = Number(body.betAmount);
+    const prediction =
+      typeof body.prediction === "string"
+        ? body.prediction.slice(0, 80)
+        : "pari";
 
-    if (!authUserId) {
-      try {
-        const supabase = getSupabaseAdmin();
-        const {
-          data: { user: authUser },
-          error: authError,
-        } = await supabase.auth.getUser(token);
-        if (!authError && authUser) authUserId = authUser.id;
-      } catch (e) {
-        console.error("[BET_AUTH_EXCEPTION]", e);
+    // Ignore client odds — pick from allowlist only
+    let odds = 1.5;
+    if (typeof body.odds === "string" || typeof body.odds === "number") {
+      const raw = parseFloat(String(body.odds).replace("x", ""));
+      if (ALLOWED_ODDS.includes(raw as (typeof ALLOWED_ODDS)[number])) {
+        odds = raw;
       }
     }
 
-    if (!authUserId) {
-      return NextResponse.json({ error: "Session invalide" }, { status: 401 });
-    }
-
-    const { betAmount, odds, prediction } = await req.json();
-
-    if (!betAmount || betAmount <= 0) {
-      return NextResponse.json({ error: "Montant invalide" }, { status: 400 });
+    if (!Number.isFinite(betAmount) || betAmount < MIN_BET || betAmount > MAX_BET) {
+      return NextResponse.json(
+        { error: `Mise entre ${MIN_BET} et ${MAX_BET} jetons` },
+        { status: 400 }
+      );
     }
 
     const user = await getUserBySupabaseId(authUserId);
@@ -53,34 +63,40 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
     }
 
-    // Deduct tokens
     try {
       await deductTokens({
         userId: user.id,
-        amount: betAmount,
-        reason: `Pari IA: ${prediction.substring(0, 30)}`,
+        amount: Math.floor(betAmount),
+        reason: `Pari: ${prediction}`,
       });
-    } catch (err: any) {
-      return NextResponse.json({ error: err.message || "Fonds insuffisants" }, { status: 402 });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Fonds insuffisants";
+      return NextResponse.json({ error: message }, { status: 402 });
     }
 
-    // Server-side random roll
-    const win = Math.random() > 0.4;
-    const multiplier = parseFloat(odds.replace("x", ""));
-    const winAmount = Math.floor(betAmount * multiplier);
+    const win = Math.random() < WIN_CHANCE;
+    const winAmount = Math.floor(betAmount * odds);
 
     if (win) {
-      // Award tokens by using negative deductTokens
       await deductTokens({
         userId: user.id,
         amount: -winAmount,
-        reason: `Gains de pari IA: ${prediction.substring(0, 30)}`,
+        reason: `Gains pari: ${prediction}`,
       });
-      return NextResponse.json({ success: true, win: true, amount: winAmount });
+      return NextResponse.json({
+        success: true,
+        win: true,
+        amount: winAmount,
+        odds,
+      });
     }
 
-    return NextResponse.json({ success: true, win: false, amount: betAmount });
-
+    return NextResponse.json({
+      success: true,
+      win: false,
+      amount: betAmount,
+      odds,
+    });
   } catch (error) {
     console.error("[BET_ROUTE_ERROR]", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

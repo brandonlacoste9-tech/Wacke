@@ -5,7 +5,7 @@ import {
   createChatMessage,
   deductTokens,
 } from "@wacke/db";
-
+import { resolveAuthUserId } from "@/lib/auth-api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,56 +17,10 @@ const TTS_COST = 50;
  * Deducts tokens, uses native AI xAI Voice (TTS) to generate expressive audio, uploads to Supabase, and saves the message.
  */
 export async function POST(req: NextRequest) {
-  console.log("[TTS_DEBUG] ----------------- TTS REQUEST RECEIVED -----------------");
   try {
-    const authHeader = req.headers.get("Authorization");
-    console.log("[TTS_DEBUG] Auth header:", authHeader ? authHeader.substring(0, 30) + "..." : "NONE");
-    
-    if (!authHeader) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-
-    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
-    console.log("[TTS_DEBUG] Token starts with mock-session?:", token.startsWith("mock-session:"));
-
-    // Robust auth extraction: support mock-session (Kick/demo), real JWTs, and fallbacks
-    let authUserId: string | null = null;
-
-    if (token.startsWith("mock-session:") || token.startsWith("twitch-session:") || token.startsWith("kick-session:")) {
-      const parts = token.split(":");
-      authUserId = parts.length >= 3 ? parts.slice(2).join(":") : null;
-      console.log("[TTS_AUTH] mock token detected, userId:", authUserId?.substring(0, 8) + "...");
-    } else if (token.includes(".")) {
-      // Looks like a JWT - try to extract sub from payload (works even if getUser fails due to key issues)
-      try {
-        const payloadB64 = token.split(".")[1];
-        const payload = JSON.parse(Buffer.from(payloadB64, "base64").toString("utf8"));
-        authUserId = payload.sub || payload.user_id || payload.id || null;
-        console.log("[TTS_AUTH] JWT token, extracted sub:", authUserId?.substring(0, 8) + "...");
-      } catch (e) {
-        console.log("[TTS_AUTH] JWT decode failed");
-      }
-    }
-
-    if (!authUserId) {
-      // Fallback to full getUser validation
-      try {
-        const supabase = getSupabaseAdmin();
-        const {
-          data: { user: authUser },
-          error: authError,
-        } = await supabase.auth.getUser(token);
-
-        if (!authError && authUser) {
-          authUserId = authUser.id;
-        } else {
-          console.error("[TTS_AUTH_FAIL]", authError?.message || authError);
-        }
-      } catch (e) {
-        console.error("[TTS_AUTH_EXCEPTION]", e);
-      }
-    }
-
+    const authUserId = await resolveAuthUserId(
+      req.headers.get("Authorization")
+    );
     if (!authUserId) {
       return NextResponse.json({ error: "Session invalide" }, { status: 401 });
     }
