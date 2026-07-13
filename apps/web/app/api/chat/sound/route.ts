@@ -6,6 +6,11 @@ import {
   deductTokens,
 } from "@wacke/db";
 import { resolveAuthUserId } from "@/lib/auth-api";
+import {
+  RATE_LIMITS,
+  rateLimit,
+  rateLimitResponse,
+} from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -35,6 +40,12 @@ export async function POST(req: NextRequest) {
     );
     if (!authUserId) {
       return NextResponse.json({ error: "Session invalide" }, { status: 401 });
+    }
+
+    const rl = rateLimit(`costly:u:${authUserId}`, RATE_LIMITS.chatCostly);
+    if (!rl.ok) {
+      const r = rateLimitResponse(rl);
+      return NextResponse.json(r.body, { status: r.status, headers: r.headers });
     }
 
     const { soundType, streamId } = await req.json();

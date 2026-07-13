@@ -6,6 +6,12 @@ import {
   deductTokens,
 } from "@wacke/db";
 import { resolveAuthUserId } from "@/lib/auth-api";
+import {
+  RATE_LIMITS,
+  rateLimit,
+  rateLimitResponse,
+} from "@/lib/rate-limit";
+import { moderatePublicText } from "@/lib/moderation";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,12 +31,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Session invalide" }, { status: 401 });
     }
 
+    const rl = rateLimit(`costly:u:${authUserId}`, RATE_LIMITS.chatCostly);
+    if (!rl.ok) {
+      const r = rateLimitResponse(rl);
+      return NextResponse.json(r.body, { status: r.status, headers: r.headers });
+    }
+
     const { prompt, streamId } = await req.json();
 
     if (!prompt || !streamId) {
       return NextResponse.json(
         { error: "Description ou stream manquant" },
         { status: 400 }
+      );
+    }
+
+    const mod = moderatePublicText(String(prompt).slice(0, 200));
+    if (!mod.allowed) {
+      return NextResponse.json(
+        { error: mod.reason || "Prompt non permis" },
+        { status: 422 }
       );
     }
 

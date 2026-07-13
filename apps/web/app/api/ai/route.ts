@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUltraChaosIntervention } from "@/lib/ai-wit";
+import {
+  RATE_LIMITS,
+  clientIp,
+  rateLimit,
+  rateLimitResponse,
+} from "@/lib/rate-limit";
+import { moderatePublicText } from "@/lib/moderation";
 
 export const runtime = "nodejs";
 
@@ -7,10 +13,25 @@ const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = clientIp(req);
+    const rl = rateLimit(`ai:ip:${ip}`, RATE_LIMITS.ai);
+    if (!rl.ok) {
+      const r = rateLimitResponse(rl, false);
+      return NextResponse.json(r.body, { status: r.status, headers: r.headers });
+    }
+
     const { prompt, system, lang, model = "meta-llama/llama-3.1-8b-instruct", maxTokens = 300 } = await req.json();
 
-    if (!prompt) {
+    if (!prompt || typeof prompt !== "string") {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
+    }
+    if (prompt.length > 4000) {
+      return NextResponse.json({ error: "Prompt too long" }, { status: 400 });
+    }
+
+    const mod = moderatePublicText(prompt.slice(0, 500));
+    if (!mod.allowed && mod.code === "HARD_BLOCK") {
+      return NextResponse.json({ error: "Prompt not allowed" }, { status: 422 });
     }
 
     const apiKey = process.env.OPENROUTER_API_KEY || process.env.XAI_API_KEY;

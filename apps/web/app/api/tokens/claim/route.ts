@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { getUserBySupabaseId, claimDailyTokenReward } from "@wacke/db";
+import { resolveAuthUserId } from "@/lib/auth-api";
+import {
+  RATE_LIMITS,
+  rateLimit,
+  rateLimitResponse,
+} from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 /**
  * POST /api/tokens/claim
@@ -11,20 +16,20 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-
-    const token = authHeader.replace("Bearer ", "");
-    const supabase = getSupabaseAdmin();
-    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !authUser) {
+    const authUserId = await resolveAuthUserId(
+      req.headers.get("Authorization")
+    );
+    if (!authUserId) {
       return NextResponse.json({ error: "Token invalide" }, { status: 401 });
     }
 
-    const dbUser = await getUserBySupabaseId(authUser.id);
+    const rl = rateLimit(`claim:u:${authUserId}`, RATE_LIMITS.claim);
+    if (!rl.ok) {
+      const r = rateLimitResponse(rl);
+      return NextResponse.json(r.body, { status: r.status, headers: r.headers });
+    }
+
+    const dbUser = await getUserBySupabaseId(authUserId);
 
     if (!dbUser) {
       return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 });

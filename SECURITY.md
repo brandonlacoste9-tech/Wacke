@@ -15,8 +15,14 @@
 3. Users must **re-login via Kick/Twitch/Supabase** after deploy (old cookies invalid)  
 4. Enable betting only when economy is ready: `BETTING_ENABLED=true`  
 
+### Rate limits + moderation (added)
+- In-memory sliding window: chat, costly chat (TTS/spray/sound/sacré), AI, claim, watch-reward, bet  
+- Expanded FR/EN hard blocks (hate/scams/threats), spam (caps, URLs, repeats)  
+- Chaos/sacré vocabulary still allowed only when stream mode is on  
+
 ### Still recommended
-- Rate-limit AI / chat / claim  
-- Real moderation blocklist  
+- Redis rate limits for multi-instance  
 - Pick Mux **or** Cloudflare Stream and finish one path  
 - Stripe live webhook for token packs only (no mock)  
+- Expand blocklist from real reports  
+

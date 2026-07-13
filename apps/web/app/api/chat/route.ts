@@ -2,28 +2,41 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { getStreamById, getUserBySupabaseId, createChatMessage } from "@wacke/db";
 import { moderateMessage } from "@/lib/moderation";
+import { resolveAuthUserId } from "@/lib/auth-api";
+import {
+  RATE_LIMITS,
+  clientIp,
+  rateLimit,
+  rateLimitResponse,
+} from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = getSupabaseAdmin();
-
-    // ─── Auth ────────────────────────────────────────────────────────────────
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
+    const authUserId = await resolveAuthUserId(
+      req.headers.get("Authorization")
+    );
+    if (!authUserId) {
       return NextResponse.json({ error: "Token invalide" }, { status: 401 });
     }
 
-    // ─── Parse Body ──────────────────────────────────────────────────────────
+    const ip = clientIp(req);
+    const rlUser = rateLimit(`chat:u:${authUserId}`, RATE_LIMITS.chat);
+    if (!rlUser.ok) {
+      const r = rateLimitResponse(rlUser);
+      return NextResponse.json(r.body, { status: r.status, headers: r.headers });
+    }
+    const rlIp = rateLimit(`chat:ip:${ip}`, {
+      limit: 20,
+      windowMs: 10_000,
+    });
+    if (!rlIp.ok) {
+      const r = rateLimitResponse(rlIp);
+      return NextResponse.json(r.body, { status: r.status, headers: r.headers });
+    }
+
     const body = await req.json();
     const { streamId, content } = body as {
       streamId: string;
@@ -34,27 +47,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Données manquantes" }, { status: 400 });
     }
 
-    // ─── Fetch Stream & Validate ─────────────────────────────────────────────
     const stream = await getStreamById(streamId);
-
     if (!stream || stream.status !== "live") {
-      return NextResponse.json({ error: "Stream non trouvé ou hors ligne" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Stream non trouvé ou hors ligne" },
+        { status: 404 }
+      );
     }
 
-    // ─── Fetch DB User ────────────────────────────────────────────────────────
-    const dbUser = await getUserBySupabaseId(user.id);
-
+    const dbUser = await getUserBySupabaseId(authUserId);
     if (!dbUser || dbUser.isBanned) {
       return NextResponse.json({ error: "Compte non autorisé" }, { status: 403 });
     }
 
-    // ─── Server-Side Moderation ───────────────────────────────────────────────
     const modResult = moderateMessage(content, stream.sacreModeEnabled);
     if (!modResult.allowed) {
-      return NextResponse.json({ error: modResult.reason }, { status: 422 });
+      return NextResponse.json(
+        { error: modResult.reason, code: modResult.code },
+        { status: 422 }
+      );
     }
 
-    // ─── Persist Message ──────────────────────────────────────────────────────
     const newMessage = await createChatMessage({
       streamId,
       userId: dbUser.id,
@@ -62,7 +75,6 @@ export async function POST(req: NextRequest) {
       isSacre: modResult.isSacre,
     });
 
-    // ─── Broadcast via Supabase Realtime ──────────────────────────────────────
     const hydratedMessage = {
       ...newMessage,
       user: {
@@ -73,13 +85,22 @@ export async function POST(req: NextRequest) {
       },
     };
 
+    const supabase = getSupabaseAdmin();
     await supabase.channel(`graffiti-chat:${streamId}`).send({
       type: "broadcast",
       event: "chat_message",
       payload: hydratedMessage,
     });
 
-    return NextResponse.json({ message: hydratedMessage }, { status: 201 });
+    return NextResponse.json(
+      { message: hydratedMessage },
+      {
+        status: 201,
+        headers: {
+          "X-RateLimit-Remaining": String(rlUser.remaining),
+        },
+      }
+    );
   } catch (error) {
     console.error("[CHAT_API_ERROR]", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

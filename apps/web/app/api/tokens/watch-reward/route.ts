@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { getUserBySupabaseId } from "@wacke/db";
+import { resolveAuthUserId } from "@/lib/auth-api";
+import {
+  RATE_LIMITS,
+  rateLimit,
+  rateLimitResponse,
+} from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -12,9 +17,23 @@ const MIN_WATCH_MS = 10 * 60 * 1000;
  * Awards 50 tokens once per day after 10+ minutes of watch time in chat.
  */
 export async function POST(req: NextRequest) {
-  const token = req.headers.get("authorization")?.replace("Bearer ", "");
-  if (!token) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  const authUserId = await resolveAuthUserId(
+    req.headers.get("authorization")
+  );
+  if (!authUserId) {
+    return NextResponse.json(
+      { success: false, error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  const rl = rateLimit(`watch:u:${authUserId}`, RATE_LIMITS.watchReward);
+  if (!rl.ok) {
+    const r = rateLimitResponse(rl, false);
+    return NextResponse.json(
+      { success: false, ...r.body },
+      { status: r.status, headers: r.headers }
+    );
   }
 
   let body: { watchMs?: number; streamId?: string };
@@ -29,13 +48,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const supabase = getSupabaseAdmin();
-    const { data: { user: authUser } } = await supabase.auth.getUser(token);
-    if (!authUser) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-    }
-
-    const dbUser = await getUserBySupabaseId(authUser.id);
+    const dbUser = await getUserBySupabaseId(authUserId);
     if (!dbUser) {
       return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
     }
