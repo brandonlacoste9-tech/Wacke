@@ -2,91 +2,161 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mic, MicOff, Video, VideoOff, Play, Square, SwitchCamera, CameraOff, Copy, Monitor, Share2 } from "lucide-react";
+import {
+  Mic,
+  MicOff,
+  Video,
+  VideoOff,
+  Copy,
+  Radio,
+  Square,
+  Check,
+} from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
-import GraffitiChat from "@/components/GraffitiChat";
+
+type MuxCreds = {
+  streamKey: string;
+  playbackId: string;
+  rtmpUrl: string;
+  rtmpsUrl: string;
+  hlsUrl: string;
+  liveStreamId: string;
+};
 
 export default function StudioPage() {
   const { t } = useLanguage();
   const router = useRouter();
   const { user, isLoading, token } = useAuth();
-  
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
-  const [isBroadcasting, setIsBroadcasting] = useState(false);
-  const [broadcastTime, setBroadcastTime] = useState(0);
+  const [isLive, setIsLive] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+  const [busy, setBusy] = useState(false);
+  const [mux, setMux] = useState<MuxCreds | null>(null);
+  const [title, setTitle] = useState("Live sur Wacké");
+  const [copied, setCopied] = useState<string | null>(null);
   const [videoEnabled, setVideoEnabled] = useState(true);
   const [audioEnabled, setAudioEnabled] = useState(true);
 
-  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
-  const [isSwitching, setIsSwitching] = useState(false);
-  const [copied, setCopied] = useState<string | null>(null);
-
-  // Redirect if not logged in
   useEffect(() => {
     if (!isLoading && !user) {
       router.push("/auth/login");
     }
   }, [user, isLoading, router]);
 
-  // Broadcast timer
+  // Local camera preview only (Mux uses OBS/RTMP for actual broadcast)
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isBroadcasting) {
-      interval = setInterval(() => {
-        setBroadcastTime(prev => prev + 1);
-      }, 1000);
-    } else {
-      setBroadcastTime(0);
-    }
-    return () => clearInterval(interval);
-  }, [isBroadcasting]);
-
-  const formatTime = (seconds: number) => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    if (hrs > 0) {
-      return `${hrs}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-    }
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  // Request camera permissions on mount
-  useEffect(() => {
+    let media: MediaStream | null = null;
     async function setupCamera() {
       try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 }, facingMode: "user" },
+        media = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
           audio: true,
         });
-        
-        setStream(mediaStream);
+        setStream(media);
         if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
+          videoRef.current.srcObject = media;
         }
-      } catch (err) {
-        console.error("Camera access denied", err);
-        setError(t("dashCameraError"));
+      } catch {
+        // Camera optional for OBS-only streamers
       }
     }
-
-    setupCamera();
-
+    void setupCamera();
     return () => {
-      // Cleanup tracks on unmount
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
-      }
+      media?.getTracks().forEach((tr) => tr.stop());
     };
   }, []);
 
+  useEffect(() => {
+    if (!token) return;
+    void (async () => {
+      try {
+        const res = await fetch("/api/stream/mux", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (data.configured && data.streamKey) {
+          setMux({
+            streamKey: data.streamKey,
+            playbackId: data.playbackId,
+            rtmpUrl: data.rtmpUrl,
+            rtmpsUrl: data.rtmpsUrl,
+            hlsUrl: data.hlsUrl,
+            liveStreamId: data.liveStreamId,
+          });
+        }
+      } catch {
+        /* ignore */
+      }
+    })();
+  }, [token]);
+
+  async function createMuxStream() {
+    if (!token) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/stream/mux", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ title }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || data.error || "Mux error");
+      }
+      setMux({
+        streamKey: data.streamKey,
+        playbackId: data.playbackId,
+        rtmpUrl: data.rtmpUrl,
+        rtmpsUrl: data.rtmpsUrl,
+        hlsUrl: data.hlsUrl,
+        liveStreamId: data.liveStreamId,
+      });
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Erreur");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function setLiveStatus(status: "live" | "offline") {
+    if (!token) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/stream/mux/status", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status, title }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Status error");
+      setIsLive(status === "live");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Erreur");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function copy(label: string, value: string) {
+    void navigator.clipboard.writeText(value);
+    setCopied(label);
+    setTimeout(() => setCopied(null), 2000);
+  }
+
   const toggleVideo = () => {
     if (stream) {
-      stream.getVideoTracks().forEach(track => {
+      stream.getVideoTracks().forEach((track) => {
         track.enabled = !videoEnabled;
       });
       setVideoEnabled(!videoEnabled);
@@ -95,381 +165,212 @@ export default function StudioPage() {
 
   const toggleAudio = () => {
     if (stream) {
-      stream.getAudioTracks().forEach(track => {
+      stream.getAudioTracks().forEach((track) => {
         track.enabled = !audioEnabled;
       });
       setAudioEnabled(!audioEnabled);
     }
   };
 
-  const [peerConnection, setPeerConnection] = useState<RTCPeerConnection | null>(null);
-
-  const switchCamera = async () => {
-    if (isSwitching) return;
-    setIsSwitching(true);
-    const newMode = facingMode === "user" ? "environment" : "user";
-    try {
-      // Stop old tracks FIRST to release the hardware lock on mobile devices
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-      
-      // Wait a tiny bit for iOS to fully release the camera
-      await new Promise(resolve => setTimeout(resolve, 300));
-
-      let newStream;
-      try {
-        // Try strict facingMode for mobile
-        newStream = await navigator.mediaDevices.getUserMedia({
-          video: { 
-            width: { ideal: 1280 }, 
-            height: { ideal: 720 }, 
-            frameRate: { ideal: 30 },
-            facingMode: { exact: newMode }
-          },
-          audio: true,
-        });
-      } catch (err) {
-        // Fallback for desktop/generic webcams
-        newStream = await navigator.mediaDevices.getUserMedia({
-          video: { 
-            width: { ideal: 1280 }, 
-            height: { ideal: 720 }, 
-            frameRate: { ideal: 30 },
-            facingMode: newMode 
-          },
-          audio: true,
-        });
-      }
-
-      // Maintain current mute states
-      newStream.getVideoTracks().forEach(track => track.enabled = videoEnabled);
-      newStream.getAudioTracks().forEach(track => track.enabled = audioEnabled);
-
-      setStream(newStream);
-      setFacingMode(newMode);
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = newStream;
-      }
-
-      // Replace tracks in active WebRTC peer connection
-      if (peerConnection && isBroadcasting) {
-        const senders = peerConnection.getSenders();
-        
-        const videoSender = senders.find(s => s.track?.kind === "video");
-        const newVideoTrack = newStream.getVideoTracks()[0];
-        if (videoSender && newVideoTrack) {
-          await videoSender.replaceTrack(newVideoTrack);
-        }
-
-        const audioSender = senders.find(s => s.track?.kind === "audio");
-        const newAudioTrack = newStream.getAudioTracks()[0];
-        if (audioSender && newAudioTrack) {
-          await audioSender.replaceTrack(newAudioTrack);
-        }
-      }
-    } catch (err) {
-      console.error("Camera switch failed", err);
-    } finally {
-      setIsSwitching(false);
-    }
-  };
-
-  const startBroadcast = async () => {
-    if (!stream) return;
-    setError(null);
-    setIsBroadcasting(true);
-    
-    try {
-      // 1. Get WHIP URL from our API
-      const res = await fetch("/api/stream/cloudflare", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token || ""}`,
-        }
-      });
-      
-      const data = await res.json();
-      if (!data.success) {
-        throw new Error(data.error || t("dashServerError"));
-      }
-
-      const whipUrl = data.whipUrl;
-
-      // 2. Setup WebRTC Peer Connection
-      const pc = new RTCPeerConnection({
-        iceServers: [{ urls: "stun:stun.cloudflare.com:3478" }]
-      });
-
-      // Add local media tracks to the connection
-      stream.getTracks().forEach(track => {
-        pc.addTransceiver(track, { direction: "sendonly" });
-      });
-
-      // 3. Create SDP Offer
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-
-      // 4. Send SDP Offer to Cloudflare WHIP endpoint
-      const whipRes = await fetch(whipUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/sdp" },
-        body: offer.sdp
-      });
-
-      if (!whipRes.ok) {
-        throw new Error(t("dashWhipError"));
-      }
-
-      // 5. Accept SDP Answer from Cloudflare
-      const answerSdp = await whipRes.text();
-      await pc.setRemoteDescription(
-        new RTCSessionDescription({ type: "answer", sdp: answerSdp })
-      );
-
-      setPeerConnection(pc);
-      
-      // Mark as live in DB
-      await fetch("/api/stream/cloudflare/status", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token || ""}`,
-        },
-        body: JSON.stringify({ status: "live" })
-      });
-
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message);
-      setIsBroadcasting(false);
-    }
-  };
-
-  const stopBroadcast = async () => {
-    setIsBroadcasting(false);
-    
-    if (peerConnection) {
-      peerConnection.close();
-      setPeerConnection(null);
-    }
-    
-    // Mark as offline in DB
-    try {
-      await fetch("/api/stream/cloudflare/status", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token || ""}`,
-        },
-        body: JSON.stringify({ status: "offline" })
-      });
-    } catch(e) {
-      // ignore
-    }
-  };
-
   if (isLoading || !user) {
-    return <div className="p-8 text-center animate-pulse">Chargement...</div>;
+    return (
+      <div className="p-8 text-center animate-pulse text-zinc-400">
+        Chargement...
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-4 lg:p-8">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight font-display">
-            <span className="gradient-text-cyber">{t("dashStudioTitle")}</span>
-          </h1>
-          <p className="text-gray-400 mt-1.5">{t("dashStudioSubtitle")}</p>
-        </div>
-        
-        {isBroadcasting && (
-          <div className="flex items-center space-x-3 bg-red-500/20 text-red-500 px-4 py-2 rounded-xl font-bold border border-red-500/50">
-            <div className="flex items-center space-x-2">
-              <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
-              <span>{t("dashLiveStatus")}</span>
-            </div>
-            <span className="text-white font-mono bg-black/50 px-2 py-0.5 rounded text-sm border border-white/10 shadow-inner">
-              {formatTime(broadcastTime)}
-            </span>
-          </div>
-        )}
+    <div className="mx-auto max-w-5xl p-4 lg:p-8">
+      <div className="mb-8">
+        <h1 className="font-display text-3xl font-black uppercase tracking-tight text-white md:text-4xl">
+          <span className="gradient-text-cyber">{t("dashStudioTitle")}</span>
+        </h1>
+        <p className="mt-1.5 text-gray-400">
+          Diffuse avec <strong className="text-white">OBS + Mux</strong> (RTMP).
+          Aperçu caméra local optionnel.
+        </p>
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-4 rounded-xl mb-6">
+        <div className="mb-6 rounded-xl border border-red-500/50 bg-red-500/10 p-4 text-red-400">
           {error}
         </div>
       )}
 
-      {/* Share + OBS overlay quick links */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div className="glass-card rounded-xl p-4 border border-white/[0.07]">
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center space-x-1">
-            <Share2 className="w-3.5 h-3.5" />
-            <span>{t("dashShareLink")}</span>
-          </p>
-          <div className="flex items-center space-x-2">
-            <code className="flex-1 text-sm text-wacke-cyan truncate">
-              {typeof window !== "undefined" ? `${window.location.origin}/${user.username}` : `/${user.username}`}
-            </code>
-            <button
-              onClick={() => {
-                const url = `${window.location.origin}/${user.username}`;
-                navigator.clipboard.writeText(url);
-                setCopied("share");
-                setTimeout(() => setCopied(null), 2000);
-              }}
-              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-              title={t("dashCopyLink")}
-            >
-              <Copy className="w-4 h-4" />
-            </button>
-          </div>
-          {copied === "share" && <p className="text-xs text-green-400 mt-1">{t("dashCopied")}</p>}
-        </div>
-        <div className="glass-card rounded-xl p-4 border border-white/[0.07]">
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center space-x-1">
-            <Monitor className="w-3.5 h-3.5" />
-            <span>{t("dashOverlayLink")}</span>
-          </p>
-          <div className="flex items-center space-x-2">
-            <code className="flex-1 text-[11px] text-gray-300 truncate">
-              {typeof window !== "undefined"
-                ? `${window.location.origin}/stream/${user.username}/overlay`
-                : `/stream/${user.username}/overlay`}
-            </code>
-            <button
-              onClick={() => {
-                const url = `${window.location.origin}/stream/${user.username}/overlay`;
-                navigator.clipboard.writeText(url);
-                setCopied("overlay");
-                setTimeout(() => setCopied(null), 2000);
-              }}
-              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-              title={t("dashCopyLink")}
-            >
-              <Copy className="w-4 h-4" />
-            </button>
-          </div>
-          {copied === "overlay" && <p className="text-xs text-green-400 mt-1">{t("dashCopied")}</p>}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Camera Preview */}
-        <div className="lg:col-span-2">
-          <div className="relative glass-card rounded-2xl overflow-hidden aspect-video border border-white/[0.07] shadow-2xl shadow-black/40 group bg-black/60">
-            {!stream && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
-                <CameraOff className="w-16 h-16 mb-4 opacity-50" />
-                <p className="font-semibold text-lg">{t("dashCameraOff")}</p>
-              </div>
-            )}
+      <div className="mb-6 grid gap-4 lg:grid-cols-2">
+        {/* Preview */}
+        <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
+          <div className="relative aspect-video">
             <video
               ref={videoRef}
               autoPlay
+              muted
               playsInline
-              muted // Always mute local preview to avoid feedback loop
-              className={`w-full h-full object-cover mirror-mode transition-opacity duration-300 ${stream ? 'opacity-100' : 'opacity-0'}`}
-              style={{ transform: facingMode === "user" ? "scaleX(-1)" : "none" }}
+              className="h-full w-full object-cover"
             />
-            
-            {/* Camera Controls Overlay */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity">
-              <button 
-                onClick={switchCamera}
-                disabled={isSwitching}
-                className="p-3 rounded-xl transition-colors bg-white/10 text-white hover:bg-white/20 disabled:opacity-50"
-                title={t("dashSwitchCamera")}
-              >
-                <SwitchCamera className="w-5 h-5" />
-              </button>
-              <button 
-                onClick={toggleVideo}
-                className={`p-3 rounded-xl transition-colors ${videoEnabled ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-red-500/20 text-red-500 hover:bg-red-500/30'}`}
-              >
-                {videoEnabled ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
-              </button>
-              <button 
-                onClick={toggleAudio}
-                className={`p-3 rounded-xl transition-colors ${audioEnabled ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-red-500/20 text-red-500 hover:bg-red-500/30'}`}
-              >
-                {audioEnabled ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Control Panel */}
-        <div className="glass-card rounded-2xl p-6 flex flex-col border border-white/[0.07] shadow-2xl shadow-black/30">
-          <h2 className="text-xl font-black text-white mb-6 uppercase tracking-wider font-display">{t("dashStreamControls")}</h2>
-          
-          <div className="space-y-5 flex-1">
-            <div className="bg-black/40 p-4 rounded-xl border border-white/[0.06]">
-              <label className="text-xs font-bold text-gray-300 uppercase tracking-wider block mb-2">{t("dashStreamTitleLabel")}</label>
-              <input
-                type="text"
-                defaultValue={t("dashDefaultTitle")}
-                className="w-full bg-transparent border-none p-0 text-white focus:ring-0 font-medium text-lg placeholder-gray-600"
-              />
-            </div>
-
-            <div className="bg-black/40 p-4 rounded-xl border border-white/[0.06]">
-              <label className="text-xs font-bold text-gray-300 uppercase tracking-wider block mb-2">{t("dashCategoryLabel")}</label>
-              <select className="w-full bg-transparent border-none p-0 text-white focus:ring-0 font-medium text-lg">
-                <option value="irl">{t("catIrl")}</option>
-                <option value="talk">{t("catTalk")}</option>
-                <option value="gaming">{t("catGaming")}</option>
-              </select>
-            </div>
-
-            <div className="bg-black/40 p-4 rounded-xl border border-white/[0.06]">
-              <label className="text-xs font-bold text-gray-300 uppercase tracking-wider block mb-2">RESONANCE CHAMBER</label>
-              <div className="flex items-center justify-between text-white text-sm">
-                <span>System Status</span>
-                <span className="text-green-400 font-bold text-xs bg-green-500/10 px-2 py-0.5 rounded border border-green-500/20">ACTIVE</span>
+            {!stream && (
+              <div className="absolute inset-0 flex items-center justify-center text-sm text-zinc-500">
+                Caméra optionnelle (OBS suffit)
               </div>
-              <div className="mt-3 flex justify-between items-center text-xs text-gray-400">
-                <span>Sensitivity Level</span>
-                <select className="bg-transparent border-none p-0 text-white focus:ring-0 font-medium text-xs">
-                  <option value="normal">Normal (1.0x)</option>
-                  <option value="high">High Chaos (2.0x)</option>
-                  <option value="extreme">Extreme Overdrive (4.0x)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8">
-            {!isBroadcasting ? (
-              <button 
-                onClick={startBroadcast}
-                className="w-full py-4 bg-gradient-to-r from-wacke-pink to-wacke-purple text-white rounded-xl font-black text-xl hover:opacity-90 hover:scale-[1.02] transition-all flex items-center justify-center space-x-3 shadow-lg shadow-wacke-pink/20 uppercase tracking-wider"
-              >
-                <Play className="w-6 h-6 fill-current" />
-                <span>{t("dashGoLive")}</span>
-              </button>
-            ) : (
-              <button 
-                onClick={stopBroadcast}
-                className="w-full py-4 bg-red-600 text-white rounded-xl font-black text-xl hover:bg-red-700 hover:scale-[1.02] transition-all flex items-center justify-center space-x-3 uppercase tracking-wider"
-              >
-                <Square className="w-6 h-6 fill-current" />
-                <span>{t("dashStopLive")}</span>
-              </button>
+            )}
+            {isLive && (
+              <span className="absolute left-3 top-3 rounded-lg bg-red-600 px-2 py-1 text-[11px] font-black text-white">
+                LIVE
+              </span>
             )}
           </div>
+          <div className="flex gap-2 border-t border-white/10 p-3">
+            <button
+              type="button"
+              onClick={toggleVideo}
+              className="rounded-lg border border-white/10 p-2 text-white hover:bg-white/5"
+            >
+              {videoEnabled ? <Video size={18} /> : <VideoOff size={18} />}
+            </button>
+            <button
+              type="button"
+              onClick={toggleAudio}
+              className="rounded-lg border border-white/10 p-2 text-white hover:bg-white/5"
+            >
+              {audioEnabled ? <Mic size={18} /> : <MicOff size={18} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mux credentials */}
+        <div className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">
+              Titre du live
+            </label>
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-fuchsia-500/50"
+            />
+          </div>
+
+          {!mux ? (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void createMuxStream()}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-fuchsia-600 py-3 text-sm font-bold text-white hover:bg-fuchsia-500 disabled:opacity-50"
+            >
+              <Radio size={16} />
+              {busy ? "…" : "Créer mon stream Mux"}
+            </button>
+          ) : (
+            <>
+              <CredRow
+                label="Serveur RTMPS (OBS)"
+                value={mux.rtmpsUrl}
+                copied={copied === "rtmp"}
+                onCopy={() => copy("rtmp", mux.rtmpsUrl)}
+              />
+              <CredRow
+                label="Clé de stream (secret)"
+                value={mux.streamKey}
+                copied={copied === "key"}
+                onCopy={() => copy("key", mux.streamKey)}
+                secret
+              />
+              <CredRow
+                label="Playback (HLS)"
+                value={mux.hlsUrl}
+                copied={copied === "hls"}
+                onCopy={() => copy("hls", mux.hlsUrl)}
+              />
+
+              <div className="flex flex-wrap gap-2 pt-2">
+                {!isLive ? (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void setLiveStatus("live")}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 py-3 text-sm font-bold text-white hover:bg-red-500 disabled:opacity-50"
+                  >
+                    <Radio size={16} />
+                    Marquer LIVE sur Wacké
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void setLiveStatus("offline")}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 py-3 text-sm font-bold text-white hover:bg-white/5 disabled:opacity-50"
+                  >
+                    <Square size={16} />
+                    Fin du live
+                  </button>
+                )}
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void createMuxStream()}
+                  className="rounded-xl border border-white/15 px-4 py-3 text-xs font-bold text-zinc-400 hover:text-white"
+                >
+                  Rafraîchir clés
+                </button>
+              </div>
+
+              <ol className="list-decimal space-y-1 pl-4 text-xs text-zinc-500">
+                <li>Ouvre OBS → Paramètres → Diffusion</li>
+                <li>Service: Personnalisé</li>
+                <li>Colle serveur RTMPS + clé</li>
+                <li>Démarre le streaming dans OBS</li>
+                <li>Clique « Marquer LIVE » ici</li>
+              </ol>
+
+              {user.username && (
+                <a
+                  href={`/stream/${user.username}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block text-center text-sm font-bold text-fuchsia-400 hover:underline"
+                >
+                  Voir ta page stream →
+                </a>
+              )}
+            </>
+          )}
         </div>
       </div>
+    </div>
+  );
+}
 
-      {/* Live Chat Panel (only visible when broadcasting) */}
-      {isBroadcasting && (
-        <div className="mt-6 h-[500px] lg:h-[600px] w-full rounded-2xl overflow-hidden border border-white/[0.07] shadow-2xl bg-black/50">
-          <GraffitiChat streamId={user.id} />
-        </div>
-      )}
+function CredRow({
+  label,
+  value,
+  onCopy,
+  copied,
+  secret,
+}: {
+  label: string;
+  value: string;
+  onCopy: () => void;
+  copied: boolean;
+  secret?: boolean;
+}) {
+  return (
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+        {label}
+      </p>
+      <div className="mt-1 flex items-center gap-2">
+        <code className="flex-1 truncate rounded-lg bg-black/50 px-2 py-2 text-xs text-zinc-300">
+          {secret ? "•".repeat(Math.min(24, value.length)) + value.slice(-4) : value}
+        </code>
+        <button
+          type="button"
+          onClick={onCopy}
+          className="rounded-lg border border-white/10 p-2 text-zinc-400 hover:text-white"
+        >
+          {copied ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} />}
+        </button>
+      </div>
     </div>
   );
 }

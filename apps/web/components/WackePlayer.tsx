@@ -16,8 +16,8 @@ interface WackePlayerProps {
 }
 
 /**
- * WackePlayer — HLS video player with Cloudflare Stream integration.
- * Features: Kick/Twitch embeds, theater mode, PiP, fullscreen.
+ * WackePlayer — HLS player for Mux (primary) + Cloudflare Stream (legacy).
+ * Kick/Twitch/YouTube use embeds when usernames are set.
  */
 export default function WackePlayer({
   playbackId,
@@ -39,8 +39,15 @@ export default function WackePlayer({
   const [hostname, setHostname] = useState<string>("");
   const { t } = useLanguage();
 
-  // Cloudflare Stream HLS Manifest
-  const hlsUrl = playbackId ? `https://cloudflarestream.com/${playbackId}/manifest/video.m3u8` : "";
+  // Prefer Mux HLS; fall back to Cloudflare Stream legacy manifests
+  const looksLikeCloudflareUid =
+    Boolean(playbackId) &&
+    (playbackId.includes("-") || playbackId.length >= 32);
+  const hlsUrl = !playbackId
+    ? ""
+    : looksLikeCloudflareUid
+      ? `https://cloudflarestream.com/${playbackId}/manifest/video.m3u8`
+      : `https://stream.mux.com/${playbackId}.m3u8`;
 
   useEffect(() => {
     if (typeof window !== "undefined") {

@@ -58,9 +58,11 @@ export async function generateMetadata({ params }: StreamPageProps): Promise<Met
   const stream = await getStreamByUserId(user.id);
   const title = stream ? `${stream.title} — ${user.displayName} | Wacké` : `${user.displayName} | Wacké`;
   const description = stream?.description ?? (isEn ? `Watch ${user.displayName} on Wacké` : `Regarde ${user.displayName} sur Wacké`);
-  const image = stream?.cloudflarePlaybackId
-    ? `https://customer-${process.env.CLOUDFLARE_ACCOUNT_ID}.cloudflarestream.com/${stream.cloudflarePlaybackId}/thumbnails/thumbnail.jpg`
-    : "/hero_banner.jpg";
+  const image = stream?.muxPlaybackId
+    ? `https://image.mux.com/${stream.muxPlaybackId}/thumbnail.jpg?width=1200`
+    : stream?.cloudflarePlaybackId
+      ? `https://customer-${process.env.CLOUDFLARE_ACCOUNT_ID}.cloudflarestream.com/${stream.cloudflarePlaybackId}/thumbnails/thumbnail.jpg`
+      : "/hero_banner.jpg";
 
   return {
     title,
@@ -299,9 +301,11 @@ export default async function StreamPage({ params }: StreamPageProps) {
     "name": stream.title || `Live stream de ${user.displayName}`,
     "description": stream.description || `Regarde ${user.displayName} sur Wacké`,
     "uploadDate": stream.createdAt,
-    "thumbnailUrl": stream.cloudflarePlaybackId
-      ? `https://customer-${process.env.CLOUDFLARE_ACCOUNT_ID}.cloudflarestream.com/${stream.cloudflarePlaybackId}/thumbnails/thumbnail.jpg`
-      : "https://wacke.ca/hero_banner.jpg",
+    "thumbnailUrl": stream.muxPlaybackId
+      ? `https://image.mux.com/${stream.muxPlaybackId}/thumbnail.jpg?width=1200`
+      : stream.cloudflarePlaybackId
+        ? `https://customer-${process.env.CLOUDFLARE_ACCOUNT_ID}.cloudflarestream.com/${stream.cloudflarePlaybackId}/thumbnails/thumbnail.jpg`
+        : "https://wacke.ca/hero_banner.jpg",
     "broadcaster": {
       "@type": "Person",
       "name": user.displayName,
@@ -333,9 +337,13 @@ export default async function StreamPage({ params }: StreamPageProps) {
               </div>
             )}
             <div className="relative aspect-video">
-              {isKickUser || user.twitchUsername || user.youtubeChannelId || stream.cloudflarePlaybackId ? (
+              {isKickUser || user.twitchUsername || user.youtubeChannelId || stream.muxPlaybackId || stream.cloudflarePlaybackId ? (
                 <WackePlayer
-                  playbackId={stream.cloudflarePlaybackId ?? "mock_playback_id"}
+                  playbackId={
+                    stream.muxPlaybackId ||
+                    stream.cloudflarePlaybackId ||
+                    "mock_playback_id"
+                  }
                   title={stream.title}
                   streamerName={user.displayName}
                   viewerCount={stream.viewerCount}

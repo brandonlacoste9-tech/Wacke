@@ -20,9 +20,16 @@
 - Expanded FR/EN hard blocks (hate/scams/threats), spam (caps, URLs, repeats)  
 - Chaos/sacré vocabulary still allowed only when stream mode is on  
 
+### Mux Live (primary)
+- Studio: OBS RTMP via `/api/stream/mux`  
+- Player: `stream.mux.com/{playbackId}.m3u8`  
+- Webhook: `/api/webhooks/mux`  
+- Run SQL: `packages/db/drizzle/0004_mux_live.sql`  
+- Env: `MUX_TOKEN_ID`, `MUX_TOKEN_SECRET`, `MUX_WEBHOOK_SECRET`  
+
 ### Still recommended
 - Redis rate limits for multi-instance  
-- Pick Mux **or** Cloudflare Stream and finish one path  
 - Stripe live webhook for token packs only (no mock)  
 - Expand blocklist from real reports  
+
 

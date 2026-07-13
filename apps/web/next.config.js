@@ -7,6 +7,9 @@ const nextConfig = {
       { protocol: "https", hostname: "a.kick.com" },
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
       { protocol: "https", hostname: "customer-*.cloudflarestream.com" },
+      { protocol: "https", hostname: "image.mux.com" },
+      { protocol: "https", hostname: "stream.mux.com" },
+      { protocol: "https", hostname: "image.mux.com" },
     ],
   },
   // serverExternalPackages is supported in Next 13+, keeping for server-only bundles

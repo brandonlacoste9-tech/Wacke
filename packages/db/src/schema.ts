@@ -73,6 +73,10 @@ export const users = pgTable(
     isStreamer: boolean("is_streamer").notNull().default(false),
     cloudflareStreamId: text("cloudflare_stream_id"),
     cloudflarePlaybackId: text("cloudflare_playback_id"),
+    // Mux Live (primary native path)
+    muxLiveStreamId: text("mux_live_stream_id"),
+    muxPlaybackId: text("mux_playback_id"),
+    muxStreamKey: text("mux_stream_key"),
     // Linked accounts
     twitchUsername: text("twitch_username"),
     kickUsername: text("kick_username"),
@@ -103,9 +107,13 @@ export const streams = pgTable(
     description: text("description"),
     category: streamCategoryEnum("category").notNull().default("irl"),
     status: streamStatusEnum("status").notNull().default("offline"),
-    // Cloudflare integration
+    // Cloudflare integration (legacy / optional)
     cloudflarePlaybackId: text("cloudflare_playback_id"),
     cloudflareStreamId: text("cloudflare_stream_id"),
+    // Mux Live (primary)
+    muxLiveStreamId: text("mux_live_stream_id"),
+    muxPlaybackId: text("mux_playback_id"),
+    muxStreamKey: text("mux_stream_key"),
     thumbnailUrl: text("thumbnail_url"),
     // Real-time stats (updated via webhook or polling)
     viewerCount: integer("viewer_count").notNull().default(0),
