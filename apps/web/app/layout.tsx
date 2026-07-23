@@ -55,6 +55,9 @@ export async function generateMetadata(): Promise<Metadata> {
       creator: "@wacke_streaming",
     },
     metadataBase: new URL("https://wacke.ca"),
+    verification: {
+      google: "m3HsEEaCPt_PvBBw-a78DUm1_xW2clzyjszGoUy21_M",
+    },
   };
 }
 
